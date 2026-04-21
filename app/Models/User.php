@@ -1,55 +1,70 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace App\Models;
 
-return new class extends Migration
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class User extends Authenticatable
 {
-    public function up(): void
+    use HasFactory, Notifiable, SoftDeletes;
+
+    /**
+     * The attributes that are mass assignable.
+     */
+    protected $fillable = [
+        'first_name',
+        'last_name',
+        'phone_number',
+        'email',
+        'house_number',
+        'gender',
+        'password',
+        'role',
+        'avatar',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    /**
+     * Get the properties owned by this user.
+     */
+    public function properties(): HasMany
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            
-            // Registration Form Fields
-            $table->string('first_name'); 
-            $table->string('last_name');
-            $table->string('phone_number')->unique();
-            $table->string('email')->unique();
-            $table->string('house_number'); 
-            $table->enum('gender', ['Male', 'Female']);
-            $table->string('password');
-
-            // App Logic Fields
-            $table->enum('role', ['admin', 'staff', 'renter'])->default('admin');
-            $table->string('avatar')->nullable();
-            
-            $table->timestamp('email_verified_at')->nullable();
-            $table->rememberToken();
-            $table->timestamps();
-            $table->softDeletes(); // For safe deletion
-        });
-
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
-        });
-
-        Schema::create('sessions', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
-            $table->string('ip_address', 45)->nullable();
-            $table->text('user_agent')->nullable();
-            $table->longText('payload');
-            $table->integer('last_activity')->index();
-        });
+        return $this->hasMany(Property::class);
     }
 
-    public function down(): void
+    /**
+     * Get the primary property (first property) for this user.
+     */
+    public function property(): HasOne
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
+        return $this->hasOne(Property::class);
     }
-};
+
+    /**
+     * Get the utility assignments for this user.
+     */
+    public function utilityAssignments(): HasMany
+    {
+        return $this->hasMany(UtilityAssignment::class);
+    }
+}
