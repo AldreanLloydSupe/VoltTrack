@@ -42,11 +42,14 @@ class Property extends Model
     }
 
     /**
-     * Get the meters associated with this property.
+     * Get the meters associated with this property through the PropertyMeter junction.
      * Based on your previous "Meter Initialization" UI.
      */
-    public function meters(): HasMany
+    public function meters()
     {
-        return $this->hasMany(Meter::class);
+        return $this->belongsToMany(Meter::class, 'property_meters', 'property_id', 'meter_id')
+            ->using(PropertyMeter::class)
+            ->withPivot('initial_reading', 'unit', 'status', 'assignment_date')
+            ->withTimestamps();
     }
 }
