@@ -6,7 +6,7 @@
                 <h1 class="text-4xl font-bold text-white tracking-tight">VoltTrack</h1>
                 <p class="text-slate-300 font-medium mt-1">Login</p>
             </div>
-
+            {{-- Login Data --}}
             <form action="#" method="POST" class="space-y-6">
                 @csrf
                 <div>
@@ -31,6 +31,16 @@
                     <button type="submit" class="w-[120px] py-2.5 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold rounded-[14px] shadow-[0_4px_15px_rgba(59,130,246,0.6)] transition-all transform active:scale-95 text-sm tracking-wide">
                         Login
                     </button>
+                </div>
+
+                <div class="pt-2 flex flex-col items-center justify-center pt-2">
+                    <p class="text-white">
+                        New?
+                        <a href="{{ url('/register') }}" class="font-bold">
+                            Create Account
+                        </a>
+                    </p>
+                    
                 </div>
             </form>
         </x-logincard>

@@ -6,6 +6,9 @@ use App\Http\Controllers\ResidentController;
 Route::get('/', function () {
     return view('login');
 });
+Route::get('/register', function () {
+    return view('register');
+});
 
 // Resident Account Update Routes
 Route::get('/residents/{id}/edit', [ResidentController::class, 'edit'])->name('residents.edit');
