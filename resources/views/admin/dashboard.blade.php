@@ -1,38 +1,4 @@
 <x-layout title="Admin Dashboard | VoltTrack">
-    <header class="bg-[#1e3a8a] text-white py-4 px-10 flex items-center">
-        <h1 class="text-2xl font-bold mr-32">
-            VoltTrack
-        </h1>
-
-        <nav class="flex space-x-16 text-sm font-semibold tracking-wide">
-            <a href="#" class="border-b-2 border-white pb-1 transition-all">
-                Dashboard
-            </a>
-            
-            <div class="group relative cursor-pointer flex items-center space-x-2">
-                <span>
-                    Residents
-                </span>
-                <svg class="w-2.5 h-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </div>
-
-            <div class="group relative cursor-pointer flex items-center space-x-2">
-                <span>
-                    Utilities
-                </span>
-                <svg class="w-2.5 h-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </div>
-        </nav>
-
-        <div class="ml-auto">
-            <img src="https://ui-avatars.com/api/?name=Admin&background=fff&color=1e3a8a" class="w-9 h-9 rounded-full border-2 border-white/20" alt="Profile">
-        </div>
-    </header>
-
     <main class="p-10 bg-slate-50 min-h-screen">
         <div class="flex justify-between items-end mb-8">
             <div>
@@ -103,8 +69,8 @@
                 <thead class="bg-slate-50 text-sm font-bold uppercase text-slate-400 tracking-widest">
                     <tr>
                         <th class="px-6 py-4">Renter Name</th>
-                        <th class="px-6 py-4">Property ID</th>
-                        <th class="px-6 py-4">Current Balance</th>
+                        <th class="px-6 py-4 text-center">Property ID</th>
+                        <th class="px-6 py-4 text-center">Current Balance</th>
                         <th class="px-6 py-4 text-center">Last Payment Date</th>
                         <th class="px-6 py-4 text-center">Status</th>
                         <th class="px-6 py-4 text-right">Action</th>
@@ -116,8 +82,9 @@
                             <p class="font-bold text-slate-800 text-base">Jorge Pakaw</p>
                             <p class="text-[11px] text-slate-400">jorgepakaw@gmail.com</p>
                         </td>
-                        <td class="px-6 py-5 text-sm font-medium text-slate-600">11115</td>
-                        <td class="px-6 py-5 text-sm font-bold text-slate-800">P3,200.00</td>
+                        <td class="px-6 py-5 text-center text-sm font-medium text-slate-600">11115</td>
+                        <td class="px-6 py-5 text-center text-sm font-bold text-slate-800">P3,200.00</td>
+                        
                         <td class="px-6 py-5 text-center text-sm text-slate-500">Apr 25, 2026</td>
                         <td class="px-6 py-5 text-center">
                             <span class="bg-blue-100 text-blue-600 text-[10px] font-black px-2 py-1 rounded uppercase">Pending</span>
@@ -126,22 +93,7 @@
                             <a href="#" class="text-[12px] font-black text-blue-600 uppercase hover:underline">View Account</a>
                         </td>
                     </tr>
-                    <tr class="hover:bg-slate-50/50 transition-colors">
-                        <td class="px-6 py-5">
-                            <p class="font-bold text-slate-800 text-base">John Doe</p>
-                            <p class="text-[11px] text-slate-400">johndoe@gmail.com</p>
-                        </td>
-                        <td class="px-6 py-5 text-sm font-medium text-slate-600">11116</td>
-                        <td class="px-6 py-5 text-sm font-bold text-red-500">P3,700.00</td>
-                        <td class="px-6 py-5 text-center text-sm text-slate-500">Apr 15, 2026</td>
-                        <td class="px-6 py-5 text-center">
-                            <span class="bg-red-100 text-red-600 text-[10px] font-black px-2 py-1 rounded uppercase">Overdue</span>
-                        </td>
-                        <td class="px-6 py-5 text-right">
-                            <a href="#" class="text-[12px] font-black text-blue-600 uppercase hover:underline">View Account</a>
-                        </td>
-                    </tr>
-                </tbody>
+                    </tbody>
             </table>
 
             <div class="p-6 bg-slate-50/30 flex justify-between items-center text-[10px] font-bold text-slate-400">
