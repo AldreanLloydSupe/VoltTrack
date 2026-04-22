@@ -3,19 +3,27 @@
         
         <x-logincard>
             <div class="text-center mb-8">
-                <h1 class="text-4xl font-bold text-white tracking-tight">VoltTrack</h1>
-                <p class="text-slate-300 font-medium mt-1">Login</p>
+                <h1 class="text-4xl font-bold text-white tracking-tight">
+                    VoltTrack
+                </h1>
+                <p class="text-slate-300 font-medium mt-1">
+                    Login
+                </p>
             </div>
             {{-- Login Data --}}
             <form action="#" method="POST" class="space-y-6">
                 @csrf
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 ml-1">Email Address</label>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 ml-1">
+                        Email Address
+                    </label>
                     <input type="email" name="email" class="w-full px-4 py-3 rounded-xl bg-slate-200/90 border-none focus:ring-2 focus:ring-blue-500 outline-none transition-all">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 ml-1">Password</label>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 ml-1">
+                        Password
+                    </label>
                     <input type="password" name="password" class="w-full px-4 py-3 rounded-xl bg-slate-200/90 border-none focus:ring-2 focus:ring-blue-500 outline-none transition-all">
                 </div>
 
@@ -24,7 +32,9 @@
                         <input type="checkbox" class="rounded border-none bg-white/20 mr-2 text-blue-500">
                         REMEMBER ME
                     </label>
-                    <a href="#" class="hover:text-white uppercase transition-colors">Forgot Password?</a>
+                    <a href="#" class="hover:text-white uppercase transition-colors">
+                        Forgot Password?
+                    </a>
                 </div>
 
                 <div class="pt-2 flex flex-col items-center justify-center pt-2">
@@ -32,17 +42,17 @@
                         Login
                     </button>
                 </div>
-
-                <div class="pt-2 flex flex-col items-center justify-center pt-2">
+            </form>
+            <br>
+            <div class="pt-2 flex flex-col items-center justify-center pt-2">
                     <p class="text-white">
                         New?
                         <a href="{{ url('/register') }}" class="font-bold">
                             Create Account
                         </a>
                     </p>
-                    
-                </div>
-            </form>
+            </div>
+            <a href="{{ route('admin.dashboard') }}" class="text-white">test</a>
         </x-logincard>
 
     </div>
