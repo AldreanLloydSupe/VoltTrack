@@ -79,8 +79,8 @@
                 <tbody class="divide-y divide-slate-50">
                     <tr class="hover:bg-slate-50/50 transition-colors">
                         <td class="px-6 py-5">
-                            <p class="font-bold text-slate-800 text-base">Jorge Pakaw</p>
-                            <p class="text-[11px] text-slate-400">jorgepakaw@gmail.com</p>
+                            <p class="font-bold text-slate-800 text-base">Mami Jupeta</p>
+                            <p class="text-[11px] text-slate-400">mamijupeta@gmail.com</p>
                         </td>
                         <td class="px-6 py-5 text-center text-sm font-medium text-slate-600">11115</td>
                         <td class="px-6 py-5 text-center text-sm font-bold text-slate-800">P3,200.00</td>
@@ -90,7 +90,7 @@
                             <span class="bg-blue-100 text-blue-600 text-[10px] font-black px-2 py-1 rounded uppercase">Pending</span>
                         </td>
                         <td class="px-6 py-5 text-right">
-                            <a href="#" class="text-[12px] font-black text-blue-600 uppercase hover:underline">View Account</a>
+                            <a href="{{ route('admin.residentInfo') }}" class="text-[12px] font-black text-blue-600 uppercase hover:underline">View Account</a>
                         </td>
                     </tr>
                     </tbody>

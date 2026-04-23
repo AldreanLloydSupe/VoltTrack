@@ -93,17 +93,7 @@
                     <input type="password" name="password_confirmation" placeholder="Confirm Password" class="w-full px-4 py-2.5 rounded-xl bg-slate-200/90 border-none outline-none text-sm focus:ring-2 focus:ring-blue-500 transition-all">
                 </div>
 
-                <div class="flex items-center space-x-6 py-2 ml-1">
-                    <span class="text-xs font-semibold text-slate-300 uppercase">
-                        User Type:
-                    </span>
-                    <label class="inline-flex items-center text-sm text-slate-300 cursor-pointer">
-                        <input type="radio" name="role" value="admin" class="mr-2 accent-blue-500" {{ old('role') === 'admin' ? 'checked' : '' }}> Admin
-                    </label>
-                    <label class="inline-flex items-center text-sm text-slate-300 cursor-pointer">
-                        <input type="radio" name="role" value="resident" class="mr-2 accent-blue-500" {{ old('role') === 'resident' ? 'checked' : '' }}> Resident
-                    </label>
-                </div>
+                
                 @error('role')
                     <p class="-mt-2 ml-1 text-xs text-red-200">{{ $message }}</p>
                 @enderror

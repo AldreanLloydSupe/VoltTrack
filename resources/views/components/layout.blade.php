@@ -69,8 +69,18 @@
                 </div>
             </nav>
 
-            <div class="ml-auto">
-                <img src="https://ui-avatars.com/api/?name=Admin&background=fff&color=1e3a8a" class="w-9 h-9 rounded-full border-2 border-white/20" alt="Profile">
+            <div class="ml-auto flex items-center gap-4">
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button
+                        type="submit"
+                        class="rounded-full border border-white/30 px-5 py-2 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-white/10"
+                    >
+                        Log Out
+                    </button>
+                </form>
+
+                <img src="{{ asset('image/profile.webp') }}" class="w-11 h-11 rounded-full border-2 border-white/20" alt="Profile">
             </div>
         </header>
     @endif
