@@ -39,7 +39,7 @@
                     </div>
 
                     <div class="absolute left-0 top-full hidden group-hover:block w-56 bg-[#1e3a8a] shadow-xl rounded-b-lg border-t border-white/10 z-50 overflow-hidden">
-                        <a href="" class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors">
+                        <a href="{{ route('admin.pending') }}" class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors">
                             Pending Residents
                         </a>
                         <a href="{{ route('admin.residentList') }}" class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors border-t border-white/5">
