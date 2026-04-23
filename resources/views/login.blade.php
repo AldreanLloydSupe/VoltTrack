@@ -1,4 +1,4 @@
-<x-layout title="VoltTrack Login">
+<x-layout-login title="VoltTrack Login">
     <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1e3a8a] via-[#1e293b] to-[#0f172a]">
         
         <x-logincard>
@@ -72,4 +72,4 @@
         </x-logincard>
 
     </div>
-</x-layout>
+</x-layout-login>

@@ -1,4 +1,4 @@
-<x-layout title="Create Account | VoltTrack">
+<x-layout-login title="Create Account | VoltTrack">
     <div class="min-h-screen py-10 flex items-center justify-center bg-gradient-to-br from-[#1e3a8a] via-[#1e293b] to-[#0f172a] font-sans">
         
         <x-logincard class="max-w-xl">
@@ -126,10 +126,10 @@
                         Create Account
                     </button>
                     <p class="text-[11px] text-slate-400 mt-6">
-                        Already have an account? <a href="{{ url('/') }}" class="text-slate-200 font-bold hover:underline">Sign In</a>
+                        Already have an account? <a href="{{ route('login') }}" class="text-slate-200 font-bold hover:underline">Sign In</a>
                     </p>
                 </div>
             </form>
         </x-logincard>
     </div>
-</x-layout>
+</x-layout-login>

@@ -71,7 +71,9 @@
             </table>
 
             <div class="bg-slate-50/50 px-10 py-5 flex items-center justify-between border-t border-slate-100">
-                <p class="text-xs font-bold text-slate-400 italic">Showing 1-5 of 6 renters</p>
+                <p class="text-xs font-bold text-slate-400 italic">
+                    Showing 1-5 of 6 renters
+                </p>
                 
                 <div class="flex items-center space-x-2">
                     <button class="p-1 text-slate-300 hover:text-slate-500"><i class="fas fa-chevron-left text-[10px]"></i></button>
