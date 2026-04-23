@@ -1,4 +1,7 @@
-@props(['title' => 'Pastilan nalimtan ang title'])
+@props([
+    'title' => 'Pastilan nalimtan ang title',
+    'showAdminNav' => true,
+])
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,61 +17,63 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased text-slate-900">
-    <header class="bg-[#1e3a8a] text-white py-4 px-10 flex items-center">
-        <h1 class="text-3xl font-bold mr-32">
-            VoltTrack
-        </h1>
+    @if ($showAdminNav)
+        <header class="bg-[#1e3a8a] text-white py-4 px-10 flex items-center">
+            <h1 class="text-3xl font-bold mr-32">
+                VoltTrack
+            </h1>
 
-        <nav class="flex space-x-16 text-base font-semibold tracking-wide items-center">
-            <a href="{{ route('admin.dashboard') }}" class="border-b-2 border-white ">
-                Dashboard
-            </a>
-            
-            <div class="group relative cursor-pointer py-4">
-                <div class="flex items-center space-x-2">
-                    <span>
-                        Residents
-                    </span>
-                    <svg class="w-2.5 h-2.5 opacity-80 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
-                    </svg>
+            <nav class="flex space-x-16 text-base font-semibold tracking-wide items-center">
+                <a href="{{ route('admin.dashboard') }}" class="border-b-2 border-white ">
+                    Dashboard
+                </a>
+                
+                <div class="group relative cursor-pointer py-4">
+                    <div class="flex items-center space-x-2">
+                        <span>
+                            Residents
+                        </span>
+                        <svg class="w-2.5 h-2.5 opacity-80 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+
+                    <div class="absolute left-0 top-full hidden group-hover:block w-56 bg-[#1e3a8a] shadow-xl rounded-b-lg border-t border-white/10 z-50 overflow-hidden">
+                        <a href="" class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors">
+                            Pending Residents
+                        </a>
+                        <a href="{{ route('admin.residentList') }}" class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors border-t border-white/5">
+                            Residents List
+                        </a>
+                    </div>
                 </div>
 
-                <div class="absolute left-0 top-full hidden group-hover:block w-56 bg-[#1e3a8a] shadow-xl rounded-b-lg border-t border-white/10 z-50 overflow-hidden">
-                    <a href="" class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors">
-                        Pending Residents
-                    </a>
-                    <a href="{{ route('admin.residentList') }}" class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors border-t border-white/5">
-                        Residents List
-                    </a>
+                <div class="group relative cursor-pointer py-4">
+                    <div class="flex items-center space-x-2">
+                        <span>
+                            Utilities
+                        </span>
+                        <svg class="w-2.5 h-2.5 opacity-80 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+
+                    <div class="absolute left-0 top-full hidden group-hover:block w-56 bg-[#1e3a8a] shadow-xl rounded-b-lg border-t border-white/10 z-50 overflow-hidden">
+                        <a href="#" class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors">
+                            Properties & Meters
+                        </a>
+                        <a href="{{ route('admin.billingHistory')}}" class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors border-t border-white/5">
+                            Billing History
+                        </a>
+                    </div>
                 </div>
+            </nav>
+
+            <div class="ml-auto">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=fff&color=1e3a8a" class="w-9 h-9 rounded-full border-2 border-white/20" alt="Profile">
             </div>
-
-            <div class="group relative cursor-pointer py-4">
-                <div class="flex items-center space-x-2">
-                    <span>
-                        Utilities
-                    </span>
-                    <svg class="w-2.5 h-2.5 opacity-80 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </div>
-
-                <div class="absolute left-0 top-full hidden group-hover:block w-56 bg-[#1e3a8a] shadow-xl rounded-b-lg border-t border-white/10 z-50 overflow-hidden">
-                    <a href="#" class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors">
-                        Properties & Meters
-                    </a>
-                    <a href="{{ route('admin.billingHistory')}}" class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors border-t border-white/5">
-                        Billing History
-                    </a>
-                </div>
-            </div>
-        </nav>
-
-        <div class="ml-auto">
-            <img src="https://ui-avatars.com/api/?name=Admin&background=fff&color=1e3a8a" class="w-9 h-9 rounded-full border-2 border-white/20" alt="Profile">
-        </div>
-    </header>
+        </header>
+    @endif
     {{ $slot }}
 </body>
 </html>

@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    protected function residentBills(int $userId)
+    {
+        return Bill::query()
+            ->where('user_id', $userId)
+            ->latest('billing_period_end');
+    }
+
     public function admin(Request $request)
     {
         $user = $request->user();
@@ -22,9 +29,7 @@ class DashboardController extends Controller
 
         abort_unless($user && $user->isResident(), 403);
 
-        $bills = Bill::query()
-            ->where('user_id', $user->id)
-            ->latest('billing_period_end')
+        $bills = $this->residentBills($user->id)
             ->limit(5)
             ->get();
 
@@ -33,17 +38,16 @@ class DashboardController extends Controller
         $waterBill = $bills->firstWhere('utility_type', 'Water');
 
         $totalDue = $bills->sum('total_bill');
-        $electricFixed = $electricBill?->service_fee ?? 120;
+        $electricFixed = $electricBill?->service_fee ?? 0;
         $electricVariable = $electricBill
             ? max((float) $electricBill->total_bill - (float) $electricBill->service_fee, 0)
-            : 85.60;
-        $waterServiceFee = $waterBill?->service_fee ?? 40;
+            : 0;
+        $waterServiceFee = $waterBill?->service_fee ?? 0;
 
-        $peakDemand = $electricBill?->consumption ?? 14.2;
-        $sustainabilityScore = min(
-            100,
-            max(72, 100 - (int) round(($totalDue ?: 258.92) / 9))
-        );
+        $peakDemand = $electricBill?->consumption ?? 0;
+        $sustainabilityScore = $bills->isNotEmpty()
+            ? min(100, max(0, 100 - (int) round($totalDue / 9)))
+            : 0;
 
         return view('residents.dashboard', [
             'user' => $user,
@@ -51,12 +55,26 @@ class DashboardController extends Controller
             'latestBill' => $latestBill,
             'electricBill' => $electricBill,
             'waterBill' => $waterBill,
-            'totalDue' => $totalDue ?: 258.92,
+            'totalDue' => $totalDue,
             'electricFixed' => $electricFixed,
             'electricVariable' => $electricVariable,
             'waterServiceFee' => $waterServiceFee,
             'peakDemand' => $peakDemand,
             'sustainabilityScore' => $sustainabilityScore,
+        ]);
+    }
+
+    public function residentHistory(Request $request)
+    {
+        $user = $request->user();
+
+        abort_unless($user && $user->isResident(), 403);
+
+        $bills = $this->residentBills($user->id)->get();
+
+        return view('residents.history', [
+            'user' => $user,
+            'bills' => $bills,
         ]);
     }
 }

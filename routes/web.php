@@ -13,11 +13,11 @@ Route::get('/', function () {
     }
 
     return view('login');
-})->name('login');
+})->middleware('no.cache')->name('login');
 
 Route::get('/register', function () {
     return view('register');
-})->name('register');
+})->middleware('no.cache')->name('register');
 
 Route::get('/admin/residentList', function () {
     return view('admin.residentList');
@@ -36,9 +36,13 @@ Route::post('/register', [RegisterController::class, 'store'])->name('register.s
 Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 
 Route::get('/admin/dashboard', [DashboardController::class, 'admin'])
-    ->middleware('auth')
+    ->middleware(['auth', 'no.cache'])
     ->name('admin.dashboard');
 
 Route::get('/resident/dashboard', [DashboardController::class, 'resident'])
-    ->middleware('auth')
+    ->middleware(['auth', 'no.cache'])
     ->name('resident.dashboard');
+
+Route::get('/resident/payment-history', [DashboardController::class, 'residentHistory'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('resident.history');

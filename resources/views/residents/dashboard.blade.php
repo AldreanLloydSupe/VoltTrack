@@ -1,50 +1,11 @@
-<x-layout title="Resident Dashboard | VoltTrack">
+<x-layout title="Resident Dashboard | VoltTrack" :show-admin-nav="false">
     @php
         $electricBars = $electricBill
             ? collect([0.42, 0.58, 0.31, 0.64, 0.43, 0.71, 0.88])
-            : collect([0.42, 0.58, 0.31, 0.64, 0.43, 0.71, 0.88]);
+            : collect([0, 0, 0, 0, 0, 0, 0]);
         $waterBars = $waterBill
             ? collect([0.63, 0.42, 0.67, 0.54, 0.89, 0.28, 0.41])
-            : collect([0.63, 0.42, 0.67, 0.54, 0.89, 0.28, 0.41]);
-        $displayBills = $bills->isNotEmpty()
-            ? $bills
-            : collect([
-                (object) [
-                    'payment_reference' => '#INV-882190',
-                    'billing_period_start' => now()->subMonths(1)->startOfMonth(),
-                    'billing_period_end' => now()->subMonths(1)->endOfMonth(),
-                    'total_bill' => 241.10,
-                    'status' => 'Paid',
-                ],
-                (object) [
-                    'payment_reference' => '#INV-881044',
-                    'billing_period_start' => now()->subMonths(2)->startOfMonth(),
-                    'billing_period_end' => now()->subMonths(2)->endOfMonth(),
-                    'total_bill' => 228.45,
-                    'status' => 'Paid',
-                ],
-                (object) [
-                    'payment_reference' => '#INV-879912',
-                    'billing_period_start' => now()->subMonths(3)->startOfMonth(),
-                    'billing_period_end' => now()->subMonths(3)->endOfMonth(),
-                    'total_bill' => 215.12,
-                    'status' => 'Paid',
-                ],
-                (object) [
-                    'payment_reference' => '#INV-878201',
-                    'billing_period_start' => now()->subMonths(4)->startOfMonth(),
-                    'billing_period_end' => now()->subMonths(4)->endOfMonth(),
-                    'total_bill' => 267.00,
-                    'status' => 'Pending',
-                ],
-                (object) [
-                    'payment_reference' => '#INV-876110',
-                    'billing_period_start' => now()->subMonths(5)->startOfMonth(),
-                    'billing_period_end' => now()->subMonths(5)->endOfMonth(),
-                    'total_bill' => 233.15,
-                    'status' => 'Paid',
-                ],
-            ]);
+            : collect([0, 0, 0, 0, 0, 0, 0]);
     @endphp
 
     <div class="min-h-screen bg-[#eef2f7]">
@@ -82,7 +43,7 @@
                             <div>
                                 <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">Electricity</p>
                                 <div class="mt-1 flex items-end gap-2">
-                                    <span class="text-4xl font-black tracking-tight text-[#1846c0]">{{ number_format($electricBill?->consumption ?? 10.24, 2) }}</span>
+                                    <span class="text-4xl font-black tracking-tight text-[#1846c0]">{{ number_format($electricBill?->consumption ?? 0, 2) }}</span>
                                     <span class="pb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-500">kWh</span>
                                 </div>
                             </div>
@@ -108,8 +69,8 @@
                             <div>
                                 <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">Water</p>
                                 <div class="mt-1 flex items-end gap-2">
-                                    <span class="text-4xl font-black tracking-tight text-[#334155]">{{ number_format($waterBill?->consumption ?? 12.80, 1) }}</span>
-                                    <span class="pb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-500">m³</span>
+                                    <span class="text-4xl font-black tracking-tight text-[#334155]">{{ number_format($waterBill?->consumption ?? 0, 1) }}</span>
+                                    <span class="pb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-500">m3</span>
                                 </div>
                             </div>
                             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#edf2ff] text-[#64748b] shadow-inner">
@@ -134,9 +95,13 @@
                     <div class="mb-4 flex items-center justify-between">
                         <div>
                             <h2 class="text-sm font-black uppercase tracking-[0.2em] text-slate-500">Payment History</h2>
-                            <p class="mt-1 text-sm text-slate-400">Latest billing activity for your account.</p>
+                            <p class="mt-1 text-sm text-slate-400">This will update once admin records your bills and payments.</p>
                         </div>
-                        <a href="#" class="text-xs font-black uppercase tracking-[0.18em] text-[#1846c0] hover:underline">View All</a>
+                        @if ($bills->isNotEmpty())
+                            <a href="{{ route('resident.history') }}" class="text-xs font-black uppercase tracking-[0.18em] text-[#1846c0] hover:underline">
+                                View All
+                            </a>
+                        @endif
                     </div>
 
                     <div class="overflow-x-auto">
@@ -151,7 +116,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($displayBills as $bill)
+                                @forelse ($bills as $bill)
                                     @php
                                         $status = strtolower($bill->status);
                                         $statusClasses = match ($status) {
@@ -161,13 +126,13 @@
                                         };
                                     @endphp
                                     <tr class="border-b border-slate-100 text-sm text-slate-700 last:border-b-0">
-                                        <td class="py-4 pr-4 font-semibold text-slate-600">{{ $bill->payment_reference ?: '#INV-' . str_pad((string) $loop->iteration, 6, '0', STR_PAD_LEFT) }}</td>
+                                        <td class="py-4 pr-4 font-semibold text-slate-600">{{ $bill->payment_reference ?: 'No reference yet' }}</td>
                                         <td class="px-4 py-4">
                                             {{ \Illuminate\Support\Carbon::parse($bill->billing_period_start)->format('M d') }}
                                             -
                                             {{ \Illuminate\Support\Carbon::parse($bill->billing_period_end)->format('M d, Y') }}
                                         </td>
-                                        <td class="px-4 py-4 font-bold text-slate-900">₱{{ number_format($bill->total_bill, 2) }}</td>
+                                        <td class="px-4 py-4 font-bold text-slate-900">PHP {{ number_format($bill->total_bill, 2) }}</td>
                                         <td class="px-4 py-4">
                                             <span class="text-[11px] font-black uppercase tracking-[0.16em] {{ $statusClasses }}">
                                                 {{ $bill->status }}
@@ -181,7 +146,13 @@
                                             </span>
                                         </td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="py-10 text-center text-sm text-slate-400">
+                                            No payment history yet. Paid bills will appear here after admin records them.
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -192,28 +163,28 @@
                 <section class="overflow-hidden rounded-[28px] bg-[#1846c0] text-white shadow-[0_24px_60px_rgba(24,70,192,0.28)]">
                     <div class="border-t-4 border-[#33a6ff] px-8 py-9">
                         <p class="text-[11px] font-black uppercase tracking-[0.26em] text-blue-100">
-                            Next Due Date: {{ $latestBill ? \Illuminate\Support\Carbon::parse($latestBill->billing_period_end)->format('M d, Y') : now()->addDays(6)->format('M d, Y') }}
+                            Next Due Date: {{ $latestBill ? \Illuminate\Support\Carbon::parse($latestBill->billing_period_end)->format('M d, Y') : '0' }}
                         </p>
-                        <p class="mt-3 text-5xl font-black tracking-tight">₱{{ number_format($totalDue, 2) }}</p>
+                        <p class="mt-3 text-5xl font-black tracking-tight">PHP {{ number_format($totalDue, 2) }}</p>
 
                         <div class="mt-8 space-y-3 text-sm">
                             <div class="flex items-center justify-between border-b border-white/10 pb-2">
                                 <span class="text-blue-100">Electricity Fixed</span>
-                                <span class="font-semibold">₱{{ number_format($electricFixed, 2) }}</span>
+                                <span class="font-semibold">PHP {{ number_format($electricFixed, 2) }}</span>
                             </div>
                             <div class="flex items-center justify-between border-b border-white/10 pb-2">
                                 <span class="text-blue-100">Usage Variable</span>
-                                <span class="font-semibold">₱{{ number_format($electricVariable, 2) }}</span>
+                                <span class="font-semibold">PHP {{ number_format($electricVariable, 2) }}</span>
                             </div>
                             <div class="flex items-center justify-between pb-2">
                                 <span class="text-blue-100">Service Fee</span>
-                                <span class="font-semibold">₱{{ number_format($waterServiceFee, 2) }}</span>
+                                <span class="font-semibold">PHP {{ number_format($waterServiceFee, 2) }}</span>
                             </div>
                         </div>
 
-                        <button class="mt-10 w-full rounded-full border border-white/60 px-5 py-4 text-sm font-bold tracking-[0.16em] text-white transition-all hover:bg-white/10">
-                            View Billing History
-                        </button>
+                        <div class="mt-10 rounded-3xl border border-white/20 bg-white/6 px-5 py-4 text-center text-sm text-blue-100">
+                            Waiting for admin billing records.
+                        </div>
                     </div>
                 </section>
 
@@ -222,7 +193,7 @@
                         <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">Peak Demand</p>
                         <p class="mt-6 text-3xl font-black text-[#1846c0]">{{ number_format($peakDemand, 1) }} <span class="text-sm uppercase tracking-[0.2em] text-slate-500">kW</span></p>
                         <div class="mt-8 h-1.5 rounded-full bg-slate-200">
-                            <div class="h-1.5 rounded-full bg-[#1846c0]" style="width: {{ min(100, max(28, $peakDemand * 4.5)) }}%"></div>
+                            <div class="h-1.5 rounded-full bg-[#1846c0]" style="width: {{ $peakDemand > 0 ? min(100, max(28, $peakDemand * 4.5)) : 0 }}%"></div>
                         </div>
                     </section>
 
@@ -231,7 +202,7 @@
                         <p class="mt-6 text-3xl font-black text-[#d94841]">{{ $sustainabilityScore }}/100</p>
                         <div class="mt-8 flex gap-2">
                             @for ($i = 1; $i <= 5; $i++)
-                                <div class="h-1.5 flex-1 rounded-full {{ $i <= ceil($sustainabilityScore / 20) ? 'bg-[#1846c0]' : 'bg-slate-200' }}"></div>
+                                <div class="h-1.5 flex-1 rounded-full {{ $i <= ceil($sustainabilityScore / 20) && $sustainabilityScore > 0 ? 'bg-[#1846c0]' : 'bg-slate-200' }}"></div>
                             @endfor
                         </div>
                     </section>
