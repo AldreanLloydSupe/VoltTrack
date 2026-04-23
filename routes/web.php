@@ -1,17 +1,23 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ResidentController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 
 Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route(
+            auth()->user()->isAdmin() ? 'admin.dashboard' : 'resident.dashboard'
+        );
+    }
+
     return view('login');
-});
+})->name('login');
+
 Route::get('/register', function () {
     return view('register');
-});
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard');
-})->name('admin.dashboard');
+})->name('register');
 
 Route::get('/admin/residentList', function () {
     return view('admin.residentList');
@@ -25,6 +31,14 @@ Route::get('/admin/billingHistory', function () {
     return view('admin.billingHistory');
 })->name('admin.billingHistory');
 
-// Resident Account Update Routes
-Route::get('/residents/{id}/edit', [ResidentController::class, 'edit'])->name('residents.edit');
-Route::put('/residents/{id}', [ResidentController::class, 'update'])->name('residents.update');
+Route::post('/login', [LoginController::class, 'store'])->name('login.store');
+Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
+Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+
+Route::get('/admin/dashboard', [DashboardController::class, 'admin'])
+    ->middleware('auth')
+    ->name('admin.dashboard');
+
+Route::get('/resident/dashboard', [DashboardController::class, 'resident'])
+    ->middleware('auth')
+    ->name('resident.dashboard');
