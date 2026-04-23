@@ -70,7 +70,7 @@
             </nav>
 
             <div class="ml-auto">
-                <img src="https://ui-avatars.com/api/?name=Admin&background=fff&color=1e3a8a" class="w-9 h-9 rounded-full border-2 border-white/20" alt="Profile">
+                <img src="{{ asset('/image/profile.png') }}" class="w-9 h-9 rounded-full border-2 border-white/20" alt="Profile">
             </div>
         </header>
     @endif
