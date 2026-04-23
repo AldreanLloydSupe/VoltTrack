@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Bill;
 use Illuminate\Http\Request;
 
-class ResidentController extends Controller
+class DashboardController extends Controller
 {
     protected function residentBills(int $userId)
     {
@@ -14,7 +14,16 @@ class ResidentController extends Controller
             ->latest('billing_period_end');
     }
 
-    public function dashboard(Request $request)
+    public function admin(Request $request)
+    {
+        $user = $request->user();
+
+        abort_unless($user && $user->isAdmin(), 403);
+
+        return view('admin.dashboard');
+    }
+
+    public function resident(Request $request)
     {
         $user = $request->user();
 
@@ -55,7 +64,7 @@ class ResidentController extends Controller
         ]);
     }
 
-    public function history(Request $request)
+    public function residentHistory(Request $request)
     {
         $user = $request->user();
 
@@ -69,3 +78,4 @@ class ResidentController extends Controller
         ]);
     }
 }
+

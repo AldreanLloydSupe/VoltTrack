@@ -89,7 +89,7 @@
                             <span class="bg-orange-400 text-white text-[10px] font-black px-2 py-1 rounded shadow-sm uppercase">Pending</span>
                         </td>
                         <td class="px-6 py-5 text-right">
-                            <a href="#" class="text-[12px] font-black text-blue-600 uppercase hover:underline">Review</a>
+                            <a href="{{ route('admin.confirming')}}" class="text-[12px] font-black text-blue-600 uppercase hover:underline">Review</a>
                         </td>
                     </tr>
 
@@ -106,7 +106,7 @@
                             <span class="bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded shadow-sm uppercase">Failed</span>
                         </td>
                         <td class="px-6 py-5 text-right">
-                            <a href="#" class="text-[12px] font-black text-blue-600 uppercase hover:underline">Review</a>
+                            <a href="{{ route('admin.confirming')}}" class="text-[12px] font-black text-blue-600 uppercase hover:underline">Review</a>
                         </td>
                     </tr>
                 </tbody>
