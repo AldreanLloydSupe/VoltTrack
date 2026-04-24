@@ -19,9 +19,40 @@
             <button class="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
                 DELETE ACCOUNT
             </button>
-            <button class="bg-[#0f172a] hover:bg-black text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md flex items-center">
-                <i class="fas fa-plus-circle mr-2"></i> CREATE NEW BILL
-            </button>
+
+
+            <div class="relative inline-block group">
+    
+                <button class="bg-[#001D4E] hover:bg-black text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md flex items-center transition-all duration-200">
+                    <i class="fas fa-plus-circle mr-2"></i> 
+                    CREATE NEW BILL
+                    <i class="fas fa-chevron-down ml-2 text-[10px] opacity-70 transition-transform duration-200 group-hover:rotate-180"></i>
+                </button>
+
+                <div class="absolute right-0 hidden group-hover:block pt-2 z-50">
+                    <div class="w-56 bg-white rounded-xl shadow-2xl border border-slate-100 py-2 animate-in fade-in zoom-in-95 duration-150">
+                        
+                        <a href="#" class="flex items-center px-4 py-3 hover:bg-slate-50 transition-colors group/item">
+                            <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mr-3 group-hover/item:bg-blue-50 transition-colors">
+                                <i class="fas fa-bolt text-[#001D4E]"></i>
+                            </div>
+                            <span class="font-bold text-slate-700">
+                                Electricity Bill
+                            </span>
+                        </a>
+
+                        <a href="#" class="flex items-center px-4 py-3 hover:bg-slate-50 transition-colors group/item">
+                            <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mr-3 group-hover/item:bg-blue-50 transition-colors">
+                                <i class="fas fa-tint text-[#001D4E]"></i>
+                            </div>
+                            <span class="font-bold text-slate-700">
+                                Water Bill
+                            </span>
+                        </a>
+                        
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
