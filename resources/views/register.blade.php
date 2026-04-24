@@ -93,7 +93,7 @@
                     <input type="password" name="password_confirmation" placeholder="Confirm Password" class="w-full px-4 py-2.5 rounded-xl bg-slate-200/90 border-none outline-none text-sm focus:ring-2 focus:ring-blue-500 transition-all">
                 </div>
 
-                
+               
                 @error('role')
                     <p class="-mt-2 ml-1 text-xs text-red-200">{{ $message }}</p>
                 @enderror
