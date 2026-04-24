@@ -36,7 +36,7 @@
                     ['label' => 'Total Queue', 'value' => '6', 'color' => 'text-slate-900'],
                     ['label' => 'Pending', 'value' => '1', 'color' => 'text-slate-900'],
                     ['label' => 'Total Deposits', 'value' => 'P10,000', 'color' => 'text-slate-900'],
-                    ['label' => 'Collected Monthly', 'value' => 'P5,000', 'color' => 'text-slate-900'],
+                    ['label' => 'Ready for Move-in', 'value' => '5', 'color' => 'text-slate-900'],
                 ];
             @endphp
 

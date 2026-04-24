@@ -48,6 +48,26 @@ Route::get('/admin/billingHistory', function () {
     return view('admin.billingHistory');
 })->name('admin.billingHistory');
 
+Route::get('/admin/propertyInfo', function () {
+    return view('admin.propertyInfo');
+})->name('admin.propertyInfo');
+
+// Creating Page
+Route::get('/admin/Create/createNewWaterBill', function () {
+    return view('admin.Create.createNewWaterBill');
+})->name('admin.Create.createNewWaterBill');
+
+Route::get('/admin/Create/createNewElectricityBill', function () {
+    return view('admin.Create.createNewElectricityBill');
+})->name('admin.Create.createNewElectricityBill');
+
+// Updating
+
+Route::get('/admin/Update/updateResident', function () {
+    return view('admin.Update.updateResident');
+})->name('admin.Update.updateResident');
+
+
 Route::post('/login', [LoginController::class, 'store'])->name('login.store');
 Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');

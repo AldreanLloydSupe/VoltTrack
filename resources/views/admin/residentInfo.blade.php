@@ -13,14 +13,14 @@
         </div>
         
         <div class="flex space-x-4">
-            <button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
+            <a href="{{route('admin.Update.updateResident')}}"><button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
                 UPDATE ACCOUNT
-            </button>
+            </button></a>
             <button class="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
                 DELETE ACCOUNT
             </button>
 
-
+            {{-- Pang create ug water ug electricity bills button --}}
             <div class="relative inline-block group">
     
                 <button class="bg-[#001D4E] hover:bg-black text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md flex items-center transition-all duration-200">
@@ -32,7 +32,7 @@
                 <div class="absolute right-0 hidden group-hover:block pt-2 z-50">
                     <div class="w-56 bg-white rounded-xl shadow-2xl border border-slate-100 py-2 animate-in fade-in zoom-in-95 duration-150">
                         
-                        <a href="#" class="flex items-center px-4 py-3 hover:bg-slate-50 transition-colors group/item">
+                        <a href="{{ route('admin.Create.createNewElectricityBill') }}" class="flex items-center px-4 py-3 hover:bg-slate-50 transition-colors group/item">
                             <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mr-3 group-hover/item:bg-blue-50 transition-colors">
                                 <i class="fas fa-bolt text-[#001D4E]"></i>
                             </div>
@@ -41,7 +41,7 @@
                             </span>
                         </a>
 
-                        <a href="#" class="flex items-center px-4 py-3 hover:bg-slate-50 transition-colors group/item">
+                        <a href="{{ route('admin.Create.createNewWaterBill') }}" class="flex items-center px-4 py-3 hover:bg-slate-50 transition-colors group/item">
                             <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mr-3 group-hover/item:bg-blue-50 transition-colors">
                                 <i class="fas fa-tint text-[#001D4E]"></i>
                             </div>
@@ -58,36 +58,59 @@
 
     <div class="grid grid-cols-3 gap-8 mb-10">
         <div class="bg-white p-8 rounded-2xl shadow-[0_15px_30px_-10px_rgba(0,0,0,0.05)] border border-slate-100 relative overflow-hidden">
-            <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">Current Balance</p>
-            <h2 class="text-4xl font-bold text-[#1e3a8a]">₱428.50</h2>
+            <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">
+                Current Balance
+            </p>
+            <h2 class="text-4xl font-bold text-[#1e3a8a]">
+                ₱428.50
+            </h2>
             <div class="mt-6 inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold border border-blue-100">
-                <i class="far fa-clock mr-2"></i> Due in 4 days
+                <i class="far fa-clock mr-2"></i> 
+                Due in 4 days
             </div>
             <i class="fas fa-wallet absolute top-8 right-8 text-slate-200 text-2xl"></i>
         </div>
 
         <div class="bg-white p-8 rounded-2xl shadow-[0_15px_30px_-10px_rgba(0,0,0,0.05)] border border-slate-100">
-            <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">Last Amount Paid</p>
-            <h2 class="text-4xl font-bold text-[#1e3a8a]">₱143.00</h2>
-            <p class="mt-6 text-xs font-bold text-slate-400">Mar 28, 2026</p>
+            <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">
+                Last Amount Paid
+            </p>
+            <h2 class="text-4xl font-bold text-[#1e3a8a]">
+                ₱143.00
+            </h2>
+            <p class="mt-6 text-xs font-bold text-slate-400">
+                Mar 28, 2026
+            </p>
         </div>
 
         <div class="bg-white p-8 rounded-2xl shadow-[0_15px_30px_-10px_rgba(0,0,0,0.05)] border border-slate-100">
-            <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">No. of Days Rented</p>
-            <h2 class="text-4xl font-bold text-[#1e3a8a]">2 Days</h2>
-            <p class="mt-6 text-xs font-bold text-slate-400">Mar 28, 2026</p>
+            <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">
+                No. of Days Rented
+            </p>
+            <h2 class="text-4xl font-bold text-[#1e3a8a]">
+                2 Days
+            </h2>
+            <p class="mt-6 text-xs font-bold text-slate-400">
+                Mar 28, 2026
+            </p>
         </div>
     </div>
 
     <div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-            <h3 class="text-xl font-bold text-[#1e3a8a]">Recent Transactions</h3>
+            <h3 class="text-xl font-bold text-[#1e3a8a]">
+                Recent Transactions
+            </h3>
             <div class="flex space-x-3">
                 <div class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-500 cursor-pointer flex items-center">
-                    <i class="fas fa-filter mr-2"></i> All Utilities <i class="fas fa-chevron-down ml-2 opacity-50"></i>
+                    <i class="fas fa-filter mr-2"></i> 
+                    All Utilities
+                     <i class="fas fa-chevron-down ml-2 opacity-50"></i>
                 </div>
                 <div class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-500 cursor-pointer flex items-center">
-                    <i class="far fa-calendar mr-2"></i> Last 6 Months <i class="fas fa-chevron-down ml-2 opacity-50"></i>
+                    <i class="far fa-calendar mr-2"></i> 
+                    Last 6 Months
+                     <i class="fas fa-chevron-down ml-2 opacity-50"></i>
                 </div>
             </div>
         </div>
@@ -130,14 +153,18 @@
                     </td>
                     <td class="px-8 py-6 text-sm font-bold text-[#1e3a8a]">₱143.00</td>
                     <td class="px-8 py-6 text-center">
-                        <span class="bg-blue-100 text-blue-600 text-[10px] font-black px-3 py-1 rounded-full uppercase">Paid</span>
+                        <span class="bg-blue-100 text-blue-600 text-[10px] font-black px-3 py-1 rounded-full uppercase">
+                            Paid
+                        </span>
                     </td>
                     {{-- kailangan image check --}}
                     <td class="px-8 py-6 text-center">
                         <i class="fas fa-check text-emerald-400"></i>
                     </td>
                     <td class="px-8 py-6 text-right">
-                        <a href="#" class="text-[11px] font-black text-blue-600 uppercase hover:underline">Update</a>
+                        <a href="#" class="text-[11px] font-black text-blue-600 uppercase hover:underline">
+                            Update
+                        </a>
                     </td>
                 </tr>
             </tbody>

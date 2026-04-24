@@ -94,7 +94,7 @@
                                 @endif
                             </td>
                             <td class="px-6 py-6 text-right">
-                                <a href="#" class="text-[11px] font-black text-blue-600 uppercase tracking-widest hover:text-blue-800 hover:underline transition-all">View</a>
+                                <a href="{{route('admin.propertyInfo')}}" class="text-[11px] font-black text-blue-600 uppercase tracking-widest hover:text-blue-800 hover:underline transition-all">View</a>
                             </td>
                         </tr>
                         @endforeach
