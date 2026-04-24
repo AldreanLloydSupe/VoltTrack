@@ -28,6 +28,18 @@ Route::get('/admin/pending', function () {
     return view('admin.pending');
  })->name('admin.pending');
 
+Route::get('/admin/confirming', function () {
+    return view('admin.confirming');
+ })->name('admin.confirming');
+
+ Route::get('/admin/createnew', function () {
+    return view('admin.createnew');
+ })->name('admin.createnew');
+
+Route::get('/admin/property', function () {
+    return view('admin.property');
+ })->name('admin.property');
+
 Route::get('/admin/residentInfo', function () {
     return view('admin.residentInfo');
 })->name('admin.residentInfo');
