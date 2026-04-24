@@ -18,6 +18,7 @@
 </head>
 <body class="font-sans antialiased text-slate-900">
     @if ($showAdminNav)
+        @php($user = auth()->user())
         <header class="bg-[#1e3a8a] text-white py-4 px-10 flex items-center">
             <h1 class="text-3xl font-bold mr-32">
                 VoltTrack
@@ -69,8 +70,22 @@
                 </div>
             </nav>
 
-            <div class="ml-auto">
-                <img src="{{ asset('/image/profile.png') }}" class="w-9 h-9 rounded-full border-2 border-white/20" alt="Profile">
+            <div class="ml-auto flex items-center gap-4">
+                <div class="text-right">
+                    <p class="text-sm font-semibold">{{ $user?->first_name }} {{ $user?->last_name }}</p>
+                    <p class="text-xs uppercase tracking-[0.22em] text-blue-100">Admin</p>
+                </div>
+
+                <div class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/25 bg-white/15 text-lg font-bold">
+                    {{ $user ? strtoupper(substr($user->first_name, 0, 1)) : 'A' }}
+                </div>
+
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="rounded-full border border-white/20 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-white/10">
+                        Log Out
+                    </button>
+                </form>
             </div>
         </header>
     @endif
