@@ -48,6 +48,18 @@ Route::get('/admin/billingHistory', function () {
     return view('admin.billingHistory');
 })->name('admin.billingHistory');
 
+Route::get('/admin/updateproperty', function () {
+     return view('admin.updateproperty');
+ })->name('admin.updateproperty');
+
+Route::get('/admin/updateelectricity', function () {
+     return view('admin.updateelectricity');
+ })->name('admin.updateelectricity');
+
+Route::get('/admin/updatewaterbill', function () {
+     return view('admin.updatewaterbill');
+ })->name('admin.updatewaterbill');
+
 Route::get('/admin/propertyInfo', function () {
     return view('admin.propertyInfo');
 })->name('admin.propertyInfo');

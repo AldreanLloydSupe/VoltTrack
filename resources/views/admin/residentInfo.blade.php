@@ -141,7 +141,7 @@
                     </td>
                     <td class="px-8 py-6 text-center text-slate-400">-</td>
                     <td class="px-8 py-6 text-right">
-                        <a href="#" class="text-[11px] font-black text-blue-600 uppercase hover:underline">Update</a>
+                        <a href="{{route('admin.updateelectricity')}}" class="text-[11px] font-black text-blue-600 uppercase hover:underline">Update</a>
                     </td>
                 </tr>
                 <tr class="hover:bg-slate-50/50 transition-colors">
@@ -162,7 +162,7 @@
                         <i class="fas fa-check text-emerald-400"></i>
                     </td>
                     <td class="px-8 py-6 text-right">
-                        <a href="#" class="text-[11px] font-black text-blue-600 uppercase hover:underline">
+                        <a href="{{route('admin.updatewaterbill')}}" class="text-[11px] font-black text-blue-600 uppercase hover:underline">
                             Update
                         </a>
                     </td>
