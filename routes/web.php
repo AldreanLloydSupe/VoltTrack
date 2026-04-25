@@ -64,6 +64,10 @@ Route::get('/admin/propertyInfo', function () {
     return view('admin.propertyInfo');
 })->name('admin.propertyInfo');
 
+Route::get('/admin/receipt', function () {
+    return view('admin.receipt');
+})->name('admin.receipt');
+
 // Creating Page
 Route::get('/admin/Create/createNewWaterBill', function () {
     return view('admin.Create.createNewWaterBill');
