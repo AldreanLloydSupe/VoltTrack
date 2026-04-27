@@ -26,6 +26,9 @@ class DatabaseSeeder extends Seeder
             'gender' => 'Male',
             'password' => Hash::make('12345'),
             'role' => 'admin',
+            'status' => 'approved',
+            'approved_at' => now(),
+            'approved_by' => null,
         ]);
     }
 }

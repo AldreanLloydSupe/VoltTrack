@@ -3,6 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ResidentController;
+use App\Http\Controllers\AdminResidentController;
+use App\Http\Controllers\AdminPropertyController;
+use App\Http\Controllers\AdminBillingController;
+use App\Http\Controllers\AdminUtilityController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 
@@ -20,62 +24,73 @@ Route::get('/register', function () {
     return view('register');
 })->middleware('no.cache')->name('register');
 
-Route::get('/admin/residentList', function () {
-    return view('admin.residentList');
-})->name('admin.residentList');
+Route::get('/admin/residentList', [AdminResidentController::class, 'list'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.residentList');
 
-Route::get('/admin/pending', function () {
-    return view('admin.pending');
- })->name('admin.pending');
+Route::get('/admin/pending', [AdminUtilityController::class, 'pending'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.pending');
 
-Route::get('/admin/confirming', function () {
-    return view('admin.confirming');
- })->name('admin.confirming');
+Route::post('/admin/pending/{id}/approve', [AdminUtilityController::class, 'approveResident'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.pending.approve');
 
- Route::get('/admin/createnew', function () {
-    return view('admin.createnew');
- })->name('admin.createnew');
+Route::post('/admin/pending/{id}/reject', [AdminUtilityController::class, 'rejectResident'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.pending.reject');
 
-Route::get('/admin/property', function () {
-    return view('admin.property');
- })->name('admin.property');
+Route::get('/admin/confirming/{id}', [AdminUtilityController::class, 'confirming'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.confirming');
 
-Route::get('/admin/residentInfo', function () {
-    return view('admin.residentInfo');
-})->name('admin.residentInfo');
+Route::get('/admin/createnew', [AdminPropertyController::class, 'create'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.createnew');
+Route::post('/admin/createnew', [AdminPropertyController::class, 'store'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.createnew.store');
 
-Route::get('/admin/billingHistory', function () {
-    return view('admin.billingHistory');
-})->name('admin.billingHistory');
+Route::get('/admin/property', [AdminPropertyController::class, 'list'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.property');
 
-Route::get('/admin/updateproperty', function () {
-     return view('admin.updateproperty');
- })->name('admin.updateproperty');
+Route::get('/admin/residentInfo/{id}', [AdminResidentController::class, 'show'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.residentInfo');
 
-Route::get('/admin/updateelectricity', function () {
-     return view('admin.updateelectricity');
- })->name('admin.updateelectricity');
+Route::get('/admin/billingHistory', [AdminBillingController::class, 'list'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.billingHistory');
+Route::patch('/admin/bills/{bill}/status', [AdminBillingController::class, 'updateStatus'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.bills.updateStatus');
 
-Route::get('/admin/updatewaterbill', function () {
-     return view('admin.updatewaterbill');
- })->name('admin.updatewaterbill');
-
-Route::get('/admin/propertyInfo', function () {
-    return view('admin.propertyInfo');
-})->name('admin.propertyInfo');
+Route::get('/admin/propertyInfo/{id}', [AdminPropertyController::class, 'show'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.propertyInfo');
+Route::delete('/admin/property/{id}', [AdminPropertyController::class, 'destroy'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.property.destroy');
 
 Route::get('/admin/receipt', function () {
     return view('admin.receipt');
 })->name('admin.receipt');
 
 // Creating Page
-Route::get('/admin/Create/createNewWaterBill', function () {
-    return view('admin.Create.createNewWaterBill');
-})->name('admin.Create.createNewWaterBill');
+Route::get('/admin/Create/createNewWaterBill', [AdminBillingController::class, 'createWaterBill'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.Create.createNewWaterBill');
+Route::post('/admin/Create/createNewWaterBill', [AdminBillingController::class, 'storeWaterBill'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.Create.storeNewWaterBill');
 
-Route::get('/admin/Create/createNewElectricityBill', function () {
-    return view('admin.Create.createNewElectricityBill');
-})->name('admin.Create.createNewElectricityBill');
+Route::get('/admin/Create/createNewElectricityBill', [AdminBillingController::class, 'createElectricityBill'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.Create.createNewElectricityBill');
+Route::post('/admin/Create/createNewElectricityBill', [AdminBillingController::class, 'storeElectricityBill'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.Create.storeNewElectricityBill');
 
 // Updating
 
@@ -99,3 +114,16 @@ Route::get('/resident/dashboard', [ResidentController::class, 'dashboard'])
 Route::get('/resident/payment-history', [ResidentController::class, 'history'])
     ->middleware(['auth', 'no.cache'])
     ->name('resident.history');
+
+Route::get('/resident/settings', [ResidentController::class, 'settings'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('resident.settings');
+Route::patch('/resident/settings', [ResidentController::class, 'updateSettings'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('resident.settings.update');
+Route::get('/resident/contact-admin', [ResidentController::class, 'contactAdmin'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('resident.contactAdmin');
+Route::post('/resident/contact-admin', [ResidentController::class, 'sendContactAdmin'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('resident.contactAdmin.send');

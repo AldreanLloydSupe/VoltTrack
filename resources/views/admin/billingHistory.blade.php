@@ -5,6 +5,12 @@
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">
                 Billing History >
             </p>
+
+            @if(session('success'))
+                <div class="mt-3 mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-700 text-sm font-semibold">
+                    {{ session('success') }}
+                </div>
+            @endif
             
             <div class="flex justify-between items-center">
                 <h1 class="text-5xl font-black text-[#0f172a] mt-1">
@@ -35,38 +41,47 @@
                 <thead class="bg-slate-50/50 border-b border-slate-100">
                     <tr class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
                         <th class="px-10 py-6">Renter Name</th>
-                        <th class="px-10 py-6">Property ID</th>
+                        <th class="px-10 py-6">Utility Type</th>
                         <th class="px-10 py-6">Date of Transactions</th>
+                        <th class="px-10 py-6">Total Bill</th>
                         <th class="px-10 py-6 text-center">Status</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    @php
-                        $billings = [
-                            ['name' => 'Mami Jupeta', 'email' => 'mamijupeta@gmail.com', 'pid' => '11111', 'date' => 'Mar 20, 2026'],
-                            ['name' => 'Elias Dimaculangan', 'email' => 'eliasTV@gmail.com', 'pid' => '11112', 'date' => 'Mar 20, 2026'],
-                            ['name' => 'Ricardo Dalisay', 'email' => 'cardo@gmail.com', 'pid' => '11113', 'date' => 'Mar 12, 2026'],
-                            ['name' => 'Kol Uy', 'email' => 'KolUy@gmail.com', 'pid' => '11114', 'date' => 'Mar 10, 2026'],
-                            ['name' => 'Kol Uy', 'email' => 'KolUy@gmail.com', 'pid' => '11114', 'date' => 'Mar 10, 2026'],
-                        ];
-                    @endphp
-
-                    @foreach($billings as $bill)
+                    @forelse($bills as $bill)
                     <tr class="group hover:bg-slate-50/50 transition-colors">
                         <td class="px-10 py-6">
-                            <p class="font-bold text-[#0f172a] text-base group-hover:text-blue-700">{{ $bill['name'] }}</p>
-                            <p class="text-[11px] text-slate-400 font-medium">{{ $bill['email'] }}</p>
+                            <p class="font-bold text-[#0f172a] text-base group-hover:text-blue-700">
+                                {{ $bill->user?->first_name }} {{ $bill->user?->last_name ?? 'Unknown' }}
+                            </p>
+                            <p class="text-[11px] text-slate-400 font-medium">{{ $bill->user?->email ?? 'N/A' }}</p>
                         </td>
-                        <td class="px-10 py-6 text-sm font-medium text-slate-600">{{ $bill['pid'] }}</td>
-                        <td class="px-10 py-6 text-sm text-slate-500 font-medium">{{ $bill['date'] }}</td>
+                        <td class="px-10 py-6 text-sm font-medium text-slate-600">{{ $bill->utility_type }}</td>
+                        <td class="px-10 py-6 text-sm text-slate-500 font-medium">{{ $bill->reading_date?->format('M d, Y') }}</td>
+                        <td class="px-10 py-6 text-sm font-bold text-[#1e3a8a]">₱{{ number_format($bill->total_bill, 2) }}</td>
                         <td class="px-10 py-6 text-center">
-                            <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-100 text-blue-600 text-[10px] font-black uppercase tracking-wider">
-                                <span class="w-1.5 h-1.5 rounded-full bg-blue-600 mr-2"></span>
-                                Paid
+                            <span class="inline-flex items-center px-4 py-1.5 rounded-full
+                                @if($bill->status === 'Paid') bg-blue-100 text-blue-600
+                                @elseif($bill->status === 'Pending') bg-amber-100 text-amber-600
+                                @elseif($bill->status === 'Overdue') bg-red-100 text-red-600
+                                @endif
+                                text-[10px] font-black uppercase tracking-wider">
+                                <span class="w-1.5 h-1.5 rounded-full mr-2
+                                    @if($bill->status === 'Paid') bg-blue-600
+                                    @elseif($bill->status === 'Pending') bg-amber-600
+                                    @elseif($bill->status === 'Overdue') bg-red-600
+                                    @endif"></span>
+                                {{ $bill->status }}
                             </span>
                         </td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="5" class="px-10 py-6 text-center text-slate-500">
+                            No bills found
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
 

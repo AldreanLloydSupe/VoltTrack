@@ -16,14 +16,27 @@
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <div class="text-right">
-                        <p class="text-sm font-semibold">{{ $user->first_name }} {{ $user->last_name }}</p>
-                        <p class="text-xs uppercase tracking-[0.22em] text-blue-100">Resident</p>
-                    </div>
+                    <details class="group relative">
+                        <summary class="flex cursor-pointer list-none items-center gap-3 rounded-full border border-white/15 px-3 py-1.5 transition-all hover:bg-white/10">
+                            <div class="text-right">
+                                <p class="text-sm font-semibold">{{ $user->first_name }} {{ $user->last_name }}</p>
+                                <p class="text-xs uppercase tracking-[0.22em] text-blue-100">Resident</p>
+                            </div>
 
-                    <div class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/25 bg-white/15 text-lg font-bold">
-                        {{ strtoupper(substr($user->first_name, 0, 1)) }}
-                    </div>
+                            <div class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/25 bg-white/15 text-lg font-bold">
+                                {{ strtoupper(substr($user->first_name, 0, 1)) }}
+                            </div>
+                        </summary>
+
+                        <div class="absolute right-0 z-20 mt-2 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 text-sm shadow-xl">
+                            <a href="{{ route('resident.contactAdmin') }}" class="block px-4 py-2.5 font-semibold text-slate-700 transition-colors hover:bg-slate-50">
+                                Contact Admin
+                            </a>
+                            <a href="{{ route('resident.settings') }}" class="block px-4 py-2.5 font-semibold text-slate-700 transition-colors hover:bg-slate-50">
+                                Settings
+                            </a>
+                        </div>
+                    </details>
 
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
@@ -163,21 +176,25 @@
                 <section class="overflow-hidden rounded-[28px] bg-[#1846c0] text-white shadow-[0_24px_60px_rgba(24,70,192,0.28)]">
                     <div class="border-t-4 border-[#33a6ff] px-8 py-9">
                         <p class="text-[11px] font-black uppercase tracking-[0.26em] text-blue-100">
-                            Next Due Date: {{ $latestBill ? \Illuminate\Support\Carbon::parse($latestBill->billing_period_end)->format('M d, Y') : '0' }}
+                            Next Due Date: {{ $nextDueBill ? \Illuminate\Support\Carbon::parse($nextDueBill->billing_period_end)->format('M d, Y') : 'No Due Date' }}
                         </p>
                         <p class="mt-3 text-5xl font-black tracking-tight">PHP {{ number_format($totalDue, 2) }}</p>
 
                         <div class="mt-8 space-y-3 text-sm">
                             <div class="flex items-center justify-between border-b border-white/10 pb-2">
-                                <span class="text-blue-100">Electricity Fixed</span>
-                                <span class="font-semibold">PHP {{ number_format($electricFixed, 2) }}</span>
+                                <span class="text-blue-100">Electric Usage</span>
+                                <span class="font-semibold">PHP {{ number_format($electricUsage, 2) }}</span>
                             </div>
                             <div class="flex items-center justify-between border-b border-white/10 pb-2">
-                                <span class="text-blue-100">Usage Variable</span>
-                                <span class="font-semibold">PHP {{ number_format($electricVariable, 2) }}</span>
+                                <span class="text-blue-100">Electric Service Fee</span>
+                                <span class="font-semibold">PHP {{ number_format($electricServiceFee, 2) }}</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-white/10 pb-2">
+                                <span class="text-blue-100">Water Usage</span>
+                                <span class="font-semibold">PHP {{ number_format($waterUsage, 2) }}</span>
                             </div>
                             <div class="flex items-center justify-between pb-2">
-                                <span class="text-blue-100">Service Fee</span>
+                                <span class="text-blue-100">Water Service Fee</span>
                                 <span class="font-semibold">PHP {{ number_format($waterServiceFee, 2) }}</span>
                             </div>
                         </div>

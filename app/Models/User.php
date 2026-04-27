@@ -25,6 +25,7 @@ class User extends Authenticatable
         'gender',
         'password',
         'role',
+        'status',
         'avatar',
     ];
 
@@ -70,6 +71,11 @@ class User extends Authenticatable
     public function bills(): HasMany
     {
         return $this->hasMany(Bill::class);
+    }
+
+    public function adminNotifications(): HasMany
+    {
+        return $this->hasMany(AdminNotification::class);
     }
 
     public function isAdmin(): bool

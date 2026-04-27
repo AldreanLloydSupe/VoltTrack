@@ -24,6 +24,23 @@ class LoginController extends Controller
             ]);
         }
 
+        $user = Auth::user();
+
+        // Official admin accounts do not require approval.
+        if (! $user->isAdmin() && $user->status === 'pending') {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'email' => 'Your account is pending admin approval. Please wait for approval before logging in.',
+            ]);
+        }
+
+        if (! $user->isAdmin() && $user->status === 'rejected') {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'email' => 'Your account registration was rejected. Please contact support.',
+            ]);
+        }
+
         $request->session()->regenerate();
 
         return redirect()->route(

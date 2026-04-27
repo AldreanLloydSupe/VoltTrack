@@ -21,11 +21,20 @@
         <div class="flex space-x-3 mb-10">
             <div class="bg-white border border-slate-100 rounded-xl px-6 py-4 shadow-sm min-w-[250px]">
                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Pending Client</p>
-                <p class="text-lg font-bold text-slate-700">Ricardo Dalisay</p>
+                <p class="text-lg font-bold text-slate-700">{{ $assignment->user?->first_name }} {{ $assignment->user?->last_name }}</p>
             </div>
             <div class="bg-white border border-slate-100 rounded-xl px-6 py-4 shadow-sm min-w-[250px]">
                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Account Status</p>
-                <p class="text-lg font-bold text-blue-500">Awaiting Technical Validation</p>
+                <p class="text-lg font-bold
+                    @if($assignment->status === 'Pending') text-amber-500
+                    @elseif($assignment->status === 'Confirmed') text-green-500
+                    @else text-red-500
+                    @endif">
+                    @if($assignment->status === 'Pending') Awaiting Technical Validation
+                    @elseif($assignment->status === 'Confirmed') Confirmed
+                    @else Rejected
+                    @endif
+                </p>
             </div>
         </div>
 
@@ -47,7 +56,7 @@
                         <div>
                             <label class="block text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Property ID</label>
                             <div class="relative">
-                                <input type="text" value="1" disabled class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 font-bold text-slate-600">
+                                <input type="text" value="{{ $assignment->property_id }}" disabled class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 font-bold text-slate-600">
                                 <div class="absolute right-5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center">
                                     <span class="text-[10px] text-slate-400">✔</span>
                                 </div>
@@ -56,7 +65,7 @@
                         <div>
                             <label class="block text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Unit Classification</label>
                             <div class="relative">
-                                <input type="text" value="Residential" disabled class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 font-bold text-slate-600">
+                                <input type="text" value="{{ $assignment->property?->unit_type ?? 'N/A' }}" disabled class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 font-bold text-slate-600">
                                 <div class="absolute right-5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center">
                                     <span class="text-[10px] text-slate-400">✔</span>
                                 </div>
@@ -67,7 +76,13 @@
 
                 {{-- Utility Grids --}}
                 <div class="grid grid-cols-2 gap-8">
+                    @php
+                        $electricMeter = $assignment->property?->meters->firstWhere('utility_type', 'Electricity');
+                        $waterMeter = $assignment->property?->meters->firstWhere('utility_type', 'Water');
+                    @endphp
+
                     {{-- Electricity --}}
+                    @if($electricMeter)
                     <div class="bg-white p-8 rounded-[24px] border border-slate-200 shadow-sm">
                         <div class="flex items-center space-x-3 mb-6">
                             <div class="bg-blue-100 p-2.5 rounded-xl text-blue-600">
@@ -75,11 +90,13 @@
                             </div>
                             <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Electricity</span>
                         </div>
-                        <input type="text" value="MTR-77291-EL" disabled class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium text-slate-400 mb-4">
+                        <input type="text" value="{{ $electricMeter->hardware_meter_number }}" disabled class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium text-slate-400 mb-4">
                         <input type="text" placeholder="000.00 kWh" class="w-full border border-slate-200 rounded-xl px-4 py-4 text-base placeholder:italic placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100">
                     </div>
+                    @endif
 
                     {{-- Water Supply --}}
+                    @if($waterMeter)
                     <div class="bg-white p-8 rounded-[24px] border border-slate-200 shadow-sm">
                         <div class="flex items-center space-x-3 mb-6">
                             <div class="bg-blue-100 p-2.5 rounded-xl text-blue-600">
@@ -87,9 +104,16 @@
                             </div>
                             <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Water Supply</span>
                         </div>
-                        <input type="text" value="MTR-0021-WT" disabled class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium text-slate-400 mb-4">
+                        <input type="text" value="{{ $waterMeter->hardware_meter_number }}" disabled class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium text-slate-400 mb-4">
                         <input type="text" placeholder="000.00 m³" class="w-full border border-slate-200 rounded-xl px-4 py-4 text-base placeholder:italic placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100">
                     </div>
+                    @endif
+
+                    @if(!$electricMeter && !$waterMeter)
+                    <div class="col-span-2 bg-slate-50 p-8 rounded-[24px] text-center text-slate-500">
+                        No meters assigned to this property
+                    </div>
+                    @endif
                 </div>
             </div>
 
@@ -107,8 +131,8 @@
                     
                     <div class="bg-white rounded-[24px] p-8 flex items-center shadow-2xl ring-1 ring-slate-200">
                         <span class="text-slate-300 font-light text-5xl mr-4">₱</span>
-                        <input type="text" 
-                               value="1,280.00" 
+                        <input type="text"
+                               value="{{ number_format($assignment->initial_deposit, 2) }}"
                                class="w-full text-5xl font-black text-slate-800 outline-none bg-transparent tracking-tighter">
                     </div>
                     

@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
 class RegisterController extends Controller
@@ -20,11 +21,11 @@ class RegisterController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'house_number' => ['required', 'string', 'max:255'],
             'gender' => ['required', Rule::in(['male', 'female'])],
-            'role' => ['required', Rule::in(['admin', 'resident'])],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'agree_terms' => ['required', 'accepted'],
         ]);
 
-        $user = User::create([
+        $userData = [
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
             'phone_number' => $validated['phone'],
@@ -32,13 +33,17 @@ class RegisterController extends Controller
             'house_number' => $validated['house_number'],
             'gender' => $validated['gender'] === 'male' ? 'Male' : 'Female',
             'password' => Hash::make($validated['password']),
-            'role' => $validated['role'] === 'resident' ? 'renter' : 'admin',
-        ]);
+            'role' => 'renter',
+        ];
 
-        Auth::login($user);
+        if (Schema::hasColumn('users', 'status')) {
+            $userData['status'] = 'pending';
+        }
+
+        $user = User::create($userData);
 
         return redirect()
             ->route('login')
-            ->with('success', 'Account created successfully. You can now sign in.');
+            ->with('success', 'Account created successfully! Your registration is pending admin approval. You\'ll be able to log in once approved.');
     }
 }

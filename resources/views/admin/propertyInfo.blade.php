@@ -1,7 +1,11 @@
 <x-layout title="Property & Meter Registry | VoltTrack">
-    <div class="max-w-7xl mx-auto p-12 bg-[#F8FAFC] min-h-screen font-sans">
-        
-        <nav class="flex items-center text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 gap-3">
+    <div class="max-w-6xl mx-auto py-10 px-6">
+        @if (session('success'))
+            <div class="mb-4 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+                {{ session('success') }}
+            </div>
+        @endif
+        <nav class="flex text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 gap-2">
             <span>Properties & Meters</span>
             <i class="fas fa-chevron-right text-[8px]"></i>
             <span class="text-blue-600">Property Details</span>
@@ -10,14 +14,17 @@
         <div class="flex justify-between items-end mb-10">
             <h1 class="text-5xl font-extrabold text-[#001D4E] tracking-tight">Property Details</h1>
             
-            <div class="flex gap-4">
-                <button class="px-8 py-3 bg-white border border-rose-100 text-rose-500 font-black rounded-2xl text-[11px] uppercase tracking-widest shadow-xl shadow-rose-100/50 hover:bg-rose-500 hover:text-white transition-all duration-300">
-                    Delete Account
-                </button>
-                
-                <a href="{{ route('admin.updateproperty') }}" class="px-8 py-3 bg-[#001D4E] text-white font-black rounded-2xl text-[11px] uppercase tracking-widest shadow-xl shadow-blue-900/20 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center">
+            <div class="flex gap-3">
+                <form method="POST" action="{{ route('admin.property.destroy', $property->id) }}" onsubmit="return confirm('Delete this property record? This action cannot be undone.');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="px-6 py-2.5 bg-rose-500 text-white font-black rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-rose-200 hover:bg-rose-600 transition-all">
+                        Delete Property
+                    </button>
+                </form>
+                <button class="px-6 py-2.5 bg-[#001D4E] text-white font-black rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-blue-900/20 hover:scale-[1.02] transition-all">
                     Update Property
-                </a>
+                </button>
             </div>
         </div>
 
@@ -31,34 +38,36 @@
                     <h3 class="text-lg font-black text-[#001D4E] uppercase tracking-wider">Property Specification</h3>
                 </div>
 
-                <div class="grid grid-cols-3 gap-x-12 gap-y-12">
-                    <div class="space-y-2">
-                        <label class="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] block">Property ID</label>
-                        <div class="flex items-center gap-3">
-                            <span class="font-bold text-[#001D4E] text-2xl tracking-tight">11111</span>
-                            <i class="fas fa-check-circle text-blue-500 text-sm"></i>
+                <div class="grid grid-cols-3 gap-y-10">
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Property ID</label>
+                        <div class="flex items-center gap-2">
+                            <span class="font-black text-[#001D4E] text-lg">#{{ $property->id }}</span>
+                            <i class="fas fa-check-circle text-slate-300 text-xs"></i>
                         </div>
                     </div>
-                    <div class="space-y-2">
-                        <label class="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] block">Cluster Housing</label>
-                        <span class="font-bold text-[#001D4E] text-2xl tracking-tight">Multi-Unit Prefab</span>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Cluster Housing</label>
+                        <span class="font-black text-[#001D4E] text-lg">{{ $property->cluster_housing ?? 'N/A' }}</span>
                     </div>
-                    <div class="space-y-2">
-                        <label class="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] block">Resident</label>
-                        <span class="font-bold text-[#001D4E] text-2xl tracking-tight">Mami Jupeta</span>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Resident</label>
+                        <span class="font-black text-[#001D4E] text-lg">
+                            {{ $property->user?->first_name }} {{ $property->user?->last_name ?? 'Unassigned' }}
+                        </span>
                     </div>
 
-                    <div class="space-y-2">
-                        <label class="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] block">Physical Address</label>
-                        <span class="font-bold text-[#001D4E] text-2xl tracking-tight">Visayan Village, Tagum</span>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Physical Address</label>
+                        <span class="font-black text-[#001D4E] text-lg">{{ $property->physical_address ?? 'N/A' }}</span>
                     </div>
-                    <div class="space-y-2">
-                        <label class="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] block">Unit Type</label>
-                        <span class="font-bold text-[#001D4E] text-2xl tracking-tight">Residential</span>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Unit Type</label>
+                        <span class="font-black text-[#001D4E] text-lg">{{ $property->unit_type ?? 'N/A' }}</span>
                     </div>
-                    <div class="space-y-2">
-                        <label class="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] block">Date Rented</label>
-                        <span class="font-bold text-[#001D4E] text-2xl tracking-tight">Apr 01, 2026</span>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Date Rented:</label>
+                        <span class="font-black text-[#001D4E] text-lg">{{ $property->lease_commencement_date?->format('M d, Y') ?? 'N/A' }}</span>
                     </div>
                 </div>
             </div>
@@ -71,36 +80,43 @@
                     <h3 class="text-lg font-black text-[#001D4E] uppercase tracking-wider">Assigned Metering</h3>
                 </div>
 
-                <div class="grid grid-cols-2 gap-8">
-                    <div class="bg-[#F8FAFC] border-l-[6px] border-blue-600 p-8 rounded-[32px] group hover:bg-white hover:shadow-xl transition-all duration-300">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <div class="flex items-center gap-3 mb-6">
-                                    <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                                        <i class="fas fa-bolt text-[#001D4E] text-xs"></i>
-                                    </div>
-                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Electricity Meter No.</span>
-                                </div>
-                                <h4 class="text-3xl font-black text-[#001D4E] mb-2 tracking-tighter">E-2023-X9921</h4>
-                                <p class="text-[11px] font-bold text-slate-400">Added on <span class="text-slate-600">12 Oct 2023</span></p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="grid grid-cols-2 gap-6">
+                    @php
+                        $electricMeter = $property->meters->firstWhere('utility_type', 'Electricity');
+                        $waterMeter = $property->meters->firstWhere('utility_type', 'Water');
+                    @endphp
 
-                    <div class="bg-[#F8FAFC] border-l-[6px] border-blue-400 p-8 rounded-[32px] group hover:bg-white hover:shadow-xl transition-all duration-300">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <div class="flex items-center gap-3 mb-6">
-                                    <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                                        <i class="fas fa-tint text-blue-500 text-xs"></i>
-                                    </div>
-                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Water Meter No.</span>
-                                </div>
-                                <h4 class="text-3xl font-black text-[#001D4E] mb-2 tracking-tighter">W-881-AQ-21</h4>
-                                <p class="text-[11px] font-bold text-slate-400">Added on <span class="text-slate-600">04 Nov 2023</span></p>
+                    @if($electricMeter)
+                    <div class="bg-slate-50 border-l-4 border-blue-600 p-6 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-4">
+                                <i class="fas fa-bolt text-[#001D4E] text-xs"></i>
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Electricity Meter No.</span>
                             </div>
+                            <h4 class="text-2xl font-black text-[#001D4E] mb-1 tracking-tight">{{ $electricMeter->hardware_meter_number }}</h4>
+                            <p class="text-[10px] font-bold text-slate-400">Serial: {{ $electricMeter->serial_number }}</p>
                         </div>
                     </div>
+                    @endif
+
+                    @if($waterMeter)
+                    <div class="bg-slate-50 border-l-4 border-blue-600 p-6 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-4">
+                                <i class="fas fa-tint text-blue-500 text-xs"></i>
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Water Meter No.</span>
+                            </div>
+                            <h4 class="text-2xl font-black text-[#001D4E] mb-1 tracking-tight">{{ $waterMeter->hardware_meter_number }}</h4>
+                            <p class="text-[10px] font-bold text-slate-400">Serial: {{ $waterMeter->serial_number }}</p>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if(!$electricMeter && !$waterMeter)
+                    <div class="col-span-2 p-6 bg-slate-50 rounded-2xl text-center text-slate-500">
+                        No meters assigned to this property yet.
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>

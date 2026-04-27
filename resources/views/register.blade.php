@@ -99,7 +99,14 @@
                 @enderror
 
                 <div class="flex items-center ml-1">
-                    <input type="checkbox" required class="mr-2 rounded bg-white/20 border-none text-blue-500 focus:ring-0">
+                    <input
+                        type="checkbox"
+                        name="agree_terms"
+                        value="1"
+                        required
+                        class="mr-2 rounded bg-white/20 border-none text-blue-500 focus:ring-0"
+                        {{ old('agree_terms') ? 'checked' : '' }}
+                    >
                     <p class="text-[10px] text-slate-400">
                         I agree to the 
                         <a href="#" class="text-slate-200 hover:underline">
@@ -110,6 +117,9 @@
                         </a>.
                     </p>
                 </div>
+                @error('agree_terms')
+                    <p class="mt-1 ml-1 text-xs text-red-200">{{ $message }}</p>
+                @enderror
 
                 <div class="pt-4 flex flex-col items-center">
                     <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all transform active:scale-[0.98]">

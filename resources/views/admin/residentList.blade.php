@@ -52,30 +52,35 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    @php
-                        $residents = [
-                            ['name' => 'Ricardo Dalisay', 'email' => 'cardo@gmail.com', 'id' => '00001', 'type' => 'Residential', 'date' => 'Apr 01, 2026'],
-                            ['name' => 'Elias Burnik', 'email' => 'eliasB@gmail.com', 'id' => '00005', 'type' => 'Residential', 'date' => 'Apr 15, 2026'],
-                            ['name' => 'Mami Jupeta', 'email' => 'mamijupeta@gmail.com', 'id' => '00003', 'type' => 'Residential', 'date' => 'Mar 30, 2026'],
-                            ['name' => 'Juan Dela Cruz', 'email' => 'jdl@gmail.com', 'id' => '00004', 'type' => 'Commercial', 'date' => 'Mar 30, 2026'],
-                        ];
-                    @endphp
-
-                    @foreach($residents as $res)
+                    @forelse($residents as $resident)
                     <tr class="hover:bg-slate-50/80 transition-colors group">
                         <td class="px-8 py-6">
-                            <p class="font-bold text-[#0f172a] text-base group-hover:text-blue-600 transition-colors">{{ $res['name'] }}</p>
-                            <p class="text-[12px] text-slate-400">{{ $res['email'] }}</p>
+                            <p class="font-bold text-[#0f172a] text-base group-hover:text-blue-600 transition-colors">
+                                {{ $resident->first_name }} {{ $resident->last_name }}
+                            </p>
+                            <p class="text-[12px] text-slate-400">{{ $resident->email }}</p>
                         </td>
-                        <td class="px-8 py-6 text-sm font-medium text-slate-600">{{ $res['id'] }}</td>
-                        <td class="px-8 py-6 text-sm font-bold text-slate-800">{{ $res['type'] }}</td>
-                        <td class="px-8 py-6 text-sm text-slate-500">{{ $res['date'] }}</td>
-                        <td class="px-8 py-6 text-sm text-slate-500">{{ $res['date'] }}</td>
+                        <td class="px-8 py-6 text-sm font-medium text-slate-600">#{{ $resident->id }}</td>
+                        <td class="px-8 py-6 text-sm font-bold text-slate-800">
+                            {{ $resident->properties->first()?->unit_type ?? 'N/A' }}
+                        </td>
+                        <td class="px-8 py-6 text-sm text-slate-500">
+                            {{ $resident->created_at?->format('M d, Y') ?? 'N/A' }}
+                        </td>
+                        <td class="px-8 py-6 text-sm text-slate-500">
+                            {{ $resident->bills->where('status', 'Paid')->sortByDesc('paid_at')->first()?->paid_at?->format('M d, Y') ?? 'No payments' }}
+                        </td>
                         <td class="px-8 py-6 text-right">
-                            <a href="{{ route('admin.residentInfo') }}" class="text-[12px] font-black text-blue-600 uppercase hover:underline">View</a>
+                            <a href="{{ route('admin.residentInfo', $resident->id) }}" class="text-[12px] font-black text-blue-600 uppercase hover:underline">View</a>
                         </td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="6" class="px-8 py-6 text-center text-slate-500">
+                            No residents found
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
 
