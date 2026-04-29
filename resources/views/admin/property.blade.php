@@ -1,42 +1,47 @@
 <x-layout title="Property & Meter Registry | VoltTrack">
-    <main class="p-10 bg-slate-50 min-h-screen font-sans">
+    @php
+        $viewMode = request('view') === 'table' ? 'table' : 'grid';
+        $isGridView = $viewMode === 'grid';
+        $tableViewUrl = route('admin.property', array_merge(request()->except(['view', 'page']), ['view' => 'table']));
+        $gridViewUrl = route('admin.property', array_merge(request()->except(['view', 'page']), ['view' => 'grid']));
+    @endphp
+
+    <main class="min-h-screen bg-slate-50 p-10 font-sans">
         @if (session('success'))
             <div class="mb-6 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
                 {{ session('success') }}
             </div>
         @endif
 
-        {{-- Header Section --}}
-        <div class="flex justify-between items-end mb-8">
+        <div class="mb-8 flex items-end justify-between">
             <div>
-                <nav class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                <nav class="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                     Properties & Meters <span class="mx-1">></span>
                 </nav>
-                <h1 class="text-4xl font-black text-[#0f172a] leading-tight">
+                <h1 class="text-4xl font-black leading-tight text-[#0f172a]">
                     Property & Meter Registry
                 </h1>
             </div>
-            
-            <div class="flex items-center space-x-6">
-                {{-- View Switcher --}}
-                <div class="flex bg-slate-200/50 p-1 rounded-lg text-[11px] font-bold uppercase tracking-tight">
-                    <button class="bg-white px-4 py-1.5 rounded shadow-sm text-blue-600 transition-all">Table View</button>
-                    <button class="px-4 py-1.5 text-slate-400 hover:text-slate-600 transition-all">Grid View</button>
+
+            <div class="flex items-center gap-6">
+                <div class="flex rounded-lg bg-slate-200/50 p-1 text-[11px] font-bold uppercase tracking-tight">
+                    <a href="{{ $tableViewUrl }}" class="{{ ! $isGridView ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600' }} rounded px-4 py-1.5 transition-all">
+                        Table View
+                    </a>
+                    <a href="{{ $gridViewUrl }}" class="{{ $isGridView ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600' }} rounded px-4 py-1.5 transition-all">
+                        Grid View
+                    </a>
                 </div>
-                
-                {{-- UPDATED: Primary Action as Link --}}
-                <a href="{{ route('admin.createnew') }}" class="bg-[#1e3a8a] hover:bg-blue-900 text-white text-[11px] font-black px-6 py-3.5 rounded-lg shadow-lg shadow-blue-900/20 uppercase tracking-wider transition-all active:scale-95">
+
+                <a href="{{ route('admin.createnew') }}" class="rounded-lg bg-[#1e3a8a] px-6 py-3.5 text-[11px] font-black uppercase tracking-wider text-white shadow-lg shadow-blue-900/20 transition-all hover:bg-blue-900 active:scale-95">
                     Add Property
                 </a>
             </div>
         </div>
 
-        {{-- Table Container --}}
-        <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-8">
-            
-            {{-- Filter and Search Row --}}
-            <div class="flex justify-between items-center mb-10">
-                <div class="flex items-center space-x-6">
+        <div class="rounded-[24px] border border-slate-100 bg-white p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+            <div class="mb-10 flex items-center justify-between gap-6">
+                <div class="flex items-center gap-6">
                     <div class="flex items-center gap-4">
                         <div id="unit-type-filter" class="flex items-center bg-slate-100/50 rounded-full p-1 border border-slate-200">
                             <span class="text-[9px] font-black text-slate-800 uppercase tracking-[0.15em] px-4">Type</span>
@@ -71,6 +76,7 @@
                             </select>
                         </div>
                     </div>
+
                     <span class="text-xs font-medium italic text-slate-400">
                         Showing <span id="visible-property-count">{{ number_format($properties->count()) }}</span> of {{ number_format($totalAssets) }} recorded assets
                     </span>
@@ -80,7 +86,7 @@
                 <div class="flex items-center gap-3">
                     <div class="relative group">
                         <span class="absolute inset-y-0 left-5 flex items-center text-blue-500 transition-colors group-focus-within:text-blue-600">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </span>
@@ -90,7 +96,7 @@
                             name="search"
                             value="{{ request('search') }}"
                             placeholder="Search resident..."
-                            class="pl-12 pr-8 py-3.5 w-80 rounded-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-blue-200 focus:outline-none focus:ring-4 focus:ring-blue-50 text-sm transition-all placeholder:text-slate-400"
+                            class="w-80 rounded-full border border-slate-100 bg-slate-50 py-3.5 pl-12 pr-8 text-sm transition-all placeholder:text-slate-400 focus:border-blue-200 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-50"
                         >
                     </div>
                     <button type="button" id="property-search-button" class="rounded-full bg-[#1e3a8a] px-6 py-3 text-[11px] font-black uppercase tracking-wider text-white shadow-lg shadow-blue-900/20 transition-all hover:bg-blue-900 active:scale-95">
@@ -99,10 +105,83 @@
                 </div>
             </div>
 
-            {{-- Registry Table --}}
+            @if($isGridView)
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+                @forelse($properties as $property)
+                    @php
+                        $electricMeter = $property->meters->firstWhere('utility_type', 'Electricity');
+                        $waterMeter = $property->meters->firstWhere('utility_type', 'Water');
+                    @endphp
+                    <article
+                        class="property-row rounded-2xl border border-slate-100 bg-slate-50/70 p-6 transition-all hover:-translate-y-0.5 hover:border-blue-100 hover:bg-white hover:shadow-xl hover:shadow-slate-200/60"
+                        data-unit-type="{{ $property->unit_type ?? '' }}"
+                        data-status="{{ $property->status ?? '' }}"
+                        data-search="{{ strtolower(trim(($property->property_unit_id ?? "#{$property->id}") . ' ' . ($property->user?->first_name ?? '') . ' ' . ($property->user?->last_name ?? '') . ' ' . ($property->user?->email ?? '') . ' ' . ($property->unit_type ?? '') . ' ' . ($electricMeter?->hardware_meter_number ?? $electricMeter?->serial_number ?? '') . ' ' . ($waterMeter?->hardware_meter_number ?? $waterMeter?->serial_number ?? '') . ' ' . ($property->status ?? ''))) }}"
+                    >
+                        <div class="mb-5 flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Property ID</p>
+                                <h2 class="mt-1 text-2xl font-black tracking-tight text-[#0f172a]">{{ $property->property_unit_id ?? "#{$property->id}" }}</h2>
+                                <p class="mt-1 text-xs font-bold uppercase tracking-wider text-slate-400">{{ $property->unit_type ?? 'N/A' }}</p>
+                            </div>
+
+                            @if($property->status === 'Active')
+                                <span class="inline-flex items-center rounded-full border border-blue-100/50 bg-blue-50 px-3 py-1.5 text-[10px] font-black text-blue-700">
+                                    <span class="mr-2 h-1.5 w-1.5 rounded-full bg-blue-500"></span> ACTIVE
+                                </span>
+                            @elseif($property->status === 'Inactive')
+                                <span class="inline-flex items-center rounded-full border border-emerald-100/50 bg-emerald-50 px-3 py-1.5 text-[10px] font-black text-emerald-700">
+                                    <span class="mr-2 h-1.5 w-1.5 rounded-full bg-emerald-500"></span> VACANT
+                                </span>
+                            @else
+                                <span class="inline-flex items-center rounded-full border border-slate-200/50 bg-slate-100 px-3 py-1.5 text-[10px] font-black text-slate-700">
+                                    {{ $property->status ?? 'N/A' }}
+                                </span>
+                            @endif
+                        </div>
+
+                        <div class="mb-5 min-h-16 rounded-xl border border-slate-100 bg-white p-4">
+                            <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Resident</p>
+                            @if($property->user)
+                                <p class="mt-1 font-black text-[#1e293b]">{{ $property->user->first_name }} {{ $property->user->last_name }}</p>
+                                <p class="text-xs text-slate-400">{{ $property->user->email }}</p>
+                            @else
+                                <p class="mt-1 font-bold text-slate-400">Unassigned</p>
+                            @endif
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="rounded-xl border border-amber-100 bg-amber-50/60 p-4">
+                                <p class="text-[10px] font-black uppercase tracking-[0.16em] text-amber-600">Electric</p>
+                                <p class="mt-2 truncate text-sm font-black text-slate-700" title="{{ $electricMeter?->hardware_meter_number ?? $electricMeter?->serial_number ?? 'N/A' }}">
+                                    {{ $electricMeter?->hardware_meter_number ?? $electricMeter?->serial_number ?? 'N/A' }}
+                                </p>
+                            </div>
+                            <div class="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+                                <p class="text-[10px] font-black uppercase tracking-[0.16em] text-blue-600">Water</p>
+                                <p class="mt-2 truncate text-sm font-black text-slate-700" title="{{ $waterMeter?->hardware_meter_number ?? $waterMeter?->serial_number ?? 'N/A' }}">
+                                    {{ $waterMeter?->hardware_meter_number ?? $waterMeter?->serial_number ?? 'N/A' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <a href="{{ route('admin.propertyInfo', $property->id) }}" class="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-[#1e3a8a] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-900/15 transition-all hover:bg-blue-900 active:scale-95">
+                            View Details
+                        </a>
+                    </article>
+                @empty
+                    <div class="col-span-full rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center text-slate-500">
+                        No properties found
+                    </div>
+                @endforelse
+                <div id="no-filtered-properties-card" class="col-span-full hidden rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center text-slate-500">
+                    No properties found for the selected filters
+                </div>
+            </div>
+            @else
             <div class="overflow-hidden">
                 <table class="w-full text-left">
-                    <thead class="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] border-b border-slate-50">
+                    <thead class="border-b border-slate-50 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                         <tr>
                             <th class="px-6 py-5">Property ID</th>
                             <th class="px-6 py-5">Resident</th>
@@ -115,59 +194,59 @@
                     </thead>
                     <tbody id="property-table-body" class="divide-y divide-slate-50 text-[13px]">
                         @forelse($properties as $property)
-                        @php
-                            $electricMeter = $property->meters->firstWhere('utility_type', 'Electricity');
-                            $waterMeter = $property->meters->firstWhere('utility_type', 'Water');
-                        @endphp
-                        <tr
-                            class="property-row hover:bg-slate-50/80 transition-all group"
-                            data-unit-type="{{ $property->unit_type ?? '' }}"
-                            data-status="{{ $property->status ?? '' }}"
-                            data-search="{{ strtolower(trim(($property->property_unit_id ?? "#{$property->id}") . ' ' . ($property->user?->first_name ?? '') . ' ' . ($property->user?->last_name ?? '') . ' ' . ($property->user?->email ?? '') . ' ' . ($property->unit_type ?? '') . ' ' . ($electricMeter?->hardware_meter_number ?? $electricMeter?->serial_number ?? '') . ' ' . ($waterMeter?->hardware_meter_number ?? $waterMeter?->serial_number ?? '') . ' ' . ($property->status ?? ''))) }}"
-                        >
-                            <td class="px-6 py-6 font-bold text-slate-400 group-hover:text-slate-600">{{ $property->property_unit_id ?? "#{$property->id}" }}</td>
-                            <td class="px-6 py-6">
-                                @if($property->user)
-                                    <p class="font-black text-[#1e293b]">
-                                        {{ $property->user->first_name }} {{ $property->user->last_name }}
-                                    </p>
-                                    <p class="text-[11px] text-slate-400">{{ $property->user->email }}</p>
-                                @else
-                                    <span class="text-slate-400 font-medium">Unassigned</span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-6 font-black text-[#1e293b]">{{ $property->unit_type ?? 'N/A' }}</td>
-                            <td class="px-6 py-6 text-slate-500 font-medium">
-                                {{ $electricMeter?->hardware_meter_number ?? $electricMeter?->serial_number ?? 'N/A' }}
-                            </td>
-                            <td class="px-6 py-6 text-slate-500 font-medium">
-                                {{ $waterMeter?->hardware_meter_number ?? $waterMeter?->serial_number ?? 'N/A' }}
-                            </td>
-                            <td class="px-6 py-6">
-                                @if($property->status === 'Active')
-                                    <span class="bg-blue-50 text-blue-700 text-[10px] font-black px-4 py-1.5 rounded-full flex items-center w-fit border border-blue-100/50">
-                                        <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2.5 animate-pulse"></span> ACTIVE
-                                    </span>
-                                @elseif($property->status === 'Inactive')
-                                    <span class="bg-emerald-50 text-emerald-700 text-[10px] font-black px-4 py-1.5 rounded-full flex items-center w-fit border border-emerald-100/50">
-                                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2.5"></span> VACANT
-                                    </span>
-                                @else
-                                    <span class="bg-slate-100 text-slate-700 text-[10px] font-black px-4 py-1.5 rounded-full flex items-center w-fit border border-slate-200/50">
-                                        {{ $property->status ?? 'N/A' }}
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-6 text-right">
-                                <a href="{{ route('admin.propertyInfo', $property->id) }}" class="text-[11px] font-black text-blue-600 uppercase tracking-widest hover:text-blue-800 hover:underline transition-all">View</a>
-                            </td>
-                        </tr>
+                            @php
+                                $electricMeter = $property->meters->firstWhere('utility_type', 'Electricity');
+                                $waterMeter = $property->meters->firstWhere('utility_type', 'Water');
+                            @endphp
+                            <tr
+                                class="property-row group transition-all hover:bg-slate-50/80"
+                                data-unit-type="{{ $property->unit_type ?? '' }}"
+                                data-status="{{ $property->status ?? '' }}"
+                                data-search="{{ strtolower(trim(($property->property_unit_id ?? "#{$property->id}") . ' ' . ($property->user?->first_name ?? '') . ' ' . ($property->user?->last_name ?? '') . ' ' . ($property->user?->email ?? '') . ' ' . ($property->unit_type ?? '') . ' ' . ($electricMeter?->hardware_meter_number ?? $electricMeter?->serial_number ?? '') . ' ' . ($waterMeter?->hardware_meter_number ?? $waterMeter?->serial_number ?? '') . ' ' . ($property->status ?? ''))) }}"
+                            >
+                                <td class="px-6 py-6 font-bold text-slate-400 group-hover:text-slate-600">{{ $property->property_unit_id ?? "#{$property->id}" }}</td>
+                                <td class="px-6 py-6">
+                                    @if($property->user)
+                                        <p class="font-black text-[#1e293b]">
+                                            {{ $property->user->first_name }} {{ $property->user->last_name }}
+                                        </p>
+                                        <p class="text-[11px] text-slate-400">{{ $property->user->email }}</p>
+                                    @else
+                                        <span class="font-medium text-slate-400">Unassigned</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-6 font-black text-[#1e293b]">{{ $property->unit_type ?? 'N/A' }}</td>
+                                <td class="px-6 py-6 font-medium text-slate-500">
+                                    {{ $electricMeter?->hardware_meter_number ?? $electricMeter?->serial_number ?? 'N/A' }}
+                                </td>
+                                <td class="px-6 py-6 font-medium text-slate-500">
+                                    {{ $waterMeter?->hardware_meter_number ?? $waterMeter?->serial_number ?? 'N/A' }}
+                                </td>
+                                <td class="px-6 py-6">
+                                    @if($property->status === 'Active')
+                                        <span class="flex w-fit items-center rounded-full border border-blue-100/50 bg-blue-50 px-4 py-1.5 text-[10px] font-black text-blue-700">
+                                            <span class="mr-2.5 h-1.5 w-1.5 rounded-full bg-blue-500"></span> ACTIVE
+                                        </span>
+                                    @elseif($property->status === 'Inactive')
+                                        <span class="flex w-fit items-center rounded-full border border-emerald-100/50 bg-emerald-50 px-4 py-1.5 text-[10px] font-black text-emerald-700">
+                                            <span class="mr-2.5 h-1.5 w-1.5 rounded-full bg-emerald-500"></span> VACANT
+                                        </span>
+                                    @else
+                                        <span class="flex w-fit items-center rounded-full border border-slate-200/50 bg-slate-100 px-4 py-1.5 text-[10px] font-black text-slate-700">
+                                            {{ $property->status ?? 'N/A' }}
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-6 text-right">
+                                    <a href="{{ route('admin.propertyInfo', $property->id) }}" class="text-[11px] font-black uppercase tracking-widest text-blue-600 transition-all hover:text-blue-800 hover:underline">View</a>
+                                </td>
+                            </tr>
                         @empty
-                        <tr id="empty-property-row">
-                            <td colspan="7" class="px-6 py-6 text-center text-slate-500">
-                                No properties found
-                            </td>
-                        </tr>
+                            <tr id="empty-property-row">
+                                <td colspan="7" class="px-6 py-6 text-center text-slate-500">
+                                    No properties found
+                                </td>
+                            </tr>
                         @endforelse
                         <tr id="no-filtered-properties-row" class="hidden">
                             <td colspan="7" class="px-6 py-6 text-center text-slate-500">
@@ -177,9 +256,9 @@
                     </tbody>
                 </table>
             </div>
+            @endif
 
-            {{-- Pagination Footer --}}
-            <div class="mt-10 flex justify-between items-center text-[11px] font-bold text-slate-400 pt-8 border-t border-slate-50">
+            <div class="mt-10 flex items-center justify-between border-t border-slate-50 pt-8 text-[11px] font-bold text-slate-400">
                 <p>
                     Showing
                     <span class="text-slate-600">{{ number_format($properties->firstItem() ?? 0) }}-{{ number_format($properties->lastItem() ?? 0) }}</span>
@@ -199,7 +278,7 @@
             const searchInput = document.getElementById('property-search');
             const searchButton = document.getElementById('property-search-button');
             const rows = Array.from(document.querySelectorAll('.property-row'));
-            const emptyFilteredRow = document.getElementById('no-filtered-properties-row');
+            const emptyFilteredRows = Array.from(document.querySelectorAll('#no-filtered-properties-row, #no-filtered-properties-card'));
             const visibleCount = document.getElementById('visible-property-count');
             const activeClasses = ['bg-[#1e3a8a]', 'text-white', 'shadow-md'];
             const inactiveClasses = ['text-slate-400', 'hover:text-slate-600'];
@@ -236,9 +315,9 @@
                     }
                 });
 
-                if (emptyFilteredRow) {
+                emptyFilteredRows.forEach((emptyFilteredRow) => {
                     emptyFilteredRow.classList.toggle('hidden', shownRows > 0);
-                }
+                });
 
                 if (visibleCount) {
                     visibleCount.textContent = shownRows.toLocaleString();

@@ -23,8 +23,8 @@
                                 <p class="text-xs uppercase tracking-[0.22em] text-blue-100">Resident</p>
                             </div>
 
-                            <div class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/25 bg-white/15 text-lg font-bold">
-                                {{ strtoupper(substr($user->first_name, 0, 1)) }}
+                            <div class="h-12 w-12 overflow-hidden rounded-full border-2 border-white/25 bg-white">
+                                <img src="{{ asset('image/profile.png') }}" alt="Profile logo" class="h-full w-full object-cover">
                             </div>
                         </summary>
 
