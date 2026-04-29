@@ -56,8 +56,8 @@
                             <div>
                                 <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">Electricity</p>
                                 <div class="mt-1 flex items-end gap-2">
-                                    <span class="text-4xl font-black tracking-tight text-[#1846c0]">{{ number_format($electricBill?->consumption ?? 0, 2) }}</span>
-                                    <span class="pb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-500">kWh</span>
+                                    <span class="text-4xl font-black tracking-tight text-[#1846c0]">PHP {{ number_format($electricBill?->consumption ?? 0, 2) }}</span>
+                                    <span class="pb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-500"> per kWh</span>
                                 </div>
                             </div>
                             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7ecff] text-[#1846c0] shadow-inner">
@@ -82,8 +82,8 @@
                             <div>
                                 <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">Water</p>
                                 <div class="mt-1 flex items-end gap-2">
-                                    <span class="text-4xl font-black tracking-tight text-[#334155]">{{ number_format($waterBill?->consumption ?? 0, 1) }}</span>
-                                    <span class="pb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-500">m3</span>
+                                    <span class="text-4xl font-black tracking-tight text-[#334155]">PHP {{ number_format($waterBill?->consumption ?? 0, 1) }}</span>
+                                    <span class="pb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-500">per m3</span>
                                 </div>
                             </div>
                             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#edf2ff] text-[#64748b] shadow-inner">

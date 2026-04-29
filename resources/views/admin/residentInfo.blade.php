@@ -8,7 +8,8 @@
 
     <div class="mb-2">
         <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-            Residents List > <span class="text-blue-600">{{ $resident->first_name }} {{ $resident->last_name }}</span>
+            <a href="{{ route('admin.residentList') }}" class="hover:text-black transition-all">Residents List</a>
+            > <span class="text-blue-600">{{ $resident->first_name }} {{ $resident->last_name }}</span>
         </p>
     </div>
 
@@ -19,9 +20,9 @@
         </div>
         
         <div class="flex space-x-4">
-            <a href="{{route('admin.Update.updateResident')}}"><button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
+            <a href="{{ route('admin.resident.edit', $resident->id) }}" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
                 UPDATE ACCOUNT
-            </button></a>
+            </a>
             <button class="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
                 DELETE ACCOUNT
             </button>

@@ -51,13 +51,27 @@
                     <table class="min-w-full text-sm">
                         <thead class="bg-slate-50 text-slate-600 uppercase text-xs">
                             <tr>
-                                <th class="px-5 py-3 text-left">Resident</th>
-                                <th class="px-5 py-3 text-center">Property</th>
-                                <th class="px-5 py-3 text-center">Utility</th>
-                                <th class="px-5 py-3 text-center">Balance</th>
-                                <th class="px-5 py-3 text-center">Reading Date</th>
-                                <th class="px-5 py-3 text-center">Status</th>
-                                <th class="px-5 py-3 text-right">Action</th>
+                                <th class="px-5 py-3 text-left font-extrabold">
+                                    Resident
+                                </th>
+                                <th class="px-5 py-3 text-center font-extrabold">
+                                    Property
+                                </th>
+                                <th class="px-5 py-3 text-center font-extrabold">
+                                    Utility
+                                </th>
+                                <th class="px-5 py-3 text-center font-extrabold">
+                                    Balance
+                                </th>
+                                <th class="px-5 py-3 text-center font-extrabold">
+                                    Reading Date
+                                </th>
+                                <th class="px-5 py-3 text-center font-extrabold">
+                                    Status
+                                </th>
+                                <th class="px-5 py-3 text-right font-extrabold">
+                                    Action
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">

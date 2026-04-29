@@ -27,18 +27,37 @@
             <form action="{{ route('login.store') }}" method="POST" class="space-y-6">
                 @csrf
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 ml-1">Email Address</label>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 ml-1">
+                        Email Address
+                    </label>
                     <input type="email" name="email" value="{{ old('email') }}" class="w-full px-4 py-3 rounded-xl bg-slate-200/90 border-none focus:ring-2 focus:ring-blue-500 outline-none transition-all">
                     @error('email')
                         <p class="mt-1 ml-1 text-xs text-red-200">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <div>
+                <div x-data="{ show: false }">
                     <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 ml-1">
                         Password
                     </label>
-                    <input type="password" name="password" class="w-full px-4 py-3 rounded-xl bg-slate-200/90 border-none focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    
+                    <div class="relative flex items-center">
+                        <input 
+                            :type="show ? 'text' : 'password'" 
+                            name="password" 
+                            class="w-full px-4 py-3 rounded-xl bg-slate-200/90 border-none focus:ring-2 focus:ring-blue-500 outline-none transition-all pr-12 text-[#001D4E] font-semibold"
+                            required
+                        >
+
+                        <button 
+                            type="button" 
+                            @click="show = !show" 
+                            class="absolute right-3 p-2 text-slate-500 hover:text-blue-600 focus:outline-none transition-colors"
+                        >
+                            <i class="fas" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
+                        </button>
+                    </div>
+
                     @error('password')
                         <p class="mt-1 ml-1 text-xs text-red-200">{{ $message }}</p>
                     @enderror

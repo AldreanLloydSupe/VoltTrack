@@ -1,104 +1,140 @@
 <x-layout title="Update Property | VoltTrack">
-    <div class="w-full bg-[#F3F4F6] min-h-screen font-sans">
-        
-        <div class="flex justify-between items-start pt-12 px-12 mb-10">
-            <div>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                    Properties & Meters <span class="mx-1 text-slate-300">></span> Property Details <span class="mx-1 text-slate-300">></span> <span class="text-blue-700">Update Property</span>
-                </p>
-                <h1 class="text-5xl font-extrabold text-[#001D4E] tracking-tight">Update Property</h1>
-                <p class="text-sm font-medium text-slate-500 mt-1 max-w-2xl">
-                    Create a new residential and assigning meters and residents now ensures immediate billing cycles.
-                </p>
-            </div>
-            <div class="flex items-center gap-6">
-                <button type="button" class="text-[11px] font-bold text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-all">
-                    Cancel
-                </button>
-                <button type="submit" form="update-form" class="bg-[#1e3a8a] hover:bg-blue-900 text-white text-[11px] font-bold px-9 py-3.5 rounded-xl shadow-lg uppercase tracking-widest transition-all active:scale-95 text-center">
-                    Update Changes
-                </button>
-            </div>
-        </div>
+    @php
+        $electricMeter = $property->meters->firstWhere('utility_type', 'Electricity');
+        $waterMeter = $property->meters->firstWhere('utility_type', 'Water');
+    @endphp
 
-        <form id="update-form" action="#" method="POST" class="px-12 pb-12 space-y-8">
-            
-            <section class="bg-white p-9 rounded-2xl border border-slate-100 shadow-sm">
-                <div class="flex items-center space-x-2 mb-8">
-                    <div class="text-blue-600">
-                        <i class="fas fa-building text-lg"></i>
+    <main class="w-full min-h-screen bg-slate-50 p-8 font-sans">
+        <div class="max-w-6xl mx-auto">
+            @if ($errors->any())
+                <div class="mb-6 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                    <ul class="list-disc pl-5 space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form id="update-form" action="{{ route('admin.property.update', $property->id) }}" method="POST" class="space-y-6">
+                @csrf
+                @method('PATCH')
+
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <nav class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">
+                            PROPERTIES & METERS <span class="mx-1 text-slate-300">></span> PROPERTY DETAILS <span class="mx-1 text-slate-300">></span> <span class="text-blue-700">UPDATE PROPERTY</span>
+                        </nav>
+                        <h1 class="text-5xl font-black text-[#0f172a] tracking-tight">Update Property</h1>
+                        <p class="mt-2 text-sm font-medium text-slate-500">
+                            Edit the assigned resident, property details, and current meter setup for this unit.
+                        </p>
                     </div>
-                    <h2 class="text-lg font-bold tracking-tight text-[#111827]">Property Details</h2>
+
+                    <div class="flex items-center space-x-4">
+                        <a href="{{ route('admin.propertyInfo', $property->id) }}" class="text-[12px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-all">
+                            Cancel
+                        </a>
+                        <button type="submit" class="bg-[#1e3a8a] hover:bg-blue-900 text-white text-[12px] font-black px-8 py-4 rounded-2xl shadow-xl uppercase tracking-widest transition-all active:scale-95">
+                            Update Changes
+                        </button>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-x-10 gap-y-6 mb-6">
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest">Property Unit ID</label>
-                        <input type="text" value="VT-8820-A" class="w-full bg-[#F3F4F6] border border-slate-100 rounded-xl px-5 py-3.5 text-sm font-medium text-slate-400 focus:outline-none cursor-not-allowed" readonly>
+                <section class="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="bg-blue-50 p-2 rounded-xl text-blue-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        </div>
+                        <h2 class="text-2xl font-bold tracking-tight text-slate-700">Property Details</h2>
                     </div>
 
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest">Cluster Housing</label>
-                        <div class="relative">
-                            <select class="w-full bg-[#F3F4F6] border border-slate-100 rounded-xl px-5 py-3.5 text-sm font-medium text-[#111827] appearance-none outline-none focus:ring-1 focus:ring-blue-100">
-                                <option>Multi-Unit Prefab Housing</option>
+                    <div class="grid grid-cols-1 gap-x-12 gap-y-6 md:grid-cols-2">
+                        <div>
+                            <label class="mb-2 block text-[11px] font-black uppercase tracking-widest text-slate-400">Property Record</label>
+                            <input type="text" value="#{{ $property->id }}" class="w-full cursor-not-allowed rounded-xl border border-slate-100 bg-slate-100 px-6 py-4 text-lg font-bold text-slate-400" readonly>
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-[11px] font-black uppercase tracking-widest text-slate-400">Property Unit ID</label>
+                            <input name="property_unit_id" value="{{ old('property_unit_id', $property->property_unit_id) }}" type="text" class="w-full rounded-xl border border-slate-100 bg-slate-50 px-6 py-4 text-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-100" required>
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-[11px] font-black uppercase tracking-widest text-slate-400">Assign Resident (Approved)</label>
+                            <select name="user_id" class="w-full appearance-none rounded-xl border border-slate-100 bg-slate-50 px-6 py-4 text-base font-bold text-slate-700 outline-none">
+                                <option value="">Unassigned</option>
+                                @foreach($approvedResidents as $resident)
+                                    <option value="{{ $resident->id }}" @selected((string) old('user_id', $property->user_id) === (string) $resident->id)>
+                                        {{ $resident->first_name }} {{ $resident->last_name }} (#{{ $resident->id }})
+                                    </option>
+                                @endforeach
                             </select>
-                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                <i class="fas fa-chevron-down text-sm"></i>
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-[11px] font-black uppercase tracking-widest text-slate-400">Cluster Housing</label>
+                            <input name="cluster_housing" value="{{ old('cluster_housing', $property->cluster_housing) }}" type="text" class="w-full rounded-xl border border-slate-100 bg-slate-50 px-6 py-4 text-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-100">
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-[11px] font-black uppercase tracking-widest text-slate-400">Unit Type</label>
+                            <select name="unit_type" class="w-full appearance-none rounded-xl border border-slate-100 bg-slate-50 px-6 py-4 text-lg font-bold text-slate-700 outline-none" required>
+                                <option value="Residential" @selected(old('unit_type', $property->unit_type) === 'Residential')>Residential</option>
+                                <option value="Commercial" @selected(old('unit_type', $property->unit_type) === 'Commercial')>Commercial</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-[11px] font-black uppercase tracking-widest text-slate-400">Property Status</label>
+                            <select name="status" class="w-full appearance-none rounded-xl border border-slate-100 bg-slate-50 px-6 py-4 text-lg font-bold text-slate-700 outline-none" required>
+                                <option value="Active" @selected(old('status', $property->status) === 'Active')>Active</option>
+                                <option value="Inactive" @selected(old('status', $property->status) === 'Inactive')>Inactive</option>
+                                <option value="Archived" @selected(old('status', $property->status) === 'Archived')>Archived</option>
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="mb-2 block text-[11px] font-black uppercase tracking-widest text-slate-400">Physical Address</label>
+                            <input name="physical_address" value="{{ old('physical_address', $property->physical_address) }}" type="text" class="w-full rounded-xl border border-slate-100 bg-slate-50 px-6 py-4 text-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-100" required>
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-[11px] font-black uppercase tracking-widest text-slate-400">Lease Commencement Date</label>
+                            <input name="lease_commencement_date" value="{{ old('lease_commencement_date', optional($property->lease_commencement_date)->format('Y-m-d')) }}" type="date" class="w-full rounded-xl border border-slate-100 bg-slate-50 px-6 py-4 text-lg font-bold text-slate-700 outline-none">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="bg-blue-50 p-2 rounded-xl text-blue-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <h2 class="text-2xl font-bold tracking-tight text-slate-700">Meter Details</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-10 md:grid-cols-2">
+                        <div class="space-y-4">
+                            <p class="text-xs font-black uppercase tracking-[0.2em] text-[#f59e0b]">Electricity Meter</p>
+                            <input name="electric_serial_number" value="{{ old('electric_serial_number', $electricMeter?->serial_number) }}" type="text" placeholder="Serial Number" class="w-full rounded-xl border-none bg-slate-100 px-6 py-4 text-base font-bold text-slate-700">
+                            <div class="relative">
+                                <input name="electric_initial_reading" value="{{ old('electric_initial_reading', $electricMeter?->pivot?->initial_reading ?? 0) }}" type="number" step="0.01" min="0" class="w-full rounded-xl border-none bg-blue-50/50 px-6 py-4 text-xl font-black text-blue-700">
+                                <span class="absolute right-6 top-1/2 -translate-y-1/2 text-xs font-bold uppercase text-slate-400">kWh</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <p class="text-xs font-black uppercase tracking-[0.2em] text-blue-500">Water Meter</p>
+                            <input name="water_serial_number" value="{{ old('water_serial_number', $waterMeter?->serial_number) }}" type="text" placeholder="Serial Number" class="w-full rounded-xl border-none bg-slate-100 px-6 py-4 text-base font-bold text-slate-700">
+                            <div class="relative">
+                                <input name="water_initial_reading" value="{{ old('water_initial_reading', $waterMeter?->pivot?->initial_reading ?? 0) }}" type="number" step="0.01" min="0" class="w-full rounded-xl border-none bg-blue-50/50 px-6 py-4 text-xl font-black text-blue-700">
+                                <span class="absolute right-6 top-1/2 -translate-y-1/2 text-xs font-bold uppercase text-slate-400">m3</span>
                             </div>
                         </div>
                     </div>
-
-                    <div class="col-span-2">
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest">Physical Address</label>
-                        <input type="text" value="Visayan Village, Tagum City" class="w-full bg-[#F3F4F6] border border-slate-100 rounded-xl px-5 py-3.5 text-sm font-medium text-[#111827] outline-none focus:ring-1 focus:ring-blue-100">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-x-10">
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest">Unit Type</label>
-                        <div class="flex p-1 bg-[#F3F4F6] rounded-xl w-fit gap-1">
-                            <button type="button" class="px-10 py-3 bg-[#1D4ED8] text-white text-[11px] font-bold rounded-xl shadow-md uppercase tracking-wider">Residential</button>
-                            <button type="button" class="px-10 py-3 text-slate-400 text-[11px] font-bold rounded-xl hover:text-slate-600 transition-colors uppercase tracking-wider">Commercial</button>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest">Lease Commencement</label>
-                        <input type="date" class="w-full bg-[#F3F4F6] border border-slate-100 rounded-xl px-5 py-3.5 text-sm font-medium text-[#111827] outline-none focus:ring-1 focus:ring-blue-100">
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white p-9 rounded-2xl border border-slate-100 shadow-sm">
-                <div class="flex items-center space-x-2 mb-8">
-                    <div class="text-blue-600">
-                        <i class="fas fa-tachometer-alt text-lg"></i>
-                    </div>
-                    <h2 class="text-lg font-bold tracking-tight text-[#111827]">Meter Initialization</h2>
-                </div>
-
-                <div class="grid grid-cols-2 gap-x-12">
-                    <div>
-                        <div class="flex items-center space-x-2.5 text-[#FBBF24] mb-3">
-                            <i class="fas fa-bolt text-sm"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-[#111827]">Electricity Meter</span>
-                        </div>
-                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-2 tracking-widest">Serial Number</label>
-                        <input type="text" placeholder="e.g. ELEC-992-00" class="w-full bg-[#E5E7EB] border border-slate-100 rounded-xl px-5 py-3.5 text-sm font-medium text-[#111827] placeholder-slate-400 outline-none focus:ring-1 focus:ring-blue-100">
-                    </div>
-
-                    <div>
-                        <div class="flex items-center space-x-2.5 text-blue-500 mb-3">
-                            <i class="fas fa-tint text-sm"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-[#111827]">Water Meter</span>
-                        </div>
-                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-2 tracking-widest">Serial Number</label>
-                        <input type="text" placeholder="e.g. WATR-441-00" class="w-full bg-[#E5E7EB] border border-slate-100 rounded-xl px-5 py-3.5 text-sm font-medium text-[#111827] placeholder-slate-400 outline-none focus:ring-1 focus:ring-blue-100">
-                    </div>
-                </div>
-            </section>
-        </form>
-    </div>
+                </section>
+            </form>
+        </div>
+    </main>
 </x-layout>

@@ -58,6 +58,12 @@ Route::get('/admin/property', [AdminPropertyController::class, 'list'])
 Route::get('/admin/residentInfo/{id}', [AdminResidentController::class, 'show'])
     ->middleware(['auth', 'no.cache'])
     ->name('admin.residentInfo');
+Route::get('/admin/resident/{id}/edit', [AdminResidentController::class, 'edit'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.resident.edit');
+Route::patch('/admin/resident/{id}', [AdminResidentController::class, 'update'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.resident.update');
 
 Route::get('/admin/billingHistory', [AdminBillingController::class, 'list'])
     ->middleware(['auth', 'no.cache'])
@@ -69,6 +75,12 @@ Route::patch('/admin/bills/{bill}/status', [AdminBillingController::class, 'upda
 Route::get('/admin/propertyInfo/{id}', [AdminPropertyController::class, 'show'])
     ->middleware(['auth', 'no.cache'])
     ->name('admin.propertyInfo');
+Route::get('/admin/property/{id}/edit', [AdminPropertyController::class, 'edit'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.property.edit');
+Route::patch('/admin/property/{id}', [AdminPropertyController::class, 'update'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.property.update');
 Route::delete('/admin/property/{id}', [AdminPropertyController::class, 'destroy'])
     ->middleware(['auth', 'no.cache'])
     ->name('admin.property.destroy');
@@ -91,13 +103,6 @@ Route::get('/admin/Create/createNewElectricityBill', [AdminBillingController::cl
 Route::post('/admin/Create/createNewElectricityBill', [AdminBillingController::class, 'storeElectricityBill'])
     ->middleware(['auth', 'no.cache'])
     ->name('admin.Create.storeNewElectricityBill');
-
-// Updating
-
-Route::get('/admin/Update/updateResident', function () {
-    return view('admin.Update.updateResident');
-})->name('admin.Update.updateResident');
-
 
 Route::post('/login', [LoginController::class, 'store'])->name('login.store');
 Route::post('/register', [RegisterController::class, 'store'])->name('register.store');

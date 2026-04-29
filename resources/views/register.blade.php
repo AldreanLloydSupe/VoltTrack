@@ -77,20 +77,50 @@
                     <p class="-mt-2 ml-1 text-xs text-red-200">{{ $message }}</p>
                 @enderror
 
-                <div>
+
+                <div x-data="{ showPass: false }" class="mb-4">
                     <label class="block text-xs font-semibold text-slate-300 uppercase mb-1.5 ml-1">
                         Password
                     </label>
-                    <input type="password" name="password" placeholder="Enter your password" class="w-full px-4 py-2.5 rounded-xl bg-slate-200/90 border-none outline-none text-sm focus:ring-2 focus:ring-blue-500 transition-all">
+                    <div class="relative flex items-center">
+                        <input 
+                            :type="showPass ? 'text' : 'password'" 
+                            name="password" 
+                            placeholder="Enter your password" 
+                            class="w-full px-4 py-2.5 rounded-xl bg-slate-200/90 border-none outline-none text-sm focus:ring-2 focus:ring-blue-500 transition-all pr-12 text-[#001D4E] font-bold"
+                        >
+                        <button 
+                            type="button" 
+                            @click="showPass = !showPass" 
+                            class="absolute right-3 p-2 text-slate-500 hover:text-blue-600 focus:outline-none transition-colors"
+                        >
+                            <i class="fas" :class="showPass ? 'fa-eye-slash' : 'fa-eye'"></i>
+                        </button>
+                    </div>
                     @error('password')
                         <p class="mt-1 ml-1 text-xs text-red-200">{{ $message }}</p>
                     @enderror
                 </div>
-                <div>
+
+                <div x-data="{ showConfirm: false }">
                     <label class="block text-xs font-semibold text-slate-300 uppercase mb-1.5 ml-1">
                         Confirm Password
                     </label>
-                    <input type="password" name="password_confirmation" placeholder="Confirm Password" class="w-full px-4 py-2.5 rounded-xl bg-slate-200/90 border-none outline-none text-sm focus:ring-2 focus:ring-blue-500 transition-all">
+                    <div class="relative flex items-center">
+                        <input 
+                            :type="showConfirm ? 'text' : 'password'" 
+                            name="password_confirmation" 
+                            placeholder="Confirm Password" 
+                            class="w-full px-4 py-2.5 rounded-xl bg-slate-200/90 border-none outline-none text-sm focus:ring-2 focus:ring-blue-500 transition-all pr-12 text-[#001D4E] font-bold"
+                        >
+                        <button 
+                            type="button" 
+                            @click="showConfirm = !showConfirm" 
+                            class="absolute right-3 p-2 text-slate-500 hover:text-blue-600 focus:outline-none transition-colors"
+                        >
+                            <i class="fas" :class="showConfirm ? 'fa-eye-slash' : 'fa-eye'"></i>
+                        </button>
+                    </div>
                 </div>
 
                

@@ -37,20 +37,43 @@
             {{-- Filter and Search Row --}}
             <div class="flex justify-between items-center mb-10">
                 <div class="flex items-center space-x-6">
-                    <div class="flex items-center bg-slate-100/50 rounded-full p-1 border border-slate-100">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] px-4">Type</span>
-                        <a href="{{ route('admin.property', array_filter(['search' => request('search')])) }}"
-                           class="{{ !request('unit_type') ? 'bg-[#1e3a8a] text-white shadow-md' : 'text-slate-400 hover:text-slate-600' }} px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-colors">
-                            All
-                        </a>
-                        <a href="{{ route('admin.property', array_filter(['unit_type' => 'Residential', 'search' => request('search')])) }}"
-                           class="{{ request('unit_type') === 'Residential' ? 'bg-[#1e3a8a] text-white shadow-md' : 'text-slate-400 hover:text-slate-600' }} px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-colors">
-                            Residential
-                        </a>
-                        <a href="{{ route('admin.property', array_filter(['unit_type' => 'Commercial', 'search' => request('search')])) }}"
-                           class="{{ request('unit_type') === 'Commercial' ? 'bg-[#1e3a8a] text-white shadow-md' : 'text-slate-400 hover:text-slate-600' }} px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-colors">
-                            Commercial
-                        </a>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center bg-slate-100/50 rounded-full p-1 border border-slate-200">
+                            <span class="text-[9px] font-black text-slate-800 uppercase tracking-[0.15em] px-4">Type</span>
+                            <a href="{{ route('admin.property', array_filter(['search' => request('search'), 'status' => request('status')])) }}"
+                            class="{{ !request('unit_type') ? 'bg-[#1e3a8a] text-white shadow-md' : 'text-slate-400 hover:text-slate-600' }} px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-colors">
+                                All
+                            </a>
+                            <a href="{{ route('admin.property', array_filter(['unit_type' => 'Residential', 'search' => request('search'), 'status' => request('status')])) }}"
+                            class="{{ request('unit_type') === 'Residential' ? 'bg-[#1e3a8a] text-white shadow-md' : 'text-slate-400 hover:text-slate-600' }} px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-colors">
+                                Residential
+                            </a>
+                            <a href="{{ route('admin.property', array_filter(['unit_type' => 'Commercial', 'search' => request('search'), 'status' => request('status')])) }}"
+                            class="{{ request('unit_type') === 'Commercial' ? 'bg-[#1e3a8a] text-white shadow-md' : 'text-slate-400 hover:text-slate-600' }} px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-colors">
+                                Commercial
+                            </a>
+                        </div>
+
+                        <form method="GET" action="{{ route('admin.property') }}" class="flex items-center gap-2">
+                            @if(request('unit_type'))
+                                <input type="hidden" name="unit_type" value="{{ request('unit_type') }}">
+                            @endif
+                            @if(request('search'))
+                                <input type="hidden" name="search" value="{{ request('search') }}">
+                            @endif
+                            <label for="status" class="text-[9px] font-black text-slate-800 uppercase tracking-[0.15em]">Status:</label>
+                            <select
+                                id="status"
+                                name="status"
+                                onchange="this.form.submit()"
+                                class="rounded-full border border-slate-200 bg-slate-100/50 px-4 py-2 text-[10px] font-black uppercase tracking-wider text-slate-600 outline-none focus:border-blue-200"
+                            >
+                                <option value="">All</option>
+                                <option value="Active" @selected(request('status') === 'Active')>Active</option>
+                                <option value="Inactive" @selected(request('status') === 'Inactive')>Vacant</option>
+                                <option value="Archived" @selected(request('status') === 'Archived')>Archived</option>
+                            </select>
+                        </form>
                     </div>
                     <span class="text-xs font-medium italic text-slate-400">
                         Showing {{ number_format($properties->count()) }} of {{ number_format($totalAssets) }} recorded assets
@@ -58,22 +81,30 @@
                 </div>
 
                 {{-- Search Bar --}}
-                <form method="GET" action="{{ route('admin.property') }}" class="relative group">
+                <form method="GET" action="{{ route('admin.property') }}" class="flex items-center gap-3">
                     @if(request('unit_type'))
                         <input type="hidden" name="unit_type" value="{{ request('unit_type') }}">
                     @endif
-                    <span class="absolute inset-y-0 left-5 flex items-center text-blue-500 transition-colors group-focus-within:text-blue-600">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </span>
-                    <input
-                        type="text"
-                        name="search"
-                        value="{{ request('search') }}"
-                        placeholder="Search registry..."
-                        class="pl-12 pr-8 py-3.5 w-80 rounded-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-blue-200 focus:outline-none focus:ring-4 focus:ring-blue-50 text-sm transition-all placeholder:text-slate-300"
-                    >
+                    @if(request('status'))
+                        <input type="hidden" name="status" value="{{ request('status') }}">
+                    @endif
+                    <div class="relative group">
+                        <span class="absolute inset-y-0 left-5 flex items-center text-blue-500 transition-colors group-focus-within:text-blue-600">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </span>
+                        <input
+                            type="text"
+                            name="search"
+                            value="{{ request('search') }}"
+                            placeholder="Search resident..."
+                            class="pl-12 pr-8 py-3.5 w-80 rounded-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-blue-200 focus:outline-none focus:ring-4 focus:ring-blue-50 text-sm transition-all placeholder:text-slate-400"
+                        >
+                    </div>
+                    <button type="submit" class="rounded-full bg-[#1e3a8a] px-6 py-3 text-[11px] font-black uppercase tracking-wider text-white shadow-lg shadow-blue-900/20 transition-all hover:bg-blue-900 active:scale-95">
+                        Search
+                    </button>
                 </form>
             </div>
 
@@ -93,6 +124,10 @@
                     </thead>
                     <tbody class="divide-y divide-slate-50 text-[13px]">
                         @forelse($properties as $property)
+                        @php
+                            $electricMeter = $property->meters->firstWhere('utility_type', 'Electricity');
+                            $waterMeter = $property->meters->firstWhere('utility_type', 'Water');
+                        @endphp
                         <tr class="hover:bg-slate-50/80 transition-all group">
                             <td class="px-6 py-6 font-bold text-slate-400 group-hover:text-slate-600">{{ $property->property_unit_id ?? "#{$property->id}" }}</td>
                             <td class="px-6 py-6">
@@ -107,10 +142,10 @@
                             </td>
                             <td class="px-6 py-6 font-black text-[#1e293b]">{{ $property->unit_type ?? 'N/A' }}</td>
                             <td class="px-6 py-6 text-slate-500 font-medium">
-                                {{ $property->meters->firstWhere('utility_type', 'Electricity')?->hardware_meter_number ?? 'N/A' }}
+                                {{ $electricMeter?->hardware_meter_number ?? $electricMeter?->serial_number ?? 'N/A' }}
                             </td>
                             <td class="px-6 py-6 text-slate-500 font-medium">
-                                {{ $property->meters->firstWhere('utility_type', 'Water')?->hardware_meter_number ?? 'N/A' }}
+                                {{ $waterMeter?->hardware_meter_number ?? $waterMeter?->serial_number ?? 'N/A' }}
                             </td>
                             <td class="px-6 py-6">
                                 @if($property->status === 'Active')

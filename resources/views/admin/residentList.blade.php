@@ -22,21 +22,45 @@
                     </span>
                     <i class="fas fa-chevron-down text-slate-400 text-[10px]"></i>
                 </div>
-                <div class="bg-white border border-slate-200 rounded-lg px-4 py-2 flex items-center space-x-3 cursor-pointer shadow-sm">
-                    <i class="fas fa-building text-slate-400 text-xs"></i>
-                    <span class="text-sm font-bold text-slate-700">
-                        Unit Type: All
-                    </span>
-                    <i class="fas fa-chevron-down text-slate-400 text-[10px]"></i>
-                </div>
+
+                <form action="{{ route('admin.residentList') }}" method="GET" id="unitFilterForm">
+                    @if(request('search'))
+                        <input type="hidden" name="search" value="{{ request('search') }}">
+                    @endif
+                    <div class="relative inline-block">
+                        <select 
+                            name="unit_type" 
+                            onchange="this.form.submit()"
+                            class="appearance-none bg-white border border-slate-200 rounded-lg pl-10 pr-10 py-2 font-bold text-sm text-slate-700 shadow-sm cursor-pointer outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        >
+                            <option value="All" {{ request('unit_type', 'All') == 'All' ? 'selected' : '' }}>Unit Type: All</option>
+                            <option value="Residential" {{ request('unit_type') == 'Residential' ? 'selected' : '' }}>Residential</option>
+                            <option value="Commercial" {{ request('unit_type') == 'Commercial' ? 'selected' : '' }}>Commercial</option>
+                        </select>
+
+                        <i class="fas fa-building absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                        <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>
+                    </div>
+                </form>
+                
             </div>
 
             {{-- Search Bar --}}
-            <div class="relative flex-1 max-w-md">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" placeholder="Search..." 
-                    class="w-full pl-12 pr-4 py-2.5 bg-white border border-slate-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-            </div>
+            <form action="{{ route('admin.residentList') }}" method="GET" class="flex items-center gap-2 flex-1 max-w-md">
+                @if(request('unit_type'))
+                    <input type="hidden" name="unit_type" value="{{ request('unit_type') }}">
+                @endif
+                <div class="relative flex-1">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" name="search" placeholder="Search renter name..." value="{{ request('search') }}"
+                        class="w-full pl-12 pr-4 py-2.5 bg-white border border-slate-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
+                </div>
+                
+                <button type="submit" 
+                    class="bg-[#001D4E] hover:bg-blue-900 text-white px-6 py-2.5 rounded-full font-bold text-sm shadow-sm transition-colors duration-200 flex items-center">
+                    Search
+                </button>
+            </form>
         </div>
 
         <div class="bg-white rounded-[20px] border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden">
@@ -62,7 +86,8 @@
                         </td>
                         <td class="px-8 py-6 text-sm font-medium text-slate-600">#{{ $resident->id }}</td>
                         <td class="px-8 py-6 text-sm font-bold text-slate-800">
-                            {{ $resident->properties->first()?->unit_type ?? 'N/A' }}
+                            {{ $resident->property->unit_type ?? 'N/A' }}
+                            {{-- {{ $resident->properties->first()?->unit_type ?? 'N/A' }} --}}
                         </td>
                         <td class="px-8 py-6 text-sm text-slate-500">
                             {{ $resident->created_at?->format('M d, Y') ?? 'N/A' }}
@@ -71,7 +96,9 @@
                             {{ $resident->bills->where('status', 'Paid')->sortByDesc('paid_at')->first()?->paid_at?->format('M d, Y') ?? 'No payments' }}
                         </td>
                         <td class="px-8 py-6 text-right">
-                            <a href="{{ route('admin.residentInfo', $resident->id) }}" class="text-[12px] font-black text-blue-600 uppercase hover:underline">View</a>
+                            <a href="{{ route('admin.residentInfo', $resident->id) }}" class="text-[12px] font-black text-blue-600 uppercase hover:underline">
+                                View
+                            </a>
                         </td>
                     </tr>
                     @empty

@@ -18,11 +18,20 @@
                 </h1>
                 
                 <div class="flex items-center gap-4">
-                    <div class="relative w-80">
-                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" placeholder="Search Transaction..." 
-                            class="w-full pl-12 pr-4 py-2.5 bg-white border border-slate-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10">
-                    </div>
+
+
+                    <form action="{{ route('admin.billingHistory') }}" method="GET" class="flex items-center gap-3">
+                        <div class="relative w-80">
+                            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search Renter Name..." 
+                                class="w-full pl-12 pr-4 py-2.5 bg-white border border-slate-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all">
+                        </div>
+
+                        <button type="submit" class="bg-[#001D4E] hover:bg-blue-900 text-white px-6 py-2.5 rounded-full font-bold text-sm shadow-sm transition-all duration-200">
+                            Search
+                        </button>
+                    </form>
+
                     
                     <div class="flex bg-slate-200/50 p-1 rounded-lg text-[10px] font-bold uppercase tracking-widest">
                         <button class="px-4 py-1.5 bg-white shadow-sm rounded-md text-[#1e3a8a]">

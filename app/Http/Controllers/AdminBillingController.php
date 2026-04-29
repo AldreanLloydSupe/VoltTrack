@@ -17,7 +17,19 @@ class AdminBillingController extends Controller
 
         abort_unless($user && $user->isAdmin(), 403);
 
+        $search = trim((string) $request->input('search'));
+
         $bills = Bill::with('user')
+            ->when(
+                $search !== '',
+                function ($query) use ($search) {
+                    $query->whereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                    });
+                }
+            )
             ->latest()
             ->get();
 
@@ -195,4 +207,5 @@ class AdminBillingController extends Controller
 
         return $reference;
     }
+    
 }

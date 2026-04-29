@@ -60,20 +60,11 @@ class AdminUtilityController extends Controller
         abort_unless($admin && $admin->isAdmin(), 403);
 
         $resident = User::findOrFail($id);
-
-        if (! Schema::hasColumn('users', 'status')) {
-            return back()->with('error', 'Status column is missing. Please run database migrations first.');
-        }
-
-        $resident->update([
-            'status' => 'rejected',
-            'approved_at' => null,
-            'approved_by' => null,
-        ]);
+        $resident->forceDelete();
 
         return redirect()
             ->route('admin.pending')
-            ->with('success', 'Resident registration rejected.');
+            ->with('success', 'Resident registration rejected and deleted.');
     }
 
     public function confirming(Request $request, $id)

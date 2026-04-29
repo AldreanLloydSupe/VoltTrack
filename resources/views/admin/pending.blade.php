@@ -76,7 +76,7 @@
                                             Approve
                                         </button>
                                     </form>
-                                    <form action="{{ route('admin.pending.reject', $resident->id) }}" method="POST">
+                                    <form action="{{ route('admin.pending.reject', $resident->id) }}" method="POST" onsubmit="return confirm('Rejecting this resident will permanently delete their account. Continue?');">
                                         @csrf
                                         <button type="submit" class="rounded-lg bg-rose-500 px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-white hover:bg-rose-600">
                                             Reject
