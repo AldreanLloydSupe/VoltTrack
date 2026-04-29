@@ -120,6 +120,10 @@ Route::get('/resident/payment-history', [ResidentController::class, 'history'])
     ->middleware(['auth', 'no.cache'])
     ->name('resident.history');
 
+Route::get('/resident/bills/{bill}/receipt', [ResidentController::class, 'receipt'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('resident.receipt');
+
 Route::get('/resident/settings', [ResidentController::class, 'settings'])
     ->middleware(['auth', 'no.cache'])
     ->name('resident.settings');

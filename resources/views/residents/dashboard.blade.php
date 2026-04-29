@@ -137,6 +137,13 @@
                                             'overdue' => 'text-red-500',
                                             default => 'text-amber-500',
                                         };
+                                        $receiptBaseBill = (float) $bill->consumption * (float) $bill->price_per_unit;
+                                        $receiptServiceFee = (float) $bill->service_fee;
+                                        $receiptSubtotal = (float) $bill->total_bill;
+                                        $receiptPenalty = $status === 'overdue' ? $receiptSubtotal * 0.05 : 0;
+                                        $receiptVat = $receiptSubtotal * 0.12;
+                                        $receiptTotal = $receiptSubtotal + $receiptPenalty + $receiptVat;
+                                        $receiptUnitLabel = $bill->utility_type === 'Electricity' ? 'kWh' : 'm3';
                                     @endphp
                                     <tr class="border-b border-slate-100 text-sm text-slate-700 last:border-b-0">
                                         <td class="py-4 pr-4 font-semibold text-slate-600">{{ $bill->payment_reference ?: 'No reference yet' }}</td>
@@ -152,11 +159,30 @@
                                             </span>
                                         </td>
                                         <td class="py-4 pl-4 text-right">
-                                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-400">
+                                            <button
+                                                type="button"
+                                                class="receipt-slip-button inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition-all hover:border-[#1846c0] hover:bg-[#e7ecff] hover:text-[#1846c0]"
+                                                title="View receipt"
+                                                aria-label="View receipt for {{ $bill->payment_reference ?: 'bill #' . $bill->id }}"
+                                                data-reference="{{ $bill->payment_reference ?: 'No reference yet' }}"
+                                                data-resident="{{ $user->first_name }} {{ $user->last_name }}"
+                                                data-utility="{{ $bill->utility_type }}"
+                                                data-status="{{ $bill->status }}"
+                                                data-billing-start="{{ $bill->billing_period_start?->format('M d, Y') ?? 'N/A' }}"
+                                                data-billing-end="{{ $bill->billing_period_end?->format('M d, Y') ?? 'N/A' }}"
+                                                data-units="{{ number_format((float) $bill->consumption, 2) }} {{ $receiptUnitLabel }}"
+                                                data-base-bill="PHP {{ number_format($receiptBaseBill, 2) }}"
+                                                data-service-fee="PHP {{ number_format($receiptServiceFee, 2) }}"
+                                                data-subtotal="PHP {{ number_format($receiptSubtotal, 2) }}"
+                                                data-penalty="PHP {{ number_format($receiptPenalty, 2) }}"
+                                                data-has-penalty="{{ $receiptPenalty > 0 ? 'true' : 'false' }}"
+                                                data-vat="PHP {{ number_format($receiptVat, 2) }}"
+                                                data-total="PHP {{ number_format($receiptTotal, 2) }}"
+                                            >
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17h6M9 13h6M9 9h6M7 3h7l3 3v15H7z" />
                                                 </svg>
-                                            </span>
+                                            </button>
                                         </td>
                                     </tr>
                                 @empty
@@ -226,5 +252,172 @@
                 </div>
             </aside>
         </main>
+
+        <div id="receipt-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 p-6">
+            <div class="absolute inset-0" data-receipt-close></div>
+
+            <div class="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white shadow-2xl">
+                <div class="bg-[#F8FAFC] px-10 pb-10 pt-12">
+                    <div class="mb-10 relative flex items-start justify-center">
+                        <div class="text-center">
+                            <h2 class="mb-1 text-4xl font-black tracking-tighter text-[#001D4E]">VoltTrack</h2>
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Tagum City</p>
+                        </div>
+
+                        <button type="button" data-receipt-close class="absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition-all hover:border-slate-300 hover:bg-white hover:text-slate-700" aria-label="Close receipt">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="mb-10 text-center">
+                        <p class="mb-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Total Amount Payable</p>
+                        <h3 id="receipt-total-display" class="text-6xl font-black tracking-tighter text-[#001D4E]">PHP 0.00</h3>
+                    </div>
+
+                    <div class="mb-8 w-full rounded-2xl border border-slate-100 bg-white p-8 shadow-sm">
+                        <div class="mb-6 border-b border-slate-900/10 pb-5">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Reference ID</span>
+                            <p id="receipt-reference" class="mt-1 text-sm font-bold text-slate-700">No reference yet</p>
+                        </div>
+
+                        <div class="mb-6 grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Resident</span>
+                                <p id="receipt-resident" class="mt-1 font-bold text-slate-700">N/A</p>
+                            </div>
+                            <div>
+                                <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Utility</span>
+                                <p id="receipt-utility" class="mt-1 font-bold text-slate-700">N/A</p>
+                            </div>
+                            <div>
+                                <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Billing Start</span>
+                                <p id="receipt-billing-start" class="mt-1 font-bold text-slate-700">N/A</p>
+                            </div>
+                            <div>
+                                <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Billing End</span>
+                                <p id="receipt-billing-end" class="mt-1 font-bold text-slate-700">N/A</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 flex items-center justify-between border-b border-slate-900/10 pb-4">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Units Used</span>
+                            <span id="receipt-units" class="text-sm font-bold text-slate-600">0.00</span>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Base Bill</span>
+                                <span id="receipt-base-bill" class="font-bold text-slate-600">PHP 0.00</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Service Fee</span>
+                                <span id="receipt-service-fee" class="font-bold text-slate-600">PHP 0.00</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Subtotal</span>
+                                <span id="receipt-subtotal" class="font-bold text-slate-600">PHP 0.00</span>
+                            </div>
+                            <div id="receipt-penalty-row" class="hidden items-center justify-between text-xs">
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Penalty (5%)</span>
+                                <span id="receipt-penalty" class="font-bold text-red-600">PHP 0.00</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">VAT (12%)</span>
+                                <span id="receipt-vat" class="font-bold text-slate-600">PHP 0.00</span>
+                            </div>
+                            <div class="flex items-center justify-between border-t border-slate-900/10 pt-4 text-xs">
+                                <span class="text-[9px] font-black uppercase tracking-widest text-slate-500">Status</span>
+                                <span id="receipt-status" class="font-black uppercase tracking-widest text-[#001D4E]">N/A</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" data-receipt-close class="w-full rounded-xl bg-[#1e3a8a] py-4 text-center text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-lg transition-all hover:bg-blue-900 active:scale-95">
+                        Done
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('receipt-modal');
+            const slipButtons = document.querySelectorAll('.receipt-slip-button');
+            const closeButtons = document.querySelectorAll('[data-receipt-close]');
+            const fields = {
+                total: document.getElementById('receipt-total-display'),
+                reference: document.getElementById('receipt-reference'),
+                resident: document.getElementById('receipt-resident'),
+                utility: document.getElementById('receipt-utility'),
+                billingStart: document.getElementById('receipt-billing-start'),
+                billingEnd: document.getElementById('receipt-billing-end'),
+                units: document.getElementById('receipt-units'),
+                baseBill: document.getElementById('receipt-base-bill'),
+                serviceFee: document.getElementById('receipt-service-fee'),
+                subtotal: document.getElementById('receipt-subtotal'),
+                penalty: document.getElementById('receipt-penalty'),
+                penaltyRow: document.getElementById('receipt-penalty-row'),
+                vat: document.getElementById('receipt-vat'),
+                status: document.getElementById('receipt-status'),
+            };
+
+            if (!modal) {
+                return;
+            }
+
+            const setText = (field, value) => {
+                if (field) {
+                    field.textContent = value || 'N/A';
+                }
+            };
+
+            const openReceipt = (button) => {
+                setText(fields.total, button.dataset.total);
+                setText(fields.reference, button.dataset.reference);
+                setText(fields.resident, button.dataset.resident);
+                setText(fields.utility, button.dataset.utility);
+                setText(fields.billingStart, button.dataset.billingStart);
+                setText(fields.billingEnd, button.dataset.billingEnd);
+                setText(fields.units, button.dataset.units);
+                setText(fields.baseBill, button.dataset.baseBill);
+                setText(fields.serviceFee, button.dataset.serviceFee);
+                setText(fields.subtotal, button.dataset.subtotal);
+                setText(fields.penalty, button.dataset.penalty);
+                setText(fields.vat, button.dataset.vat);
+                setText(fields.status, button.dataset.status);
+
+                if (fields.penaltyRow) {
+                    fields.penaltyRow.classList.toggle('hidden', button.dataset.hasPenalty !== 'true');
+                    fields.penaltyRow.classList.toggle('flex', button.dataset.hasPenalty === 'true');
+                }
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.classList.add('overflow-hidden');
+            };
+
+            const closeReceipt = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.classList.remove('overflow-hidden');
+            };
+
+            slipButtons.forEach((button) => {
+                button.addEventListener('click', () => openReceipt(button));
+            });
+
+            closeButtons.forEach((button) => {
+                button.addEventListener('click', closeReceipt);
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    closeReceipt();
+                }
+            });
+        });
+    </script>
 </x-layout>

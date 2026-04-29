@@ -98,6 +98,19 @@ class ResidentController extends Controller
         ]);
     }
 
+    public function receipt(Request $request, Bill $bill)
+    {
+        $user = $request->user();
+
+        abort_unless($user && $user->isResident(), 403);
+        abort_unless((int) $bill->user_id === (int) $user->id, 403);
+
+        return view('residents.receipt', [
+            'user' => $user,
+            'bill' => $bill,
+        ]);
+    }
+
     public function settings(Request $request)
     {
         $user = $request->user();
