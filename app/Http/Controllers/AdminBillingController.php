@@ -31,7 +31,8 @@ class AdminBillingController extends Controller
                 }
             )
             ->latest()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return view('admin.billingHistory', [
             'bills' => $bills,
