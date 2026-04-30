@@ -16,6 +16,51 @@
                 </div>
 
                 <div class="flex items-center gap-4">
+                    <details class="relative">
+                        <summary class="list-none cursor-pointer">
+                            <div class="relative flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 transition-all hover:bg-white/15">
+                                <i class="fas fa-bell text-sm text-white"></i>
+                                @if(($adminReplies ?? collect())->isNotEmpty())
+                                    <span class="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-400 px-1.5 py-0.5 text-[10px] font-black text-[#0f172a]">
+                                        {{ ($adminReplies ?? collect())->count() }}
+                                    </span>
+                                @endif
+                            </div>
+                        </summary>
+
+                        <div class="absolute right-0 z-30 mt-3 w-96 rounded-xl border border-slate-200 bg-white text-slate-900 shadow-2xl">
+                            <div class="border-b border-slate-100 px-4 py-3">
+                                <p class="text-sm font-bold">Admin Replies</p>
+                                <p class="text-xs text-slate-500">Latest {{ ($adminReplies ?? collect())->count() }}</p>
+                            </div>
+
+                            <div class="max-h-96 overflow-y-auto">
+                                @forelse(($adminReplies ?? collect()) as $reply)
+                                    <button
+                                        type="button"
+                                        class="resident-reply-open block w-full border-b border-slate-100 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-slate-50"
+                                        data-subject="{{ $reply->subject }}"
+                                        data-admin="{{ trim(($reply->repliedBy?->first_name ?? 'Admin') . ' ' . ($reply->repliedBy?->last_name ?? '')) }}"
+                                        data-sent="{{ $reply->replied_at?->format('M d, Y g:i A') ?? 'N/A' }}"
+                                        data-message="{{ $reply->message }}"
+                                        data-reply="{{ $reply->reply_message }}"
+                                        data-delete-url="{{ route('notifications.destroy', $reply) }}"
+                                    >
+                                        <span class="block text-sm font-semibold text-slate-900">{{ $reply->subject }}</span>
+                                        <span class="mt-1 block text-xs text-slate-500">
+                                            From {{ $reply->repliedBy?->first_name ?? 'Admin' }} {{ $reply->repliedBy?->last_name }} &bull; {{ $reply->replied_at?->diffForHumans() }}
+                                        </span>
+                                        <span class="mt-2 block line-clamp-2 text-sm text-slate-700 whitespace-pre-line">{{ $reply->reply_message }}</span>
+                                    </button>
+                                @empty
+                                    <div class="px-4 py-6 text-center text-sm text-slate-500">
+                                        No admin replies yet.
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </details>
+
                     <details class="group relative">
                         <summary class="flex cursor-pointer list-none items-center gap-3 rounded-full border border-white/15 px-3 py-1.5 transition-all hover:bg-white/10">
                             <div class="text-right">
@@ -47,6 +92,43 @@
                 </div>
             </div>
         </header>
+
+        <div id="resident-reply-modal" class="fixed inset-0 z-[80] hidden bg-slate-950/60 px-4 py-10">
+            <div class="absolute inset-0" data-resident-reply-close></div>
+            <div class="relative mx-auto mt-10 max-h-[86vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white text-slate-900 shadow-2xl">
+                <div class="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-slate-100 bg-white px-6 py-5">
+                    <div>
+                        <p class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Admin Reply</p>
+                        <h2 id="resident-reply-subject" class="mt-1 text-xl font-black text-[#1e3a8a]"></h2>
+                        <p id="resident-reply-meta" class="mt-1 text-xs font-semibold text-slate-400"></p>
+                    </div>
+                    <button type="button" data-resident-reply-close class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-700" aria-label="Close reply">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="px-6 py-5">
+                    <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Your Message</p>
+                    <div id="resident-reply-original" class="mt-2 rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-700 whitespace-pre-line"></div>
+
+                    <p class="mt-5 text-[10px] font-black uppercase tracking-[0.18em] text-blue-700">Admin Answer</p>
+                    <div id="resident-reply-answer" class="mt-2 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-slate-700 whitespace-pre-line"></div>
+
+                    <div class="mt-5 flex flex-wrap justify-end gap-3">
+                        <form id="resident-reply-delete-form" method="POST" onsubmit="return confirm('Delete this message permanently?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="rounded-lg border border-red-200 px-5 py-2.5 text-xs font-black uppercase tracking-[0.16em] text-red-600 transition-colors hover:bg-red-50">
+                                Delete
+                            </button>
+                        </form>
+                        <a href="{{ route('resident.contactAdmin') }}" class="rounded-lg bg-[#001D4E] px-5 py-2.5 text-xs font-black uppercase tracking-[0.16em] text-white transition-colors hover:bg-[#163571]">
+                            Reply Back
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <main class="mx-auto grid max-w-7xl gap-6 px-6 py-6 lg:grid-cols-[minmax(0,2fr)_320px]">
             <section class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_20px_70px_rgba(15,23,42,0.08)]">
@@ -140,7 +222,11 @@
                                         $receiptBaseBill = (float) $bill->consumption * (float) $bill->price_per_unit;
                                         $receiptServiceFee = (float) $bill->service_fee;
                                         $receiptSubtotal = (float) $bill->total_bill;
-                                        $receiptPenalty = $status === 'overdue' ? $receiptSubtotal * 0.05 : 0;
+                                        $receiptPaidAfterDueDate = $status === 'paid'
+                                            && $bill->paid_at
+                                            && $bill->billing_period_end
+                                            && $bill->paid_at->copy()->startOfDay()->gt($bill->billing_period_end->copy()->startOfDay());
+                                        $receiptPenalty = ($status === 'overdue' || $receiptPaidAfterDueDate) ? $receiptSubtotal * 0.05 : 0;
                                         $receiptVat = $receiptSubtotal * 0.12;
                                         $receiptTotal = $receiptSubtotal + $receiptPenalty + $receiptVat;
                                         $receiptUnitLabel = $bill->utility_type === 'Electricity' ? 'kWh' : 'm3';
@@ -416,6 +502,47 @@
             document.addEventListener('keydown', (event) => {
                 if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
                     closeReceipt();
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('resident-reply-modal');
+            const subject = document.getElementById('resident-reply-subject');
+            const meta = document.getElementById('resident-reply-meta');
+            const original = document.getElementById('resident-reply-original');
+            const answer = document.getElementById('resident-reply-answer');
+            const deleteForm = document.getElementById('resident-reply-delete-form');
+
+            if (!modal) {
+                return;
+            }
+
+            const closeModal = () => {
+                modal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            };
+
+            document.querySelectorAll('[data-resident-reply-close]').forEach((button) => {
+                button.addEventListener('click', closeModal);
+            });
+
+            document.querySelectorAll('.resident-reply-open').forEach((button) => {
+                button.addEventListener('click', () => {
+                    subject.textContent = button.dataset.subject || 'Admin Reply';
+                    meta.textContent = `From ${button.dataset.admin || 'Admin'} - ${button.dataset.sent || 'N/A'}`;
+                    original.textContent = button.dataset.message || 'N/A';
+                    answer.textContent = button.dataset.reply || 'N/A';
+                    deleteForm.action = button.dataset.deleteUrl;
+                    modal.classList.remove('hidden');
+                    document.body.classList.add('overflow-hidden');
+                });
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    closeModal();
                 }
             });
         });

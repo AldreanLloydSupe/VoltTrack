@@ -17,6 +17,8 @@ class AdminBillingController extends Controller
 
         abort_unless($user && $user->isAdmin(), 403);
 
+        Bill::markPastDueAsOverdue();
+
         $search = trim((string) $request->input('search'));
 
         $bills = Bill::with('user')
@@ -89,7 +91,7 @@ class AdminBillingController extends Controller
             'status' => ['required', Rule::in(['Pending', 'Overdue', 'Paid'])],
         ]);
 
-        $status = $validated['status'];
+        $status = Bill::statusForDueDate($validated['status'], $bill->billing_period_end);
         $bill->status = $status;
         $bill->is_done = $status === 'Paid';
 
@@ -104,8 +106,87 @@ class AdminBillingController extends Controller
         }
 
         $bill->save();
+        $bill->notifyResidentIfOverdue($admin->id);
 
         return back()->with('success', 'Bill status updated successfully.');
+    }
+
+    public function edit(Request $request, Bill $bill)
+    {
+        $admin = $request->user();
+
+        abort_unless($admin && $admin->isAdmin(), 403);
+
+        Bill::markPastDueAsOverdue();
+
+        $bill->load('user.property.meters');
+
+        $view = match ($bill->utility_type) {
+            'Electricity' => 'admin.updateelectricity',
+            'Water' => 'admin.updatewaterbill',
+            default => abort(404),
+        };
+
+        $meter = $bill->user?->property?->meters
+            ?->firstWhere('utility_type', $bill->utility_type);
+
+        return view($view, [
+            'bill' => $bill,
+            'resident' => $bill->user,
+            'meter' => $meter,
+        ]);
+    }
+
+    public function update(Request $request, Bill $bill)
+    {
+        $admin = $request->user();
+
+        abort_unless($admin && $admin->isAdmin(), 403);
+
+        $validated = $request->validate([
+            'previous_reading' => ['required', 'numeric', 'min:0'],
+            'current_reading' => ['required', 'numeric', 'gte:previous_reading'],
+            'reading_date' => ['required', 'date'],
+            'billing_period_start' => ['required', 'date'],
+            'billing_period_end' => ['required', 'date', 'after_or_equal:billing_period_start'],
+            'price_per_unit' => ['required', 'numeric', 'min:0'],
+            'service_fee' => ['nullable', 'numeric', 'min:0'],
+            'status' => ['required', Rule::in(['Pending', 'Overdue', 'Paid'])],
+            'is_done' => ['nullable', 'boolean'],
+        ]);
+
+        $previousReading = (float) $validated['previous_reading'];
+        $currentReading = (float) $validated['current_reading'];
+        $consumption = max($currentReading - $previousReading, 0);
+        $pricePerUnit = (float) $validated['price_per_unit'];
+        $serviceFee = (float) ($validated['service_fee'] ?? 0);
+        $status = Bill::statusForDueDate($validated['status'], $validated['billing_period_end']);
+
+        $bill->fill([
+            'previous_reading' => $previousReading,
+            'current_reading' => $currentReading,
+            'consumption' => $consumption,
+            'reading_date' => $validated['reading_date'],
+            'billing_period_start' => $validated['billing_period_start'],
+            'billing_period_end' => $validated['billing_period_end'],
+            'price_per_unit' => $pricePerUnit,
+            'service_fee' => $serviceFee,
+            'total_bill' => ($consumption * $pricePerUnit) + $serviceFee,
+            'status' => $status,
+            'is_done' => $request->boolean('is_done') || $status === 'Paid',
+            'paid_at' => $status === 'Paid' ? ($bill->paid_at ?? now()) : null,
+        ]);
+
+        if ($status === 'Paid' && empty($bill->payment_reference)) {
+            $bill->payment_reference = $this->generatePaymentReference($bill->utility_type);
+        }
+
+        $bill->save();
+        $bill->notifyResidentIfOverdue($admin->id);
+
+        return redirect()
+            ->route('admin.residentInfo', $bill->user_id)
+            ->with('success', "{$bill->utility_type} bill updated successfully.");
     }
 
     protected function storeBillsForAllResidents(Request $request, string $utilityType)
@@ -153,6 +234,8 @@ class AdminBillingController extends Controller
             ?? $meter?->serial_number
             ?? sprintf('%s-%d', strtoupper(substr($utilityType, 0, 3)), $resident->id);
 
+        $status = Bill::statusForDueDate($validated['status'], $validated['billing_period_end']);
+
         $bill = Bill::create([
             'user_id' => $resident->id,
             'utility_type' => $utilityType,
@@ -166,14 +249,15 @@ class AdminBillingController extends Controller
             'price_per_unit' => $pricePerUnit,
             'service_fee' => $serviceFee,
             'total_bill' => $totalBill,
-            'status' => $validated['status'],
-            'is_done' => $validated['status'] === 'Paid',
+            'status' => $status,
+            'is_done' => $status === 'Paid',
             'payment_reference' => $this->generatePaymentReference($utilityType),
-            'paid_at' => $validated['status'] === 'Paid' ? now() : null,
+            'paid_at' => $status === 'Paid' ? now() : null,
         ]);
+        $bill->notifyResidentIfOverdue($admin->id);
 
         return redirect()
-            ->route('admin.billingHistory')
+            ->route('admin.residentInfo', $resident->id)
             ->with(
                 'success',
                 "{$utilityType} bill created for {$resident->first_name} {$resident->last_name}."

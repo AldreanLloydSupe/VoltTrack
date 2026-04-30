@@ -2,8 +2,6 @@
     @php
         $viewMode = request('view') === 'table' ? 'table' : 'grid';
         $isGridView = $viewMode === 'grid';
-        $tableViewUrl = route('admin.property', array_merge(request()->except(['view', 'page']), ['view' => 'table']));
-        $gridViewUrl = route('admin.property', array_merge(request()->except(['view', 'page']), ['view' => 'grid']));
     @endphp
 
     <main class="min-h-screen bg-slate-50 p-10 font-sans">
@@ -24,13 +22,13 @@
             </div>
 
             <div class="flex items-center gap-6">
-                <div class="flex rounded-lg bg-slate-200/50 p-1 text-[11px] font-bold uppercase tracking-tight">
-                    <a href="{{ $tableViewUrl }}" class="{{ ! $isGridView ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600' }} rounded px-4 py-1.5 transition-all">
+                <div id="property-view-switcher" class="flex rounded-lg bg-slate-200/50 p-1 text-[11px] font-bold uppercase tracking-tight">
+                    <button type="button" data-view="table" class="property-view-option {{ ! $isGridView ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600' }} rounded px-4 py-1.5 transition-all">
                         Table View
-                    </a>
-                    <a href="{{ $gridViewUrl }}" class="{{ $isGridView ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600' }} rounded px-4 py-1.5 transition-all">
+                    </button>
+                    <button type="button" data-view="grid" class="property-view-option {{ $isGridView ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600' }} rounded px-4 py-1.5 transition-all">
                         Grid View
-                    </a>
+                    </button>
                 </div>
 
                 <a href="{{ route('admin.createnew') }}" class="rounded-lg bg-[#1e3a8a] px-6 py-3.5 text-[11px] font-black uppercase tracking-wider text-white shadow-lg shadow-blue-900/20 transition-all hover:bg-blue-900 active:scale-95">
@@ -105,8 +103,7 @@
                 </div>
             </div>
 
-            @if($isGridView)
-            <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <div id="grid-view" class="{{ $isGridView ? 'grid' : 'hidden' }} grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
                 @forelse($properties as $property)
                     @php
                         $electricMeter = $property->meters->firstWhere('utility_type', 'Electricity');
@@ -178,8 +175,8 @@
                     No properties found for the selected filters
                 </div>
             </div>
-            @else
-            <div class="overflow-hidden">
+
+            <div id="table-view" class="{{ $isGridView ? 'hidden' : '' }} overflow-hidden">
                 <table class="w-full text-left">
                     <thead class="border-b border-slate-50 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                         <tr>
@@ -256,7 +253,6 @@
                     </tbody>
                 </table>
             </div>
-            @endif
 
             <div class="mt-10 flex items-center justify-between border-t border-slate-50 pt-8 text-[11px] font-bold text-slate-400">
                 <p>
@@ -273,19 +269,35 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const viewSwitcher = document.getElementById('property-view-switcher');
+            const viewSections = {
+                table: document.getElementById('table-view'),
+                grid: document.getElementById('grid-view'),
+            };
             const filter = document.getElementById('unit-type-filter');
             const statusSelect = document.getElementById('status');
             const searchInput = document.getElementById('property-search');
             const searchButton = document.getElementById('property-search-button');
-            const rows = Array.from(document.querySelectorAll('.property-row'));
             const emptyFilteredRows = Array.from(document.querySelectorAll('#no-filtered-properties-row, #no-filtered-properties-card'));
             const visibleCount = document.getElementById('visible-property-count');
             const activeClasses = ['bg-[#1e3a8a]', 'text-white', 'shadow-md'];
             const inactiveClasses = ['text-slate-400', 'hover:text-slate-600'];
+            const activeViewClasses = ['bg-white', 'text-blue-600', 'shadow-sm'];
+            const inactiveViewClasses = ['text-slate-400', 'hover:text-slate-600'];
 
-            if (!filter || rows.length === 0) {
+            if (!filter) {
                 return;
             }
+
+            const getActiveView = () => {
+                return viewSections.grid && !viewSections.grid.classList.contains('hidden') ? 'grid' : 'table';
+            };
+
+            const getActiveRows = () => {
+                const activeSection = viewSections[getActiveView()];
+
+                return activeSection ? Array.from(activeSection.querySelectorAll('.property-row')) : [];
+            };
 
             const setActiveButton = (selectedButton) => {
                 filter.querySelectorAll('.unit-type-option').forEach((button) => {
@@ -297,11 +309,26 @@
                 selectedButton.classList.add(...activeClasses);
             };
 
+            const setActiveViewButton = (selectedButton) => {
+                viewSwitcher?.querySelectorAll('.property-view-option').forEach((button) => {
+                    button.classList.remove(...activeViewClasses);
+                    button.classList.add(...inactiveViewClasses);
+                });
+
+                selectedButton.classList.remove(...inactiveViewClasses);
+                selectedButton.classList.add(...activeViewClasses);
+            };
+
             const applyFilters = () => {
                 const activeUnitType = filter.querySelector('.unit-type-option.bg-\\[\\#1e3a8a\\]')?.dataset.unitType || 'all';
                 const activeStatus = statusSelect?.value || '';
                 const searchTerm = searchInput?.value.trim().toLowerCase() || '';
+                const rows = getActiveRows();
                 let shownRows = 0;
+
+                document.querySelectorAll('.property-row').forEach((row) => {
+                    row.classList.add('hidden');
+                });
 
                 rows.forEach((row) => {
                     const matchesUnitType = activeUnitType === 'all' || row.dataset.unitType === activeUnitType;
@@ -324,6 +351,27 @@
                 }
             };
 
+            viewSwitcher?.addEventListener('click', (event) => {
+                const button = event.target.closest('.property-view-option');
+
+                if (!button) {
+                    return;
+                }
+
+                Object.entries(viewSections).forEach(([view, section]) => {
+                    if (!section) {
+                        return;
+                    }
+
+                    const isSelected = view === button.dataset.view;
+                    section.classList.toggle('hidden', !isSelected);
+                    section.classList.toggle('grid', view === 'grid' && isSelected);
+                });
+
+                setActiveViewButton(button);
+                applyFilters();
+            });
+
             filter.addEventListener('click', (event) => {
                 const button = event.target.closest('.unit-type-option');
 
@@ -340,6 +388,12 @@
             searchButton?.addEventListener('click', applyFilters);
 
             const initialButton = filter.querySelector('.unit-type-option.bg-\\[\\#1e3a8a\\]') || filter.querySelector('[data-unit-type="all"]');
+            const initialViewButton = viewSwitcher?.querySelector('.property-view-option.bg-white') || viewSwitcher?.querySelector('[data-view="table"]');
+
+            if (initialViewButton) {
+                setActiveViewButton(initialViewButton);
+            }
+
             setActiveButton(initialButton);
             applyFilters();
         });

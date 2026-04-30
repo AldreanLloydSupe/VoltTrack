@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminResidentController;
 use App\Http\Controllers\AdminPropertyController;
 use App\Http\Controllers\AdminBillingController;
 use App\Http\Controllers\AdminUtilityController;
+use App\Http\Controllers\AdminNotificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 
@@ -64,10 +65,29 @@ Route::get('/admin/resident/{id}/edit', [AdminResidentController::class, 'edit']
 Route::patch('/admin/resident/{id}', [AdminResidentController::class, 'update'])
     ->middleware(['auth', 'no.cache'])
     ->name('admin.resident.update');
+Route::delete('/admin/resident/{id}', [AdminResidentController::class, 'destroy'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.resident.destroy');
+
+Route::post('/admin/notifications/{notification}/read', [AdminNotificationController::class, 'read'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.notifications.read');
+Route::post('/admin/notifications/{notification}/reply', [AdminNotificationController::class, 'reply'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.notifications.reply');
+Route::delete('/notifications/{notification}', [AdminNotificationController::class, 'destroy'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('notifications.destroy');
 
 Route::get('/admin/billingHistory', [AdminBillingController::class, 'list'])
     ->middleware(['auth', 'no.cache'])
     ->name('admin.billingHistory');
+Route::get('/admin/bills/{bill}/edit', [AdminBillingController::class, 'edit'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.bills.edit');
+Route::patch('/admin/bills/{bill}', [AdminBillingController::class, 'update'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.bills.update');
 Route::patch('/admin/bills/{bill}/status', [AdminBillingController::class, 'updateStatus'])
     ->middleware(['auth', 'no.cache'])
     ->name('admin.bills.updateStatus');

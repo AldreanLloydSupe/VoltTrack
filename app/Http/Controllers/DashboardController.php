@@ -16,6 +16,8 @@ class DashboardController extends Controller
 
         abort_unless($user && $user->isAdmin(), 403);
 
+        Bill::markPastDueAsOverdue();
+
         $hasUserStatus = Schema::hasColumn('users', 'status');
 
         $approvedResidents = User::query()

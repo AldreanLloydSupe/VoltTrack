@@ -4,7 +4,11 @@
         $serviceFee = (float) $bill->service_fee;
         $subtotal = (float) $bill->total_bill;
         $status = strtolower($bill->status);
-        $penalty = $status === 'overdue' ? $subtotal * 0.05 : 0;
+        $paidAfterDueDate = $status === 'paid'
+            && $bill->paid_at
+            && $bill->billing_period_end
+            && $bill->paid_at->copy()->startOfDay()->gt($bill->billing_period_end->copy()->startOfDay());
+        $penalty = ($status === 'overdue' || $paidAfterDueDate) ? $subtotal * 0.05 : 0;
         $vat = $subtotal * 0.12;
         $totalBill = $subtotal + $penalty + $vat;
         $unitLabel = $bill->utility_type === 'Electricity' ? 'kWh' : 'm3';
