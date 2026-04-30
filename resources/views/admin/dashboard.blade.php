@@ -137,6 +137,17 @@
                         </tbody>
                     </table>
                 </div>
+
+                @if($pending_bills->hasPages())
+                    <div class="flex flex-col gap-3 border-t border-slate-100 bg-slate-50/50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                        <p class="text-xs font-bold text-slate-400">
+                            Showing
+                            <span class="text-slate-600">{{ number_format($pending_bills->firstItem() ?? 0) }}-{{ number_format($pending_bills->lastItem() ?? 0) }}</span>
+                            of {{ number_format($pending_bills->total()) }} transactions
+                        </p>
+                        <x-pagination-links :paginator="$pending_bills" />
+                    </div>
+                @endif
             </div>
         </div>
     </main>
@@ -148,6 +159,7 @@
             const title = document.getElementById('collectionChartTitle');
             const subtitle = document.getElementById('collectionChartSubtitle');
             const context = canvas.getContext('2d');
+            const chartData = @json($collectionChart);
 
             const money = new Intl.NumberFormat('en-PH', {
                 style: 'currency',
@@ -165,7 +177,7 @@
             }
 
             function drawChart(range) {
-                const data = chartData[range];
+                const data = chartData[range] || chartData.weekly || { title: '', subtitle: '', items: [] };
                 const items = data.items || [];
                 const rect = canvas.getBoundingClientRect();
                 const width = rect.width;
@@ -180,8 +192,9 @@
                 const chartHeight = height - padding.top - padding.bottom;
                 const maxValue = Math.max(...items.map((item) => Number(item.value)), 0);
                 const scaleMax = maxValue === 0 ? 1 : maxValue * 1.2;
-                const barGap = 14;
-                const barWidth = Math.max(24, (chartWidth / items.length) - barGap);
+                const barGap = range === 'monthly' ? 42 : 28;
+                const slotWidth = items.length ? chartWidth / items.length : chartWidth;
+                const barWidth = Math.max(12, Math.min(80, slotWidth - barGap));
 
                 title.textContent = data.title;
                 subtitle.textContent = data.subtitle;
@@ -208,15 +221,28 @@
                     context.fillText(money.format(value).replace('.00', ''), padding.left - 10, y);
                 }
 
+                if (!items.length) {
+                    context.fillStyle = '#64748b';
+                    context.font = '700 13px Inter, sans-serif';
+                    context.textAlign = 'center';
+                    context.textBaseline = 'middle';
+                    context.fillText('No collection data available', padding.left + chartWidth / 2, padding.top + chartHeight / 2);
+                    return;
+                }
+
                 items.forEach((item, index) => {
                     const value = Number(item.value);
-                    const x = padding.left + index * (chartWidth / items.length) + (barGap / 2);
+                    const x = padding.left + index * slotWidth + (barGap / 2);
                     const barHeight = (value / scaleMax) * chartHeight;
                     const y = padding.top + chartHeight - barHeight;
 
                     context.fillStyle = '#3b82f6';
                     context.beginPath();
-                    context.roundRect(x, y, barWidth, barHeight, 10);
+                    if (typeof context.roundRect === 'function') {
+                        context.roundRect(x, y, barWidth, barHeight, 10);
+                    } else {
+                        context.rect(x, y, barWidth, barHeight);
+                    }
                     context.fill();
 
                     context.fillStyle = '#0f172a';

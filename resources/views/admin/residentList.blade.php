@@ -14,7 +14,7 @@
                 Resident Directory
             </h2>
             <br>
-            <p class="text-slate-500 max-w-2xl leading-relaxed">
+            <p class="text-slate-100 max-w-2xl leading-relaxed">
                 A consolidated fiscal record of all active tenants, units, and financial standing within the VoltTrack Utility ecosystem.
             </p>
         </div>

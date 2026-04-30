@@ -1,13 +1,13 @@
 <x-layout title="Create Electricity Bills | VoltTrack">
     <div class="max-w-4xl mx-auto p-8 bg-slate-50 min-h-screen">
         <div class="mb-8">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <p class="text-xs font-bold text-slate-200 uppercase tracking-wider">
                 Billing > Electricity
             </p>
-            <h1 class="text-3xl font-black text-[#001D4E] mt-2">
+            <h1 class="text-3xl font-black text-[#F8FAFC] mt-2">
                 Create Electricity Bill
             </h1>
-            <p class="text-sm text-slate-500 mt-2">
+            <p class="text-sm text-slate-200 mt-2">
                 Create or update an Electricity bill for one selected resident.
             </p>
         </div>

@@ -58,8 +58,14 @@ class AdminResidentController extends Controller
         $resident = User::with(['properties', 'bills'])
             ->findOrFail($id);
 
+        $residentBills = $resident->bills()
+            ->latest()
+            ->paginate(10, ['*'], 'transactions_page')
+            ->withQueryString();
+
         return view('admin.residentInfo', [
             'resident' => $resident,
+            'residentBills' => $residentBills,
         ]);
     }
 

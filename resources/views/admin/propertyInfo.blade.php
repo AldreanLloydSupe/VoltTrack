@@ -12,17 +12,19 @@
         </nav>
 
         <div class="flex justify-between items-end mb-10">
-            <h1 class="text-5xl font-extrabold text-[#001D4E] tracking-tight">Property Details</h1>
+            <h1 class="text-5xl font-extrabold text-[#F8FAFC] tracking-tight">
+                Property Details
+            </h1>
             
             <div class="flex gap-3">
                 <form method="POST" action="{{ route('admin.property.destroy', $property->id) }}" onsubmit="return confirm('Delete this property record? This action cannot be undone.');">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="px-6 py-2.5 bg-rose-500 text-white font-black rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-rose-200 hover:bg-rose-600 transition-all">
+                    <button type="submit" class="px-6 py-2.5 bg-rose-500 text-white font-black rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-slate-900 hover:bg-rose-600 transition-all">
                         Delete Property
                     </button>
                 </form>
-                <a href="{{ route('admin.property.edit', $property->id) }}" class="px-6 py-2.5 bg-[#001D4E] text-white font-black rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-blue-900/20 hover:scale-[1.02] transition-all">
+                <a href="{{ route('admin.property.edit', $property->id) }}" class="px-6 py-2.5 bg-[#001D4E] text-white font-black rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-slate-600/20 hover:scale-[1.02] transition-all">
                     Update Property
                 </a>
             </div>
@@ -30,7 +32,7 @@
 
         <div class="space-y-8">
             
-            <div class="bg-white p-10 rounded-[40px] border border-slate-50 shadow-2xl shadow-slate-200/60">
+            <div class="bg-white p-10 rounded-[40px] border border-slate-50 shadow-2xl shadow-slate-500/60">
                 <div class="flex items-center gap-4 mb-12">
                     <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
                         <i class="fas fa-building text-lg"></i>
@@ -86,7 +88,7 @@
                 </div>
             </div>
 
-            <div class="bg-white p-10 rounded-[40px] border border-slate-50 shadow-2xl shadow-slate-200/60">
+            <div class="bg-white p-10 rounded-[40px] border border-slate-50 shadow-2xl shadow-slate-500/60">
                 <div class="flex items-center gap-4 mb-8">
                     <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
                         <i class="fas fa-sliders-h text-lg"></i>

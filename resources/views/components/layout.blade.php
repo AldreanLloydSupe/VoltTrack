@@ -204,7 +204,9 @@
             {{ $slot }}
         </div>
     @else
-        {{ $slot }}
+        <div class="admin-glass-page">
+            {{ $slot }}
+        </div>
     @endif
 
     @if ($showAdminNav && isset($user) && $user && $user->isAdmin())

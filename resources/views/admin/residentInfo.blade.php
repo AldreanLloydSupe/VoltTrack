@@ -9,14 +9,14 @@
     <div class="mb-2">
         <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
             <a href="{{ route('admin.residentList') }}" class="hover:text-black transition-all">Residents List</a>
-            > <span class="text-blue-600">{{ $resident->first_name }} {{ $resident->last_name }}</span>
+            > <span class="text-blue-600 text-shadow-slate-400 text-shadow-xs">{{ $resident->first_name }} {{ $resident->last_name }}</span>
         </p>
     </div>
 
     <div class="flex justify-between items-center mb-8">
         <div>
-            <h1 class="text-5xl font-bold text-[#1e3a8a] tracking-tight">{{ $resident->first_name }} {{ $resident->last_name }}</h1>
-            <p class="text-slate-500 font-medium mt-2">Account ID: #{{ $resident->id }} • House No. {{ $resident->properties->first()?->property_unit_id ?? 'N/A' }}</p>
+            <h1 class="text-5xl font-bold text-[#F8FAFC] tracking-tight">{{ $resident->first_name }} {{ $resident->last_name }}</h1>
+            <p class="text-slate-300 font-medium mt-2">Account ID: #{{ $resident->id }} • House No. {{ $resident->properties->first()?->property_unit_id ?? 'N/A' }}</p>
         </div>
         
         <div class="flex space-x-4">
@@ -32,7 +32,7 @@
             </form>
 
             <div class="relative inline-block group">
-                <button class="bg-[#001D4E] hover:bg-black text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md flex items-center transition-all duration-200">
+                <button class="bg-[#001D4E] hover:bg-slate-700 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md flex items-center transition-all duration-200">
                     <i class="fas fa-plus-circle mr-2"></i> 
                     CREATE NEW BILL
                     <i class="fas fa-chevron-down ml-2 text-[10px] opacity-70 transition-transform duration-200 group-hover:rotate-180"></i>
@@ -151,7 +151,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-                @forelse($resident->bills->sortByDesc('created_at') as $bill)
+                @forelse($residentBills as $bill)
                 <tr class="hover:bg-slate-50/50 transition-colors">
                     <td class="px-8 py-6 text-sm font-bold text-slate-700">{{ $bill->billing_period_end->format('M d, Y') }}</td>
                     <td class="px-8 py-6 text-sm font-bold text-slate-800">{{ $bill->utility_type }}</td>
@@ -209,6 +209,17 @@
             </tbody>
         </table>
         </div>
+
+        @if($residentBills->hasPages())
+            <div class="flex flex-col gap-3 border-t border-slate-100 bg-slate-50/50 px-8 py-5 sm:flex-row sm:items-center sm:justify-between">
+                <p class="text-xs font-bold text-slate-400">
+                    Showing
+                    <span class="text-slate-600">{{ number_format($residentBills->firstItem() ?? 0) }}-{{ number_format($residentBills->lastItem() ?? 0) }}</span>
+                    of {{ number_format($residentBills->total()) }} transactions
+                </p>
+                <x-pagination-links :paginator="$residentBills" />
+            </div>
+        @endif
     </div>
 </div>
 </x-layout>
