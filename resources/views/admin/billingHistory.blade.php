@@ -8,7 +8,7 @@
 
     <div class="mx-auto min-h-screen max-w-7xl bg-slate-50 p-8">
         <div class="mb-8">
-            <p class="mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+            <p class="mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-blue-100">
                 Billing History >
             </p>
 
@@ -19,7 +19,7 @@
             @endif
 
             <div class="flex items-center justify-between">
-                <h1 class="mt-1 text-5xl font-black text-[#0f172a]">
+                <h1 class="mt-1 text-5xl font-black text-white">
                     Billing History
                 </h1>
 
@@ -183,9 +183,7 @@
                     of {{ number_format($bills->total()) }} bills
                 </p>
 
-                <div class="[&_nav]:inline [&_nav]:text-sm [&_nav]:font-semibold [&_nav_.relative.inline-flex.items-center.px-2.py-2.text-sm]:hidden">
-                    {{ $bills->links() }}
-                </div>
+                <x-pagination-links :paginator="$bills" />
             </div>
         </div>
     </div>

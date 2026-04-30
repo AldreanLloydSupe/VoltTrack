@@ -45,8 +45,46 @@ class DashboardController extends Controller
         $pending_bills = Bill::with(['user.property'])
             ->whereIn('status', ['Pending', 'Overdue'])
             ->latest()
-            ->limit(10)
-            ->get();
+            ->paginate(10, ['*'], 'pending_page')
+            ->withQueryString();
+
+        $weeklyStart = now()->startOfDay()->subDays(6);
+        $weeklyPaidBills = Bill::query()
+            ->where('status', 'Paid')
+            ->whereNotNull('paid_at')
+            ->whereBetween('paid_at', [$weeklyStart, now()->endOfDay()])
+            ->get(['total_bill', 'paid_at']);
+
+        $weeklyCollections = collect(range(0, 6))->map(function ($daysAgo) use ($weeklyStart, $weeklyPaidBills) {
+            $date = $weeklyStart->copy()->addDays($daysAgo);
+            $total = $weeklyPaidBills
+                ->filter(fn ($bill) => $bill->paid_at?->isSameDay($date))
+                ->sum('total_bill');
+
+            return [
+                'label' => $date->format('M d'),
+                'value' => round((float) $total, 2),
+            ];
+        })->values();
+
+        $monthlyStart = now()->startOfMonth()->subMonths(5);
+        $monthlyPaidBills = Bill::query()
+            ->where('status', 'Paid')
+            ->whereNotNull('paid_at')
+            ->whereBetween('paid_at', [$monthlyStart, now()->endOfMonth()])
+            ->get(['total_bill', 'paid_at']);
+
+        $monthlyCollections = collect(range(0, 5))->map(function ($monthsAgo) use ($monthlyStart, $monthlyPaidBills) {
+            $date = $monthlyStart->copy()->addMonths($monthsAgo);
+            $total = $monthlyPaidBills
+                ->filter(fn ($bill) => $bill->paid_at?->format('Y-m') === $date->format('Y-m'))
+                ->sum('total_bill');
+
+            return [
+                'label' => $date->format('M Y'),
+                'value' => round((float) $total, 2),
+            ];
+        })->values();
 
         return view('admin.dashboard', [
             'pending_bills' => $pending_bills,
@@ -57,6 +95,20 @@ class DashboardController extends Controller
             'pendingApprovals' => $pendingApprovals,
             'approvedResidents' => $approvedResidents,
             'pendingBillsCount' => $pendingBillsCount,
+            'collectionChart' => [
+                'weekly' => [
+                    'title' => 'Weekly Collection',
+                    'subtitle' => 'Paid bills for the last 7 days',
+                    'total' => round((float) $weeklyCollections->sum('value'), 2),
+                    'items' => $weeklyCollections,
+                ],
+                'monthly' => [
+                    'title' => 'Monthly Collection',
+                    'subtitle' => 'Paid bills for the last 6 months',
+                    'total' => round((float) $monthlyCollections->sum('value'), 2),
+                    'items' => $monthlyCollections,
+                ],
+            ],
         ]);
     }
 }

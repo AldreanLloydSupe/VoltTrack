@@ -23,9 +23,13 @@
             <a href="{{ route('admin.resident.edit', $resident->id) }}" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
                 UPDATE ACCOUNT
             </a>
-            <button class="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
-                DELETE ACCOUNT
-            </button>
+            <form action="{{ route('admin.resident.destroy', $resident->id) }}" method="POST" onsubmit="return confirm('Delete this account?');">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
+                    DELETE ACCOUNT
+                </button>
+            </form>
 
             <div class="relative inline-block group">
                 <button class="bg-[#001D4E] hover:bg-black text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md flex items-center transition-all duration-200">

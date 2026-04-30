@@ -18,7 +18,7 @@
                 <nav class="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                     Properties & Meters <span class="mx-1">></span>
                 </nav>
-                <h1 class="text-4xl font-black leading-tight text-[#0f172a]">
+                <h1 class="text-4xl font-black leading-tight text-[#ffffff]">
                     Property & Meter Registry
                 </h1>
             </div>

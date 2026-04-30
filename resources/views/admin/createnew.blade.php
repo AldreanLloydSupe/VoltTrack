@@ -16,12 +16,12 @@
 
                 <div class="flex justify-between items-start mb-2">
                     <div>
-                        <nav class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">
-                            PROPERTIES & METERS <span class="mx-1 text-slate-300">></span> <span class="text-blue-700">
+                        <nav class="text-[11px] font-bold text-blue-100 uppercase tracking-[0.2em] mb-1">
+                            PROPERTIES & METERS <span class="mx-1 text-blue-100/70">></span> <span class="text-white">
                                 CREATE NEW PROPERTY
                             </span>
                         </nav>
-                        <h1 class="text-5xl font-black text-[#0f172a] tracking-tight">Create New Property</h1>
+                        <h1 class="text-5xl font-black text-white tracking-tight">Create New Property</h1>
                     </div>
 
                     <div class="flex items-center space-x-4">

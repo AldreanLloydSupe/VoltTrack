@@ -7,7 +7,7 @@
                         {{ session('success') }}
                     </div>
                 @endif
-                <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mt-1">Admin Dashboard</h1>
+                <h1 class="text-3xl md:text-4xl font-bold text-white mt-1">Admin Dashboard</h1>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
@@ -39,6 +39,35 @@
                 <span class="px-3 py-1 bg-slate-200 text-slate-700 rounded-full text-xs font-semibold">
                     Pending/Overdue Bills: {{ number_format($pendingBillsCount) }}
                 </span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-5 mb-6">
+                <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                    <div>
+                        <p class="text-xs text-slate-500 uppercase font-semibold">Collection Overview</p>
+                        <h2 id="collectionChartTitle" class="mt-1 text-xl font-bold text-slate-900">
+                            Weekly Collection
+                        </h2>
+                        <p id="collectionChartSubtitle" class="mt-1 text-sm text-slate-500">
+                            Paid bills for the last 7 days
+                        </p>
+                    </div>
+
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                        <label class="sr-only" for="collectionChartRange">Collection range</label>
+                        <select
+                            id="collectionChartRange"
+                            class="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                        >
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-6 h-80 w-full rounded-xl border border-slate-100 bg-slate-50 p-3">
+                    <canvas id="collectionChart" class="h-full w-full"></canvas>
+                </div>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
@@ -111,4 +140,109 @@
             </div>
         </div>
     </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const select = document.getElementById('collectionChartRange');
+            const canvas = document.getElementById('collectionChart');
+            const title = document.getElementById('collectionChartTitle');
+            const subtitle = document.getElementById('collectionChartSubtitle');
+            const context = canvas.getContext('2d');
+
+            const money = new Intl.NumberFormat('en-PH', {
+                style: 'currency',
+                currency: 'PHP',
+                minimumFractionDigits: 2,
+            });
+
+            function resizeCanvas() {
+                const ratio = window.devicePixelRatio || 1;
+                const rect = canvas.getBoundingClientRect();
+
+                canvas.width = rect.width * ratio;
+                canvas.height = rect.height * ratio;
+                context.setTransform(ratio, 0, 0, ratio, 0, 0);
+            }
+
+            function drawChart(range) {
+                const data = chartData[range];
+                const items = data.items || [];
+                const rect = canvas.getBoundingClientRect();
+                const width = rect.width;
+                const height = rect.height;
+                const padding = {
+                    top: 22,
+                    right: 18,
+                    bottom: 48,
+                    left: 64,
+                };
+                const chartWidth = width - padding.left - padding.right;
+                const chartHeight = height - padding.top - padding.bottom;
+                const maxValue = Math.max(...items.map((item) => Number(item.value)), 0);
+                const scaleMax = maxValue === 0 ? 1 : maxValue * 1.2;
+                const barGap = 14;
+                const barWidth = Math.max(24, (chartWidth / items.length) - barGap);
+
+                title.textContent = data.title;
+                subtitle.textContent = data.subtitle;
+
+                context.clearRect(0, 0, width, height);
+                context.fillStyle = '#f8fafc';
+                context.fillRect(0, 0, width, height);
+
+                context.strokeStyle = '#e2e8f0';
+                context.lineWidth = 1;
+                context.fillStyle = '#64748b';
+                context.font = '600 11px Inter, sans-serif';
+                context.textAlign = 'right';
+                context.textBaseline = 'middle';
+
+                for (let index = 0; index <= 4; index++) {
+                    const y = padding.top + (chartHeight / 4) * index;
+                    const value = scaleMax - (scaleMax / 4) * index;
+
+                    context.beginPath();
+                    context.moveTo(padding.left, y);
+                    context.lineTo(width - padding.right, y);
+                    context.stroke();
+                    context.fillText(money.format(value).replace('.00', ''), padding.left - 10, y);
+                }
+
+                items.forEach((item, index) => {
+                    const value = Number(item.value);
+                    const x = padding.left + index * (chartWidth / items.length) + (barGap / 2);
+                    const barHeight = (value / scaleMax) * chartHeight;
+                    const y = padding.top + chartHeight - barHeight;
+
+                    context.fillStyle = '#3b82f6';
+                    context.beginPath();
+                    context.roundRect(x, y, barWidth, barHeight, 10);
+                    context.fill();
+
+                    context.fillStyle = '#0f172a';
+                    context.font = '800 11px Inter, sans-serif';
+                    context.textAlign = 'center';
+                    context.textBaseline = 'bottom';
+
+                    if (value > 0) {
+                        context.fillText(money.format(value).replace('.00', ''), x + barWidth / 2, y - 8);
+                    }
+
+                    context.fillStyle = '#475569';
+                    context.font = '700 11px Inter, sans-serif';
+                    context.textBaseline = 'top';
+                    context.fillText(item.label, x + barWidth / 2, padding.top + chartHeight + 16);
+                });
+            }
+
+            function render() {
+                resizeCanvas();
+                drawChart(select.value);
+            }
+
+            select.addEventListener('change', render);
+            window.addEventListener('resize', render);
+            render();
+        });
+    </script>
 </x-layout>

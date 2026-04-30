@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
@@ -41,7 +42,10 @@ class AdminResidentController extends Controller
                 )
             )
             ->with(['property', 'bills'])
-            ->get();
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->paginate(10)
+            ->withQueryString();
 
         return view('admin.residentList', [
             'residents' => $residents,
@@ -97,6 +101,33 @@ class AdminResidentController extends Controller
         return redirect()
             ->route('admin.residentInfo', $resident->id)
             ->with('success', 'Resident account updated successfully.');
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        $user = $request->user();
+
+        abort_unless($user && $user->isAdmin(), 403);
+
+        $resident = User::with(['properties', 'utilityAssignments'])
+            ->where('role', 'renter')
+            ->findOrFail($id);
+
+        $residentName = trim("{$resident->first_name} {$resident->last_name}");
+
+        DB::transaction(function () use ($resident) {
+            $resident->properties()->update([
+                'user_id' => null,
+                'status' => 'Inactive',
+            ]);
+
+            $resident->utilityAssignments()->delete();
+            $resident->delete();
+        });
+
+        return redirect()
+            ->route('admin.residentList')
+            ->with('success', "{$residentName} account deleted successfully.");
     }
 
     // Sorting Kung residential ang i show or commercial

@@ -64,6 +64,9 @@ Route::get('/admin/resident/{id}/edit', [AdminResidentController::class, 'edit']
 Route::patch('/admin/resident/{id}', [AdminResidentController::class, 'update'])
     ->middleware(['auth', 'no.cache'])
     ->name('admin.resident.update');
+Route::delete('/admin/resident/{id}', [AdminResidentController::class, 'destroy'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.resident.destroy');
 
 Route::get('/admin/billingHistory', [AdminBillingController::class, 'list'])
     ->middleware(['auth', 'no.cache'])

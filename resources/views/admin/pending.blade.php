@@ -16,7 +16,7 @@
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                     Pending Residents >
                 </p>
-                <h2 class="text-5xl font-black text-[#0f172a] mt-1">
+                <h2 class="text-5xl font-black text-[#ffffff] mt-1">
                     Pending Resident Confirmation
                 </h2>
             </div>

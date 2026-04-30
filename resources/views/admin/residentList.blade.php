@@ -1,10 +1,16 @@
 <x-layout title="Resident List | VoltTrack">
     <div class="max-w-7xl mx-auto p-8 bg-slate-50 min-h-screen">   
+        @if (session('success'))
+            <div class="mb-6 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+                {{ session('success') }}
+            </div>
+        @endif
+
         <div class="mb-8">
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">
                 Residents List >
             </p>
-            <h2 class="text-5xl font-black text-[#0f172a] mt-1">
+            <h2 class="text-5xl font-black text-[#ffffff] mt-1">
                 Resident Directory
             </h2>
             <br>
@@ -113,16 +119,11 @@
 
             <div class="bg-slate-50/50 px-8 py-4 flex items-center justify-between border-t border-slate-100">
                 <p class="text-xs font-bold text-slate-400">
-                    Showing 1-6 of 6 renters
+                    Showing
+                    <span class="text-slate-600">{{ number_format($residents->firstItem() ?? 0) }}-{{ number_format($residents->lastItem() ?? 0) }}</span>
+                    of {{ number_format($residents->total()) }} renters
                 </p>
-                <div class="flex space-x-1">
-                    <button class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-bold shadow-md shadow-blue-200">
-                        1
-                    </button>
-                    <button class="px-3 py-1 bg-white text-slate-600 rounded text-xs font-bold border border-slate-200 hover:bg-slate-50">
-                        2
-                    </button>
-                </div>
+                <x-pagination-links :paginator="$residents" />
             </div>
         </div>
     </div>

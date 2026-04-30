@@ -26,7 +26,7 @@
             @php($unreadResidentMessages = $user->adminNotifications()->whereNull('read_at')->count())
             @php($latestAdminNotifications = $user->adminNotifications()->with('resident')->latest()->limit(6)->get())
         @endif
-        <header class="bg-[#1e3a8a] text-white py-4 px-10 flex items-center">
+        <header class="relative z-20 bg-[#1E3A8A] text-white py-4 px-10 flex items-center">
             <h1 class="text-3xl font-bold mr-32">
                 VoltTrack
             </h1>
@@ -146,6 +146,13 @@
             </div>
         </header>
     @endif
-    {{ $slot }}
+
+    @if ($showAdminNav)
+        <div class="admin-glass-page">
+            {{ $slot }}
+        </div>
+    @else
+        {{ $slot }}
+    @endif
 </body>
 </html>
