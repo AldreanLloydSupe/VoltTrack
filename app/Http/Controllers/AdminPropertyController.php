@@ -286,27 +286,22 @@ public function destroy(Request $request, $id)
         $meterIds = $meters->pluck('id')->toArray();
         $meterSerialNumbers = $meters->pluck('serial_number')->filter()->toArray();
 
-        DB::transaction(function () use ($property, $meterIds, $meterSerialNumbers) {
-            // Delete all bills associated with these meters
-            if (!empty($meterSerialNumbers)) {
-                Bill::whereIn('meter_no', $meterSerialNumbers)->delete();
-            }
-
-            // Delete the meters assigned to this property
+        DB::transaction(function () use ($property, $meterIds) {
+            // 1. Permanently delete the meters assigned to this property
             if (!empty($meterIds)) {
-                Meter::whereIn('id', $meterIds)->delete();
+                Meter::whereIn('id', $meterIds)->forceDelete();
             }
 
-            // Detach meter relationships from property_meters pivot table
+            // 2. Detach relationships from the pivot table (this is already a permanent action)
             $property->meters()->detach();
 
-            // Delete the property
-            $property->delete();
+            // 3. Permanently delete the property itself
+            $property->forceDelete();
         });
 
         return redirect()
             ->route('admin.property')
-            ->with('success', "Property {$propertyLabel}, associated meters, and related bills deleted successfully.");
+            ->with('success', "Property {$propertyLabel} and associated meters deleted successfully.");
     }
 
     protected function approvedResidents()
