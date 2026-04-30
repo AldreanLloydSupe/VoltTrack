@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 class Bill extends Model
 {
@@ -11,7 +13,7 @@ class Bill extends Model
         'current_reading', 'consumption', 'reading_date',
         'billing_period_start', 'billing_period_end',
         'price_per_unit', 'service_fee', 'total_bill',
-        'status', 'is_done', 'paid_at', 'payment_reference'
+        'status', 'is_done', 'paid_at', 'overdue_notified_at', 'payment_reference'
     ];
 
     protected $casts = [
@@ -19,6 +21,7 @@ class Bill extends Model
         'billing_period_start' => 'date',
         'billing_period_end' => 'date',
         'paid_at' => 'datetime',
+        'overdue_notified_at' => 'datetime',
         'previous_reading' => 'decimal:2',
         'current_reading' => 'decimal:2',
         'consumption' => 'decimal:2',
@@ -31,6 +34,82 @@ class Bill extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public static function markPastDueAsOverdue(): int
+    {
+        $bills = static::query()
+            ->with('user')
+            ->where('status', 'Pending')
+            ->whereDate('billing_period_end', '<', today())
+            ->get();
+
+        if ($bills->isEmpty()) {
+            return 0;
+        }
+
+        static::query()
+            ->whereKey($bills->pluck('id'))
+            ->update(['status' => 'Overdue']);
+
+        $bills->each(function (Bill $bill) {
+            $bill->status = 'Overdue';
+            $bill->notifyResidentIfOverdue();
+        });
+
+        return $bills->count();
+    }
+
+    public static function statusForDueDate(string $status, $billingPeriodEnd): string
+    {
+        if ($status !== 'Paid' && Carbon::parse($billingPeriodEnd)->lt(today())) {
+            return 'Overdue';
+        }
+
+        return $status;
+    }
+
+    public function notifyResidentIfOverdue(?int $adminId = null): bool
+    {
+        if ($this->status !== 'Overdue' || $this->overdue_notified_at) {
+            return false;
+        }
+
+        if (
+            ! Schema::hasTable('admin_notifications')
+            || ! Schema::hasColumn('admin_notifications', 'reply_message')
+            || ! Schema::hasColumn('admin_notifications', 'replied_by')
+            || ! Schema::hasColumn('admin_notifications', 'replied_at')
+            || ! Schema::hasColumn('bills', 'overdue_notified_at')
+        ) {
+            return false;
+        }
+
+        $adminId ??= User::query()->where('role', 'admin')->value('id');
+
+        if (! $adminId || ! $this->user_id) {
+            return false;
+        }
+
+        $dueDate = $this->billing_period_end
+            ? Carbon::parse($this->billing_period_end)->format('M d, Y')
+            : 'the due date';
+        $amount = number_format((float) $this->total_bill, 2);
+
+        AdminNotification::create([
+            'user_id' => $adminId,
+            'resident_id' => $this->user_id,
+            'subject' => "{$this->utility_type} Bill Overdue",
+            'message' => "Automatic notice for bill #{$this->id}.",
+            'read_at' => now(),
+            'replied_by' => $adminId,
+            'reply_message' => "Your {$this->utility_type} bill for PHP {$amount}, due on {$dueDate}, is now overdue. Please settle this bill as soon as possible to keep your account updated.",
+            'replied_at' => now(),
+        ]);
+
+        $this->forceFill(['overdue_notified_at' => now()])->save();
+
+        return true;
     }
 
     /**

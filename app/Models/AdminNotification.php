@@ -16,10 +16,14 @@ class AdminNotification extends Model
         'subject',
         'message',
         'read_at',
+        'replied_by',
+        'reply_message',
+        'replied_at',
     ];
 
     protected $casts = [
         'read_at' => 'datetime',
+        'replied_at' => 'datetime',
     ];
 
     public function admin(): BelongsTo
@@ -30,5 +34,10 @@ class AdminNotification extends Model
     public function resident(): BelongsTo
     {
         return $this->belongsTo(User::class, 'resident_id');
+    }
+
+    public function repliedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'replied_by');
     }
 }

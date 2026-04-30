@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Bill;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +17,8 @@ class AdminResidentController extends Controller
 
         abort_unless($user && $user->isAdmin(), 403);
 
-        $unitType = $request->input('unit_type');
+        Bill::markPastDueAsOverdue();
+
         $search = trim((string) $request->input('search'));
 
         $residents = User::where('role', 'renter')
@@ -34,13 +36,6 @@ class AdminResidentController extends Controller
                     });
                 }
             )
-            ->when(
-                filled($unitType) && $unitType !== 'All',
-                fn ($query) => $query->whereHas(
-                    'property',
-                    fn ($propertyQuery) => $propertyQuery->where('unit_type', $unitType)
-                )
-            )
             ->with(['property', 'bills'])
             ->orderBy('first_name')
             ->orderBy('last_name')
@@ -57,6 +52,8 @@ class AdminResidentController extends Controller
         $user = $request->user();
 
         abort_unless($user && $user->isAdmin(), 403);
+
+        Bill::markPastDueAsOverdue();
 
         $resident = User::with(['properties', 'bills'])
             ->findOrFail($id);
@@ -109,7 +106,8 @@ class AdminResidentController extends Controller
 
         abort_unless($user && $user->isAdmin(), 403);
 
-        $resident = User::with(['properties', 'utilityAssignments'])
+        $resident = User::query()
+            ->with(['properties', 'utilityAssignments', 'bills', 'adminNotifications'])
             ->where('role', 'renter')
             ->findOrFail($id);
 
@@ -121,13 +119,15 @@ class AdminResidentController extends Controller
                 'status' => 'Inactive',
             ]);
 
+            $resident->bills()->delete();
             $resident->utilityAssignments()->delete();
-            $resident->delete();
+            $resident->adminNotifications()->delete();
+            $resident->forceDelete();
         });
 
         return redirect()
             ->route('admin.residentList')
-            ->with('success', "{$residentName} account deleted successfully.");
+            ->with('success', "{$residentName} account deleted permanently.");
     }
 
     // Sorting Kung residential ang i show or commercial

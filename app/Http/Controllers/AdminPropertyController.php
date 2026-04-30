@@ -272,7 +272,7 @@ class AdminPropertyController extends Controller
             ->with('success', 'Property details updated successfully.');
     }
 
-    public function destroy(Request $request, $id)
+public function destroy(Request $request, $id)
     {
         $user = $request->user();
 
@@ -281,14 +281,27 @@ class AdminPropertyController extends Controller
         $property = Property::with('meters')->findOrFail($id);
         $propertyLabel = $property->property_unit_id ?: "#{$property->id}";
 
-        DB::transaction(function () use ($property) {
+        // Collect meter IDs and serial numbers before deletion
+        $meters = $property->meters;
+        $meterIds = $meters->pluck('id')->toArray();
+        $meterSerialNumbers = $meters->pluck('serial_number')->filter()->toArray();
+
+        DB::transaction(function () use ($property, $meterIds) {
+            // 1. Permanently delete the meters assigned to this property
+            if (!empty($meterIds)) {
+                Meter::whereIn('id', $meterIds)->forceDelete();
+            }
+
+            // 2. Detach relationships from the pivot table (this is already a permanent action)
             $property->meters()->detach();
-            $property->delete();
+
+            // 3. Permanently delete the property itself
+            $property->forceDelete();
         });
 
         return redirect()
             ->route('admin.property')
-            ->with('success', "Property {$propertyLabel} deleted successfully.");
+            ->with('success', "Property {$propertyLabel} and associated meters deleted successfully.");
     }
 
     protected function approvedResidents()

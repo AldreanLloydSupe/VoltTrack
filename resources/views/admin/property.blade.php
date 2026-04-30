@@ -2,8 +2,6 @@
     @php
         $viewMode = request('view') === 'table' ? 'table' : 'grid';
         $isGridView = $viewMode === 'grid';
-        $tableViewUrl = route('admin.property', array_merge(request()->except(['view', 'page']), ['view' => 'table']));
-        $gridViewUrl = route('admin.property', array_merge(request()->except(['view', 'page']), ['view' => 'grid']));
     @endphp
 
     <main class="min-h-screen bg-slate-50 p-10 font-sans">
@@ -24,13 +22,13 @@
             </div>
 
             <div class="flex items-center gap-6">
-                <div class="flex rounded-lg bg-slate-200/50 p-1 text-[11px] font-bold uppercase tracking-tight">
-                    <a href="{{ $tableViewUrl }}" class="{{ ! $isGridView ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600' }} rounded px-4 py-1.5 transition-all">
+                <div id="property-view-switcher" class="flex rounded-lg bg-slate-200/50 p-1 text-[11px] font-bold uppercase tracking-tight">
+                    <button type="button" data-view="table" class="property-view-option {{ ! $isGridView ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600' }} rounded px-4 py-1.5 transition-all">
                         Table View
-                    </a>
-                    <a href="{{ $gridViewUrl }}" class="{{ $isGridView ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600' }} rounded px-4 py-1.5 transition-all">
+                    </button>
+                    <button type="button" data-view="grid" class="property-view-option {{ $isGridView ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600' }} rounded px-4 py-1.5 transition-all">
                         Grid View
-                    </a>
+                    </button>
                 </div>
 
                 <a href="{{ route('admin.createnew') }}" class="rounded-lg bg-[#1e3a8a] px-6 py-3.5 text-[11px] font-black uppercase tracking-wider text-white shadow-lg shadow-blue-900/20 transition-all hover:bg-blue-900 active:scale-95">
@@ -43,35 +41,30 @@
             <div class="mb-10 flex items-center justify-between gap-6">
                 <div class="flex items-center gap-6">
                     <div class="flex items-center gap-4">
-                        <div class="flex items-center rounded-full border border-slate-200 bg-slate-100/50 p-1">
-                            <span class="px-4 text-[9px] font-black uppercase tracking-[0.15em] text-slate-800">Type</span>
-                            <a href="{{ route('admin.property', array_filter(['search' => request('search'), 'status' => request('status'), 'view' => $viewMode])) }}"
-                                class="{{ ! request('unit_type') ? 'bg-[#1e3a8a] text-white shadow-md' : 'text-slate-400 hover:text-slate-600' }} rounded-full px-5 py-1.5 text-[10px] font-black uppercase tracking-wider transition-colors">
+                        <div id="unit-type-filter" class="flex items-center bg-slate-100/50 rounded-full p-1 border border-slate-200">
+                            <span class="text-[9px] font-black text-slate-800 uppercase tracking-[0.15em] px-4">Type</span>
+                            <button type="button"
+                                data-unit-type="all"
+                                class="unit-type-option {{ !request('unit_type') ? 'bg-[#1e3a8a] text-white shadow-md' : 'text-slate-400 hover:text-slate-600' }} px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-colors">
                                 All
-                            </a>
-                            <a href="{{ route('admin.property', array_filter(['unit_type' => 'Residential', 'search' => request('search'), 'status' => request('status'), 'view' => $viewMode])) }}"
-                                class="{{ request('unit_type') === 'Residential' ? 'bg-[#1e3a8a] text-white shadow-md' : 'text-slate-400 hover:text-slate-600' }} rounded-full px-5 py-1.5 text-[10px] font-black uppercase tracking-wider transition-colors">
+                            </button>
+                            <button type="button"
+                                data-unit-type="Residential"
+                                class="unit-type-option {{ request('unit_type') === 'Residential' ? 'bg-[#1e3a8a] text-white shadow-md' : 'text-slate-400 hover:text-slate-600' }} px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-colors">
                                 Residential
-                            </a>
-                            <a href="{{ route('admin.property', array_filter(['unit_type' => 'Commercial', 'search' => request('search'), 'status' => request('status'), 'view' => $viewMode])) }}"
-                                class="{{ request('unit_type') === 'Commercial' ? 'bg-[#1e3a8a] text-white shadow-md' : 'text-slate-400 hover:text-slate-600' }} rounded-full px-5 py-1.5 text-[10px] font-black uppercase tracking-wider transition-colors">
+                            </button>
+                            <button type="button"
+                                data-unit-type="Commercial"
+                                class="unit-type-option {{ request('unit_type') === 'Commercial' ? 'bg-[#1e3a8a] text-white shadow-md' : 'text-slate-400 hover:text-slate-600' }} px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-colors">
                                 Commercial
-                            </a>
+                            </button>
                         </div>
 
-                        <form method="GET" action="{{ route('admin.property') }}" class="flex items-center gap-2">
-                            @if(request('unit_type'))
-                                <input type="hidden" name="unit_type" value="{{ request('unit_type') }}">
-                            @endif
-                            @if(request('search'))
-                                <input type="hidden" name="search" value="{{ request('search') }}">
-                            @endif
-                            <input type="hidden" name="view" value="{{ $viewMode }}">
-                            <label for="status" class="text-[9px] font-black uppercase tracking-[0.15em] text-slate-800">Status:</label>
+                        <div class="flex items-center gap-2">
+                            <label for="status" class="text-[9px] font-black text-slate-800 uppercase tracking-[0.15em]">Status:</label>
                             <select
                                 id="status"
                                 name="status"
-                                onchange="this.form.submit()"
                                 class="rounded-full border border-slate-200 bg-slate-100/50 px-4 py-2 text-[10px] font-black uppercase tracking-wider text-slate-600 outline-none focus:border-blue-200"
                             >
                                 <option value="">All</option>
@@ -79,29 +72,24 @@
                                 <option value="Inactive" @selected(request('status') === 'Inactive')>Vacant</option>
                                 <option value="Archived" @selected(request('status') === 'Archived')>Archived</option>
                             </select>
-                        </form>
+                        </div>
                     </div>
 
                     <span class="text-xs font-medium italic text-slate-400">
-                        Showing {{ number_format($properties->count()) }} of {{ number_format($totalAssets) }} recorded assets
+                        Showing <span id="visible-property-count">{{ number_format($properties->count()) }}</span> of {{ number_format($totalAssets) }} recorded assets
                     </span>
                 </div>
 
-                <form method="GET" action="{{ route('admin.property') }}" class="flex items-center gap-3">
-                    @if(request('unit_type'))
-                        <input type="hidden" name="unit_type" value="{{ request('unit_type') }}">
-                    @endif
-                    @if(request('status'))
-                        <input type="hidden" name="status" value="{{ request('status') }}">
-                    @endif
-                    <input type="hidden" name="view" value="{{ $viewMode }}">
-                    <div class="group relative">
+                {{-- Search Bar --}}
+                <div class="flex items-center gap-3">
+                    <div class="relative group">
                         <span class="absolute inset-y-0 left-5 flex items-center text-blue-500 transition-colors group-focus-within:text-blue-600">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </span>
                         <input
+                            id="property-search"
                             type="text"
                             name="search"
                             value="{{ request('search') }}"
@@ -109,20 +97,24 @@
                             class="w-80 rounded-full border border-slate-100 bg-slate-50 py-3.5 pl-12 pr-8 text-sm transition-all placeholder:text-slate-400 focus:border-blue-200 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-50"
                         >
                     </div>
-                    <button type="submit" class="rounded-full bg-[#1e3a8a] px-6 py-3 text-[11px] font-black uppercase tracking-wider text-white shadow-lg shadow-blue-900/20 transition-all hover:bg-blue-900 active:scale-95">
+                    <button type="button" id="property-search-button" class="rounded-full bg-[#1e3a8a] px-6 py-3 text-[11px] font-black uppercase tracking-wider text-white shadow-lg shadow-blue-900/20 transition-all hover:bg-blue-900 active:scale-95">
                         Search
                     </button>
-                </form>
+                </div>
             </div>
 
-            @if($isGridView)
-            <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <div id="grid-view" class="{{ $isGridView ? 'grid' : 'hidden' }} grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
                 @forelse($properties as $property)
                     @php
                         $electricMeter = $property->meters->firstWhere('utility_type', 'Electricity');
                         $waterMeter = $property->meters->firstWhere('utility_type', 'Water');
                     @endphp
-                    <article class="rounded-2xl border border-slate-100 bg-slate-50/70 p-6 transition-all hover:-translate-y-0.5 hover:border-blue-100 hover:bg-white hover:shadow-xl hover:shadow-slate-200/60">
+                    <article
+                        class="property-row rounded-2xl border border-slate-100 bg-slate-50/70 p-6 transition-all hover:-translate-y-0.5 hover:border-blue-100 hover:bg-white hover:shadow-xl hover:shadow-slate-200/60"
+                        data-unit-type="{{ $property->unit_type ?? '' }}"
+                        data-status="{{ $property->status ?? '' }}"
+                        data-search="{{ strtolower(trim(($property->property_unit_id ?? "#{$property->id}") . ' ' . ($property->user?->first_name ?? '') . ' ' . ($property->user?->last_name ?? '') . ' ' . ($property->user?->email ?? '') . ' ' . ($property->unit_type ?? '') . ' ' . ($electricMeter?->hardware_meter_number ?? $electricMeter?->serial_number ?? '') . ' ' . ($waterMeter?->hardware_meter_number ?? $waterMeter?->serial_number ?? '') . ' ' . ($property->status ?? ''))) }}"
+                    >
                         <div class="mb-5 flex items-start justify-between gap-4">
                             <div>
                                 <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Property ID</p>
@@ -179,9 +171,12 @@
                         No properties found
                     </div>
                 @endforelse
+                <div id="no-filtered-properties-card" class="col-span-full hidden rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center text-slate-500">
+                    No properties found for the selected filters
+                </div>
             </div>
-            @else
-            <div class="overflow-hidden">
+
+            <div id="table-view" class="{{ $isGridView ? 'hidden' : '' }} overflow-hidden">
                 <table class="w-full text-left">
                     <thead class="border-b border-slate-50 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                         <tr>
@@ -194,13 +189,18 @@
                             <th class="px-6 py-5 text-right">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-50 text-[13px]">
+                    <tbody id="property-table-body" class="divide-y divide-slate-50 text-[13px]">
                         @forelse($properties as $property)
                             @php
                                 $electricMeter = $property->meters->firstWhere('utility_type', 'Electricity');
                                 $waterMeter = $property->meters->firstWhere('utility_type', 'Water');
                             @endphp
-                            <tr class="group transition-all hover:bg-slate-50/80">
+                            <tr
+                                class="property-row group transition-all hover:bg-slate-50/80"
+                                data-unit-type="{{ $property->unit_type ?? '' }}"
+                                data-status="{{ $property->status ?? '' }}"
+                                data-search="{{ strtolower(trim(($property->property_unit_id ?? "#{$property->id}") . ' ' . ($property->user?->first_name ?? '') . ' ' . ($property->user?->last_name ?? '') . ' ' . ($property->user?->email ?? '') . ' ' . ($property->unit_type ?? '') . ' ' . ($electricMeter?->hardware_meter_number ?? $electricMeter?->serial_number ?? '') . ' ' . ($waterMeter?->hardware_meter_number ?? $waterMeter?->serial_number ?? '') . ' ' . ($property->status ?? ''))) }}"
+                            >
                                 <td class="px-6 py-6 font-bold text-slate-400 group-hover:text-slate-600">{{ $property->property_unit_id ?? "#{$property->id}" }}</td>
                                 <td class="px-6 py-6">
                                     @if($property->user)
@@ -239,16 +239,20 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr>
+                            <tr id="empty-property-row">
                                 <td colspan="7" class="px-6 py-6 text-center text-slate-500">
                                     No properties found
                                 </td>
                             </tr>
                         @endforelse
+                        <tr id="no-filtered-properties-row" class="hidden">
+                            <td colspan="7" class="px-6 py-6 text-center text-slate-500">
+                                No properties found for the selected filters
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
-            @endif
 
             <div class="mt-10 flex items-center justify-between border-t border-slate-50 pt-8 text-[11px] font-bold text-slate-400">
                 <p>
@@ -262,4 +266,136 @@
             </div>
         </div>
     </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const viewSwitcher = document.getElementById('property-view-switcher');
+            const viewSections = {
+                table: document.getElementById('table-view'),
+                grid: document.getElementById('grid-view'),
+            };
+            const filter = document.getElementById('unit-type-filter');
+            const statusSelect = document.getElementById('status');
+            const searchInput = document.getElementById('property-search');
+            const searchButton = document.getElementById('property-search-button');
+            const emptyFilteredRows = Array.from(document.querySelectorAll('#no-filtered-properties-row, #no-filtered-properties-card'));
+            const visibleCount = document.getElementById('visible-property-count');
+            const activeClasses = ['bg-[#1e3a8a]', 'text-white', 'shadow-md'];
+            const inactiveClasses = ['text-slate-400', 'hover:text-slate-600'];
+            const activeViewClasses = ['bg-white', 'text-blue-600', 'shadow-sm'];
+            const inactiveViewClasses = ['text-slate-400', 'hover:text-slate-600'];
+
+            if (!filter) {
+                return;
+            }
+
+            const getActiveView = () => {
+                return viewSections.grid && !viewSections.grid.classList.contains('hidden') ? 'grid' : 'table';
+            };
+
+            const getActiveRows = () => {
+                const activeSection = viewSections[getActiveView()];
+
+                return activeSection ? Array.from(activeSection.querySelectorAll('.property-row')) : [];
+            };
+
+            const setActiveButton = (selectedButton) => {
+                filter.querySelectorAll('.unit-type-option').forEach((button) => {
+                    button.classList.remove(...activeClasses);
+                    button.classList.add(...inactiveClasses);
+                });
+
+                selectedButton.classList.remove(...inactiveClasses);
+                selectedButton.classList.add(...activeClasses);
+            };
+
+            const setActiveViewButton = (selectedButton) => {
+                viewSwitcher?.querySelectorAll('.property-view-option').forEach((button) => {
+                    button.classList.remove(...activeViewClasses);
+                    button.classList.add(...inactiveViewClasses);
+                });
+
+                selectedButton.classList.remove(...inactiveViewClasses);
+                selectedButton.classList.add(...activeViewClasses);
+            };
+
+            const applyFilters = () => {
+                const activeUnitType = filter.querySelector('.unit-type-option.bg-\\[\\#1e3a8a\\]')?.dataset.unitType || 'all';
+                const activeStatus = statusSelect?.value || '';
+                const searchTerm = searchInput?.value.trim().toLowerCase() || '';
+                const rows = getActiveRows();
+                let shownRows = 0;
+
+                document.querySelectorAll('.property-row').forEach((row) => {
+                    row.classList.add('hidden');
+                });
+
+                rows.forEach((row) => {
+                    const matchesUnitType = activeUnitType === 'all' || row.dataset.unitType === activeUnitType;
+                    const matchesStatus = activeStatus === '' || row.dataset.status === activeStatus;
+                    const matchesSearch = searchTerm === '' || row.dataset.search.includes(searchTerm);
+                    const shouldShow = matchesUnitType && matchesStatus && matchesSearch;
+                    row.classList.toggle('hidden', !shouldShow);
+
+                    if (shouldShow) {
+                        shownRows += 1;
+                    }
+                });
+
+                emptyFilteredRows.forEach((emptyFilteredRow) => {
+                    emptyFilteredRow.classList.toggle('hidden', shownRows > 0);
+                });
+
+                if (visibleCount) {
+                    visibleCount.textContent = shownRows.toLocaleString();
+                }
+            };
+
+            viewSwitcher?.addEventListener('click', (event) => {
+                const button = event.target.closest('.property-view-option');
+
+                if (!button) {
+                    return;
+                }
+
+                Object.entries(viewSections).forEach(([view, section]) => {
+                    if (!section) {
+                        return;
+                    }
+
+                    const isSelected = view === button.dataset.view;
+                    section.classList.toggle('hidden', !isSelected);
+                    section.classList.toggle('grid', view === 'grid' && isSelected);
+                });
+
+                setActiveViewButton(button);
+                applyFilters();
+            });
+
+            filter.addEventListener('click', (event) => {
+                const button = event.target.closest('.unit-type-option');
+
+                if (!button) {
+                    return;
+                }
+
+                setActiveButton(button);
+                applyFilters();
+            });
+
+            statusSelect?.addEventListener('change', applyFilters);
+            searchInput?.addEventListener('input', applyFilters);
+            searchButton?.addEventListener('click', applyFilters);
+
+            const initialButton = filter.querySelector('.unit-type-option.bg-\\[\\#1e3a8a\\]') || filter.querySelector('[data-unit-type="all"]');
+            const initialViewButton = viewSwitcher?.querySelector('.property-view-option.bg-white') || viewSwitcher?.querySelector('[data-view="table"]');
+
+            if (initialViewButton) {
+                setActiveViewButton(initialViewButton);
+            }
+
+            setActiveButton(initialButton);
+            applyFilters();
+        });
+    </script>
 </x-layout>

@@ -18,7 +18,7 @@ class ResidentController extends Controller
     {
         return Bill::query()
             ->where('user_id', $userId)
-            ->latest('billing_period_end');
+            ->latest('created_at');
     }
 
     public function dashboard(Request $request)
@@ -26,6 +26,8 @@ class ResidentController extends Controller
         $user = $request->user();
 
         abort_unless($user && $user->isResident(), 403);
+
+        Bill::markPastDueAsOverdue();
 
         $bills = $this->residentBills($user->id)
             ->limit(5)
@@ -67,6 +69,17 @@ class ResidentController extends Controller
             ? min(100, max(0, 100 - (int) round($totalDue / 9)))
             : 0;
 
+        $adminReplies = Schema::hasTable('admin_notifications')
+            && Schema::hasColumn('admin_notifications', 'reply_message')
+            ? AdminNotification::query()
+                ->with('repliedBy')
+                ->where('resident_id', $user->id)
+                ->whereNotNull('reply_message')
+                ->latest('replied_at')
+                ->limit(6)
+                ->get()
+            : collect();
+
         return view('residents.dashboard', [
             'user' => $user,
             'bills' => $bills,
@@ -81,6 +94,7 @@ class ResidentController extends Controller
             'waterServiceFee' => $waterServiceFee,
             'peakDemand' => $peakDemand,
             'sustainabilityScore' => $sustainabilityScore,
+            'adminReplies' => $adminReplies,
         ]);
     }
 
@@ -90,11 +104,29 @@ class ResidentController extends Controller
 
         abort_unless($user && $user->isResident(), 403);
 
+        Bill::markPastDueAsOverdue();
+
         $bills = $this->residentBills($user->id)->get();
 
         return view('residents.history', [
             'user' => $user,
             'bills' => $bills,
+        ]);
+    }
+
+    public function receipt(Request $request, Bill $bill)
+    {
+        $user = $request->user();
+
+        abort_unless($user && $user->isResident(), 403);
+        abort_unless((int) $bill->user_id === (int) $user->id, 403);
+
+        Bill::markPastDueAsOverdue();
+        $bill->refresh();
+
+        return view('residents.receipt', [
+            'user' => $user,
+            'bill' => $bill,
         ]);
     }
 

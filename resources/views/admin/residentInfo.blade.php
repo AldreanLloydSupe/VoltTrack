@@ -23,7 +23,7 @@
             <a href="{{ route('admin.resident.edit', $resident->id) }}" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
                 UPDATE ACCOUNT
             </a>
-            <form action="{{ route('admin.resident.destroy', $resident->id) }}" method="POST" onsubmit="return confirm('Delete this account?');">
+            <form action="{{ route('admin.resident.destroy', $resident->id) }}" method="POST" onsubmit="return confirm('Delete this resident permanently? This cannot be undone.');">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
@@ -141,19 +141,19 @@
         <table class="w-full min-w-[980px] text-left">
             <thead class="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                 <tr>
-                    <th class="px-8 py-5">Billing Date</th>
+                    <th class="px-8 py-5">Due Date</th>
                     <th class="px-8 py-5">Utility Type</th>
                     <th class="px-8 py-5">Usage</th>
                     <th class="px-8 py-5">Amount</th>
                     <th class="px-8 py-5 text-center">Status</th>
                     <th class="px-8 py-5 text-center">Done</th>
-                    <th class="px-8 py-5 text-right">Action</th>
+                    <th class="px-8 py-5 text-center">Action</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-                @forelse($resident->bills as $bill)
+                @forelse($resident->bills->sortByDesc('created_at') as $bill)
                 <tr class="hover:bg-slate-50/50 transition-colors">
-                    <td class="px-8 py-6 text-sm font-bold text-slate-700">{{ $bill->reading_date->format('M d, Y') }}</td>
+                    <td class="px-8 py-6 text-sm font-bold text-slate-700">{{ $bill->billing_period_end->format('M d, Y') }}</td>
                     <td class="px-8 py-6 text-sm font-bold text-slate-800">{{ $bill->utility_type }}</td>
                     <td class="px-8 py-6">
                         <p class="text-sm font-bold text-slate-800">{{ $bill->consumption }} {{ $bill->utility_type === 'Electricity' ? 'kWh' : 'm³' }}</p>
@@ -175,31 +175,25 @@
                             <span class="text-slate-400">-</span>
                         @endif
                     </td>
-                    <td class="px-8 py-6 text-right">
+                    <td class="px-8 py-6 text-center">
                         @if($bill->status !== 'Paid')
-                            <details class="relative inline-block text-left z-30">
-                                <summary class="list-none cursor-pointer text-[11px] font-black text-blue-600 uppercase hover:underline">
+                            <div class="flex items-center justify-center gap-3">
+                                <a href="{{ route('admin.bills.edit', $bill->id) }}" class="text-[11px] font-black text-blue-600 uppercase hover:underline">
                                     Update
-                                </summary>
-                                <div class="absolute right-0 top-full z-40 mt-2 w-36 rounded-lg border border-slate-200 bg-white shadow-lg py-1">
-                                    <form action="{{ route('admin.bills.updateStatus', $bill->id) }}" method="POST">
-                                        @csrf
-                                        @method('PATCH')
-                                        <input type="hidden" name="status" value="Paid">
-                                        <button type="submit" class="w-full px-3 py-2 text-left text-[11px] font-bold uppercase text-blue-600 hover:bg-slate-50">
-                                            Paid
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('admin.bills.updateStatus', $bill->id) }}" method="POST">
-                                        @csrf
-                                        @method('PATCH')
-                                        <input type="hidden" name="status" value="Overdue">
-                                        <button type="submit" class="w-full px-3 py-2 text-left text-[11px] font-bold uppercase text-rose-600 hover:bg-slate-50">
-                                            Overdue
-                                        </button>
-                                    </form>
-                                </div>
-                            </details>
+                                </a>
+                                <form
+                                    action="{{ route('admin.bills.updateStatus', $bill->id) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('Set this {{ $bill->utility_type }} bill to Paid and mark it as done?');"
+                                >
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="Paid">
+                                    <button type="submit" class="rounded-full bg-emerald-500 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-sm transition-colors hover:bg-emerald-600">
+                                        Paid
+                                    </button>
+                                </form>
+                            </div>
                         @else
                             <span class="text-[11px] font-black text-slate-400 uppercase">Paid</span>
                         @endif
