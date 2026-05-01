@@ -268,7 +268,8 @@
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        (() => {
+        const initPropertyRegistryControls = () => {
             const viewSwitcher = document.getElementById('property-view-switcher');
             const viewSections = {
                 table: document.getElementById('table-view'),
@@ -284,10 +285,17 @@
             const inactiveClasses = ['text-slate-400', 'hover:text-slate-600'];
             const activeViewClasses = ['bg-white', 'text-blue-600', 'shadow-sm'];
             const inactiveViewClasses = ['text-slate-400', 'hover:text-slate-600'];
+            const findActiveUnitTypeButton = () => {
+                return Array.from(filter?.querySelectorAll('.unit-type-option') || [])
+                    .find((button) => button.classList.contains('bg-[#1e3a8a]'));
+            };
+            let activeUnitType = findActiveUnitTypeButton()?.dataset.unitType || 'all';
 
-            if (!filter) {
+            if (!filter || filter.dataset.bound === 'true') {
                 return;
             }
+
+            filter.dataset.bound = 'true';
 
             const getActiveView = () => {
                 return viewSections.grid && !viewSections.grid.classList.contains('hidden') ? 'grid' : 'table';
@@ -300,13 +308,15 @@
             };
 
             const setActiveButton = (selectedButton) => {
+                activeUnitType = selectedButton?.dataset.unitType || 'all';
+
                 filter.querySelectorAll('.unit-type-option').forEach((button) => {
                     button.classList.remove(...activeClasses);
                     button.classList.add(...inactiveClasses);
                 });
 
-                selectedButton.classList.remove(...inactiveClasses);
-                selectedButton.classList.add(...activeClasses);
+                selectedButton?.classList.remove(...inactiveClasses);
+                selectedButton?.classList.add(...activeClasses);
             };
 
             const setActiveViewButton = (selectedButton) => {
@@ -315,12 +325,11 @@
                     button.classList.add(...inactiveViewClasses);
                 });
 
-                selectedButton.classList.remove(...inactiveViewClasses);
-                selectedButton.classList.add(...activeViewClasses);
+                selectedButton?.classList.remove(...inactiveViewClasses);
+                selectedButton?.classList.add(...activeViewClasses);
             };
 
             const applyFilters = () => {
-                const activeUnitType = filter.querySelector('.unit-type-option.bg-\\[\\#1e3a8a\\]')?.dataset.unitType || 'all';
                 const activeStatus = statusSelect?.value || '';
                 const searchTerm = searchInput?.value.trim().toLowerCase() || '';
                 const rows = getActiveRows();
@@ -387,7 +396,7 @@
             searchInput?.addEventListener('input', applyFilters);
             searchButton?.addEventListener('click', applyFilters);
 
-            const initialButton = filter.querySelector('.unit-type-option.bg-\\[\\#1e3a8a\\]') || filter.querySelector('[data-unit-type="all"]');
+            const initialButton = findActiveUnitTypeButton() || filter.querySelector('[data-unit-type="all"]');
             const initialViewButton = viewSwitcher?.querySelector('.property-view-option.bg-white') || viewSwitcher?.querySelector('[data-view="table"]');
 
             if (initialViewButton) {
@@ -396,6 +405,13 @@
 
             setActiveButton(initialButton);
             applyFilters();
-        });
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPropertyRegistryControls);
+        } else {
+            initPropertyRegistryControls();
+        }
+        })();
     </script>
 </x-layout>

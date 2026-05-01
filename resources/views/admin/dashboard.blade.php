@@ -123,7 +123,7 @@
                                     </td>
                                     <td class="px-5 py-4 text-right">
                                         @if($bill->user_id)
-                                            <a href="{{ route('admin.residentInfo', $bill->user_id) }}" class="text-blue-600 font-semibold hover:underline">View Account</a>
+                                            <a href="{{ route('admin.residentInfo', ['id' => $bill->user_id, 'highlight_bill' => $bill->id]) }}" class="text-blue-600 font-semibold hover:underline">View</a>
                                         @else
                                             <span class="text-slate-400">N/A</span>
                                         @endif

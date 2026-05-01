@@ -36,22 +36,46 @@
 
                     <div>
                         <label class="mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-slate-600">New Password</label>
-                        <input
-                            type="password"
-                            name="password"
-                            class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3 text-base text-[#001D4E] outline-none transition-all hover:border-slate-300 focus:border-[#3b82f6] focus:bg-white"
-                            required
-                        >
+                        <div class="relative">
+                            <input
+                                id="forgot-password-input"
+                                type="password"
+                                name="password"
+                                class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3 pr-12 text-base text-[#001D4E] outline-none transition-all hover:border-slate-300 focus:border-[#3b82f6] focus:bg-white"
+                                required
+                            >
+                            <button
+                                type="button"
+                                class="forgot-password-toggle absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-200 hover:text-blue-600 focus:outline-none"
+                                data-target="forgot-password-input"
+                                aria-label="Show new password"
+                                aria-pressed="false"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <div>
                         <label class="mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-slate-600">Confirm Password</label>
-                        <input
-                            type="password"
-                            name="password_confirmation"
-                            class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3 text-base text-[#001D4E] outline-none transition-all hover:border-slate-300 focus:border-[#3b82f6] focus:bg-white"
-                            required
-                        >
+                        <div class="relative">
+                            <input
+                                id="forgot-password-confirmation-input"
+                                type="password"
+                                name="password_confirmation"
+                                class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3 pr-12 text-base text-[#001D4E] outline-none transition-all hover:border-slate-300 focus:border-[#3b82f6] focus:bg-white"
+                                required
+                            >
+                            <button
+                                type="button"
+                                class="forgot-password-toggle absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-200 hover:text-blue-600 focus:outline-none"
+                                data-target="forgot-password-confirmation-input"
+                                aria-label="Show confirm password"
+                                aria-pressed="false"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <button type="submit" class="w-full rounded-2xl border-2 border-[#1d4ed8] bg-[#3b82f6] py-3.5 text-sm font-bold tracking-wide text-white transition-all hover:bg-[#2563eb]">
@@ -66,4 +90,40 @@
             </section>
         </main>
     </div>
+
+    <script>
+        (() => {
+            const initForgotPasswordToggles = () => {
+                document.querySelectorAll('.forgot-password-toggle').forEach((button) => {
+                    if (button.dataset.bound === 'true') {
+                        return;
+                    }
+
+                    button.dataset.bound = 'true';
+
+                    button.addEventListener('click', () => {
+                        const input = document.getElementById(button.dataset.target);
+                        const icon = button.querySelector('i');
+
+                        if (!input || !icon) {
+                            return;
+                        }
+
+                        const showPassword = input.type === 'password';
+                        input.type = showPassword ? 'text' : 'password';
+                        button.setAttribute('aria-pressed', showPassword ? 'true' : 'false');
+                        button.setAttribute('aria-label', showPassword ? 'Hide password' : 'Show password');
+                        icon.classList.toggle('fa-eye', !showPassword);
+                        icon.classList.toggle('fa-eye-slash', showPassword);
+                    });
+                });
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initForgotPasswordToggles);
+            } else {
+                initForgotPasswordToggles();
+            }
+        })();
+    </script>
 </x-layout-login>

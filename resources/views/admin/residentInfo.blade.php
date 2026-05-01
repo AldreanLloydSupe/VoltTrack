@@ -170,7 +170,12 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
                 @forelse($residentBills as $bill)
-                <tr class="hover:bg-slate-50/50 transition-colors">
+                @php($isHighlightedBill = (string) request('highlight_bill') === (string) $bill->id)
+                <tr
+                    id="bill-row-{{ $bill->id }}"
+                    data-highlighted-bill="{{ $isHighlightedBill ? 'true' : 'false' }}"
+                    class="{{ $isHighlightedBill ? 'bg-blue-100 ring-2 ring-inset ring-blue-400 shadow-[inset_4px_0_0_#f59e0b]' : 'hover:bg-slate-50/50' }} transition-colors"
+                >
                     <td class="px-8 py-6 text-sm font-bold text-slate-700">{{ $bill->billing_period_end->format('M d, Y') }}</td>
                     <td class="px-8 py-6 text-sm font-bold text-slate-800">{{ $bill->utility_type }}</td>
                     <td class="px-8 py-6">
@@ -240,5 +245,22 @@
         @endif
     </div>
 </div>
+
+<script>
+    (() => {
+        const highlightedRow = document.querySelector('[data-highlighted-bill="true"]');
+
+        if (!highlightedRow) {
+            return;
+        }
+
+        window.requestAnimationFrame(() => {
+            highlightedRow.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            });
+        });
+    })();
+</script>
 
 </x-layout>

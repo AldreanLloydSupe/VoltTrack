@@ -88,13 +88,13 @@
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
                         Price Per Unit
                     </label>
-                    <input type="number" step="0.01" min="0" name="price_per_unit" value="{{ old('price_per_unit') }}" class="w-full rounded-lg border border-slate-300 px-3 py-2" required>
+                    <input type="number" step="0.01" min="0" name="price_per_unit" value="{{ old('price_per_unit', $defaultPricePerUnit ?? 0) }}" class="w-full rounded-lg border border-slate-300 px-3 py-2" required>
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
                         Service Fee
                     </label>
-                    <input type="number" step="0.01" min="0" name="service_fee" value="{{ old('service_fee', 100) }}" class="w-full rounded-lg border border-slate-300 px-3 py-2">
+                    <input type="number" step="0.01" min="0" name="service_fee" value="{{ old('service_fee', $defaultServiceFee ?? 100) }}" class="w-full rounded-lg border border-slate-300 px-3 py-2">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">

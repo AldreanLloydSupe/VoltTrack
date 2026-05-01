@@ -57,7 +57,7 @@
                     </div>
                 </div>
 
-                <div class="group relative cursor-pointer py-4 {{ request()->routeIs('admin.property', 'admin.propertyInfo', 'admin.createnew', 'admin.billingHistory', 'admin.Create.*') ? 'border-b-2 border-white' : 'border-b-2 border-transparent hover:border-white/70' }}">
+                <div class="group relative cursor-pointer py-4 {{ request()->routeIs('admin.property', 'admin.propertyInfo', 'admin.createnew', 'admin.billingHistory', 'admin.financials', 'admin.Create.*') ? 'border-b-2 border-white' : 'border-b-2 border-transparent hover:border-white/70' }}">
                     <div class="flex items-center space-x-2">
                         <span>Utilities</span>
                         <svg class="w-2.5 h-2.5 opacity-80 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,6 +71,9 @@
                         </a>
                         <a href="{{ route('admin.billingHistory')}}" data-instant-nav class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors border-t border-white/5">
                             Billing History
+                        </a>
+                        <a href="{{ route('admin.financials') }}" data-instant-nav class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors border-t border-white/5">
+                            Financials
                         </a>
                     </div>
                 </div>

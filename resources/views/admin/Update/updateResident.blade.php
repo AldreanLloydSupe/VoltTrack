@@ -19,7 +19,7 @@
                 {{ $resident->first_name }} {{ $resident->last_name }}
             </a>
             <span>&gt;</span>
-            <span class="text-[#001D4E]">
+            <span class="text-slate-500">
                 Update Account
             </span>
         </nav>

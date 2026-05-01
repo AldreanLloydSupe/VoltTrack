@@ -6,6 +6,7 @@ use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\AdminResidentController;
 use App\Http\Controllers\AdminPropertyController;
 use App\Http\Controllers\AdminBillingController;
+use App\Http\Controllers\AdminFinancialController;
 use App\Http\Controllers\AdminUtilityController;
 use App\Http\Controllers\AdminNotificationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -96,6 +97,12 @@ Route::delete('/notifications/{notification}', [AdminNotificationController::cla
 Route::get('/admin/billingHistory', [AdminBillingController::class, 'list'])
     ->middleware(['auth', 'no.cache'])
     ->name('admin.billingHistory');
+Route::get('/admin/financials', [AdminFinancialController::class, 'index'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.financials');
+Route::post('/admin/financials', [AdminFinancialController::class, 'update'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.financials.update');
 Route::get('/admin/bills/{bill}/edit', [AdminBillingController::class, 'edit'])
     ->middleware(['auth', 'no.cache'])
     ->name('admin.bills.edit');

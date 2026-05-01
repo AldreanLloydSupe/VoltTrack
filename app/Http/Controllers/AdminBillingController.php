@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bill;
+use App\Models\FinancialSetting;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -53,6 +54,8 @@ class AdminBillingController extends Controller
         return view('admin.Create.createNewWaterBill', [
             'residents' => $residents,
             'selectedResidentId' => $selectedResidentId,
+            'defaultServiceFee' => FinancialSetting::getAmount('water_service_fee', 100),
+            'defaultPricePerUnit' => FinancialSetting::getAmount('water_price_per_unit', 0),
         ]);
     }
 
@@ -73,6 +76,8 @@ class AdminBillingController extends Controller
         return view('admin.Create.createNewElectricityBill', [
             'residents' => $residents,
             'selectedResidentId' => $selectedResidentId,
+            'defaultServiceFee' => FinancialSetting::getAmount('electricity_service_fee', 100),
+            'defaultPricePerUnit' => FinancialSetting::getAmount('electricity_price_per_unit', 0),
         ]);
     }
 

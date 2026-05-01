@@ -43,6 +43,21 @@
                     <i class="fas fa-building absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
                     <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>
                 </div>
+
+                <div class="relative inline-block">
+                    <select
+                        id="residentStatusFilter"
+                        class="appearance-none bg-white border border-slate-200 rounded-lg pl-10 pr-10 py-2 font-bold text-sm text-slate-700 shadow-sm cursor-pointer outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    >
+                        <option value="All">Status: All</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Vacant</option>
+                        <option value="Archived">Archived</option>
+                    </select>
+
+                    <i class="fas fa-circle-check absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>
+                </div>
                 
             </div>
 
@@ -69,6 +84,7 @@
                             <th class="px-8 py-5">Renter Name</th>
                             <th class="px-8 py-5">Account ID</th>
                             <th class="px-8 py-5">Unit Type</th>
+                            <th class="px-8 py-5">Status</th>
                             <th class="px-8 py-5">Applied Date</th>
                             <th class="px-8 py-5">Last Pay</th>
                             <th class="px-8 py-5 text-right">Action</th>
@@ -76,7 +92,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @forelse($residents as $resident)
-                        <tr class="resident-row hover:bg-slate-50/80 transition-colors group" data-unit-type="{{ $resident->property->unit_type ?? 'N/A' }}">
+                        <tr class="resident-row hover:bg-slate-50/80 transition-colors group" data-unit-type="{{ $resident->property->unit_type ?? 'N/A' }}" data-status="{{ $resident->property?->status ?? 'N/A' }}">
                             <td class="px-8 py-6">
                                 <p class="font-bold text-[#0f172a] text-base group-hover:text-blue-600 transition-colors">
                                     {{ $resident->first_name }} {{ $resident->last_name }}
@@ -86,6 +102,9 @@
                             <td class="px-8 py-6 text-sm font-medium text-slate-600">#{{ $resident->id }}</td>
                             <td class="px-8 py-6 text-sm font-bold text-slate-800">
                                 {{ $resident->property->unit_type ?? 'N/A' }}
+                            </td>
+                            <td class="px-8 py-6 text-sm font-bold text-slate-800">
+                                {{ $resident->property?->status === 'Inactive' ? 'Vacant' : ($resident->property?->status ?? 'N/A') }}
                             </td>
                             <td class="px-8 py-6 text-sm text-slate-500">
                                 {{ $resident->created_at?->format('M d, Y') ?? 'N/A' }}
@@ -101,15 +120,15 @@
                         </tr>
                         @empty
                         <tr id="emptyResidentRow">
-                            <td colspan="6" class="px-8 py-6 text-center text-slate-500">
+                            <td colspan="7" class="px-8 py-6 text-center text-slate-500">
                                 No residents found
                             </td>
                         </tr>
                         @endforelse
                         @if($residents->isNotEmpty())
                             <tr id="noFilteredResidentsRow" class="hidden">
-                                <td colspan="6" class="px-8 py-6 text-center text-slate-500">
-                                    No residents match this unit type.
+                                <td colspan="7" class="px-8 py-6 text-center text-slate-500">
+                                    No residents match the selected filters.
                                 </td>
                             </tr>
                         @endif
@@ -120,7 +139,7 @@
             <div id="resident-grid-view" class="hidden grid-cols-1 gap-5 p-6 md:grid-cols-2 xl:grid-cols-3">
                 @forelse($residents as $resident)
                     @php($lastPaid = $resident->bills->where('status', 'Paid')->sortByDesc('paid_at')->first())
-                    <article class="resident-card rounded-2xl border border-slate-100 bg-slate-50/70 p-6 transition-all hover:-translate-y-0.5 hover:border-blue-100 hover:bg-white hover:shadow-xl hover:shadow-slate-200/60" data-unit-type="{{ $resident->property->unit_type ?? 'N/A' }}">
+                    <article class="resident-card rounded-2xl border border-slate-100 bg-slate-50/70 p-6 transition-all hover:-translate-y-0.5 hover:border-blue-100 hover:bg-white hover:shadow-xl hover:shadow-slate-200/60" data-unit-type="{{ $resident->property->unit_type ?? 'N/A' }}" data-status="{{ $resident->property?->status ?? 'N/A' }}">
                         <div class="mb-5 flex items-start justify-between gap-4">
                             <div>
                                 <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Resident</p>
@@ -138,6 +157,10 @@
                             <div class="rounded-xl border border-slate-100 bg-white p-4">
                                 <p class="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Unit Type</p>
                                 <p class="mt-2 text-sm font-black text-slate-700">{{ $resident->property->unit_type ?? 'N/A' }}</p>
+                            </div>
+                            <div class="rounded-xl border border-slate-100 bg-white p-4">
+                                <p class="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Status</p>
+                                <p class="mt-2 text-sm font-black text-slate-700">{{ $resident->property?->status === 'Inactive' ? 'Vacant' : ($resident->property?->status ?? 'N/A') }}</p>
                             </div>
                             <div class="rounded-xl border border-slate-100 bg-white p-4">
                                 <p class="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Applied</p>
@@ -164,7 +187,7 @@
 
                 @if($residents->isNotEmpty())
                     <div id="noFilteredResidentCards" class="col-span-full hidden px-8 py-6 text-center text-slate-500">
-                        No residents match this unit type.
+                        No residents match the selected filters.
                     </div>
                 @endif
             </div>
@@ -181,8 +204,10 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        (() => {
+        const initResidentListControls = () => {
             const unitTypeFilter = document.getElementById('unitTypeFilter');
+            const statusFilter = document.getElementById('residentStatusFilter');
             const rows = Array.from(document.querySelectorAll('.resident-row'));
             const cards = Array.from(document.querySelectorAll('.resident-card'));
             const noFilteredResidentsRow = document.getElementById('noFilteredResidentsRow');
@@ -195,16 +220,21 @@
             const activeClasses = ['bg-white', 'text-[#1e3a8a]', 'shadow-sm'];
             const inactiveClasses = ['text-slate-500', 'hover:text-slate-700'];
 
-            if (!unitTypeFilter) {
+            if (!unitTypeFilter || unitTypeFilter.dataset.bound === 'true') {
                 return;
             }
 
-            const applyUnitTypeFilter = () => {
+            unitTypeFilter.dataset.bound = 'true';
+
+            const applyResidentFilters = () => {
                 const selectedUnitType = unitTypeFilter.value;
+                const selectedStatus = statusFilter?.value || 'All';
                 let visibleRows = 0;
 
                 rows.forEach((row) => {
-                    const matches = selectedUnitType === 'All' || row.dataset.unitType === selectedUnitType;
+                    const matchesUnitType = selectedUnitType === 'All' || row.dataset.unitType === selectedUnitType;
+                    const matchesStatus = selectedStatus === 'All' || row.dataset.status === selectedStatus;
+                    const matches = matchesUnitType && matchesStatus;
                     row.classList.toggle('hidden', !matches);
 
                     if (matches) {
@@ -213,7 +243,9 @@
                 });
 
                 cards.forEach((card) => {
-                    const matches = selectedUnitType === 'All' || card.dataset.unitType === selectedUnitType;
+                    const matchesUnitType = selectedUnitType === 'All' || card.dataset.unitType === selectedUnitType;
+                    const matchesStatus = selectedStatus === 'All' || card.dataset.status === selectedStatus;
+                    const matches = matchesUnitType && matchesStatus;
                     card.classList.toggle('hidden', !matches);
                 });
 
@@ -253,9 +285,17 @@
                 setView(button.dataset.view, button);
             });
 
-            unitTypeFilter.addEventListener('change', applyUnitTypeFilter);
+            unitTypeFilter.addEventListener('change', applyResidentFilters);
+            statusFilter?.addEventListener('change', applyResidentFilters);
             setView('table');
-            applyUnitTypeFilter();
-        });
+            applyResidentFilters();
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initResidentListControls);
+        } else {
+            initResidentListControls();
+        }
+        })();
     </script>
 </x-layout>
