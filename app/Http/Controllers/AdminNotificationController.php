@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AdminNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class AdminNotificationController extends Controller
 {
@@ -36,6 +37,17 @@ class AdminNotificationController extends Controller
         $validated = $request->validate([
             'reply_message' => ['required', 'string', 'max:2000'],
         ]);
+
+        if (
+            ! Schema::hasTable('admin_notifications')
+            || ! Schema::hasColumn('admin_notifications', 'replied_by')
+            || ! Schema::hasColumn('admin_notifications', 'reply_message')
+            || ! Schema::hasColumn('admin_notifications', 'replied_at')
+        ) {
+            return back()->withErrors([
+                'reply_message' => 'Reply fields are not available yet. Please run the latest migrations and try again.',
+            ]);
+        }
 
         $notification->update([
             'read_at' => $notification->read_at ?? now(),

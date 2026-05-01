@@ -192,6 +192,22 @@
                             <h2 class="text-sm font-black uppercase tracking-[0.2em] text-slate-500">Payment History</h2>
                             <p class="mt-1 text-sm text-slate-400">This will update once admin records your bills and payments.</p>
                         </div>
+                        <div class="flex items-center gap-2">
+                            <button
+                                type="button"
+                                id="filter-all-utilities"
+                                class="rounded-lg border border-slate-200 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-slate-600 transition-colors hover:bg-slate-50"
+                            >
+                                All Utilities
+                            </button>
+                            <button
+                                type="button"
+                                id="filter-last-month"
+                                class="rounded-lg border border-slate-200 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-slate-600 transition-colors hover:bg-slate-50"
+                            >
+                                Last Month
+                            </button>
+                        </div>
                         @if ($bills->isNotEmpty())
                             <a href="{{ route('resident.history') }}" class="text-xs font-black uppercase tracking-[0.18em] text-[#1846c0] hover:underline">
                                 View All
@@ -221,14 +237,10 @@
                                         };
                                         $receiptBaseBill = (float) $bill->consumption * (float) $bill->price_per_unit;
                                         $receiptServiceFee = (float) $bill->service_fee;
-                                        $receiptSubtotal = (float) $bill->total_bill;
-                                        $receiptPaidAfterDueDate = $status === 'paid'
-                                            && $bill->paid_at
-                                            && $bill->billing_period_end
-                                            && $bill->paid_at->copy()->startOfDay()->gt($bill->billing_period_end->copy()->startOfDay());
-                                        $receiptPenalty = ($status === 'overdue' || $receiptPaidAfterDueDate) ? $receiptSubtotal * 0.05 : 0;
+                                        $receiptSubtotal = (float) ($bill->base_total_bill ?? $bill->total_bill);
+                                        $receiptPenalty = max((float) $bill->total_bill - $receiptSubtotal, 0);
                                         $receiptVat = $receiptSubtotal * 0.12;
-                                        $receiptTotal = $receiptSubtotal + $receiptPenalty + $receiptVat;
+                                        $receiptTotal = (float) $bill->total_bill + $receiptVat;
                                         $receiptUnitLabel = $bill->utility_type === 'Electricity' ? 'kWh' : 'm3';
                                     @endphp
                                     <tr class="border-b border-slate-100 text-sm text-slate-700 last:border-b-0">
@@ -237,6 +249,11 @@
                                             {{ \Illuminate\Support\Carbon::parse($bill->billing_period_start)->format('M d') }}
                                             -
                                             {{ \Illuminate\Support\Carbon::parse($bill->billing_period_end)->format('M d, Y') }}
+                                            <span
+                                                class="hidden receipt-filter-data"
+                                                data-utility="{{ $bill->utility_type }}"
+                                                data-billing-end="{{ \Illuminate\Support\Carbon::parse($bill->billing_period_end)->format('Y-m-d') }}"
+                                            ></span>
                                         </td>
                                         <td class="px-4 py-4 font-bold text-slate-900">PHP {{ number_format($bill->total_bill, 2) }}</td>
                                         <td class="px-4 py-4">
@@ -262,6 +279,7 @@
                                                 data-subtotal="PHP {{ number_format($receiptSubtotal, 2) }}"
                                                 data-penalty="PHP {{ number_format($receiptPenalty, 2) }}"
                                                 data-has-penalty="{{ $receiptPenalty > 0 ? 'true' : 'false' }}"
+                                                data-penalty-days="{{ (int) ($bill->penalty_days_applied ?? 0) }}"
                                                 data-vat="PHP {{ number_format($receiptVat, 2) }}"
                                                 data-total="PHP {{ number_format($receiptTotal, 2) }}"
                                             >
@@ -406,7 +424,7 @@
                                 <span id="receipt-subtotal" class="font-bold text-slate-600">PHP 0.00</span>
                             </div>
                             <div id="receipt-penalty-row" class="hidden items-center justify-between text-xs">
-                                <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Penalty (5%)</span>
+                                <span id="receipt-penalty-label" class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Penalty (5% Daily)</span>
                                 <span id="receipt-penalty" class="font-bold text-red-600">PHP 0.00</span>
                             </div>
                             <div class="flex items-center justify-between text-xs">
@@ -430,6 +448,56 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('button:not([type="submit"])').forEach((button) => {
+                button.addEventListener('click', (event) => {
+                    event.preventDefault();
+                });
+            });
+
+            const allUtilitiesButton = document.getElementById('filter-all-utilities');
+            const lastMonthButton = document.getElementById('filter-last-month');
+            const historyRows = document.querySelectorAll('tbody tr');
+
+            if (allUtilitiesButton) {
+                allUtilitiesButton.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    historyRows.forEach((row) => {
+                        row.classList.remove('hidden');
+                    });
+                });
+            }
+
+            if (lastMonthButton) {
+                lastMonthButton.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const now = new Date();
+                    const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    const lastMonth = lastMonthDate.getMonth();
+                    const lastMonthYear = lastMonthDate.getFullYear();
+
+                    historyRows.forEach((row) => {
+                        const meta = row.querySelector('.receipt-filter-data');
+                        if (!meta) {
+                            row.classList.remove('hidden');
+                            return;
+                        }
+
+                        const billingEnd = meta.dataset.billingEnd;
+                        if (!billingEnd) {
+                            row.classList.add('hidden');
+                            return;
+                        }
+
+                        const billDate = new Date(`${billingEnd}T00:00:00`);
+                        const isLastMonth = billDate.getMonth() === lastMonth && billDate.getFullYear() === lastMonthYear;
+                        row.classList.toggle('hidden', !isLastMonth);
+                    });
+                });
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
             const modal = document.getElementById('receipt-modal');
             const slipButtons = document.querySelectorAll('.receipt-slip-button');
             const closeButtons = document.querySelectorAll('[data-receipt-close]');
@@ -445,6 +513,7 @@
                 serviceFee: document.getElementById('receipt-service-fee'),
                 subtotal: document.getElementById('receipt-subtotal'),
                 penalty: document.getElementById('receipt-penalty'),
+                penaltyLabel: document.getElementById('receipt-penalty-label'),
                 penaltyRow: document.getElementById('receipt-penalty-row'),
                 vat: document.getElementById('receipt-vat'),
                 status: document.getElementById('receipt-status'),
@@ -474,6 +543,13 @@
                 setText(fields.penalty, button.dataset.penalty);
                 setText(fields.vat, button.dataset.vat);
                 setText(fields.status, button.dataset.status);
+
+                if (fields.penaltyLabel) {
+                    const days = parseInt(button.dataset.penaltyDays || '0', 10);
+                    fields.penaltyLabel.textContent = days > 0
+                        ? `Penalty (5% Daily x ${days} day${days > 1 ? 's' : ''})`
+                        : 'Penalty (5% Daily)';
+                }
 
                 if (fields.penaltyRow) {
                     fields.penaltyRow.classList.toggle('hidden', button.dataset.hasPenalty !== 'true');

@@ -21,6 +21,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['approved_by']);
             $table->dropColumn(['status', 'approved_at', 'approved_by']);
         });
     }

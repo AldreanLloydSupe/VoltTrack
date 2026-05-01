@@ -58,14 +58,35 @@ class AdminResidentController extends Controller
         $resident = User::with(['properties', 'bills'])
             ->findOrFail($id);
 
-        $residentBills = $resident->bills()
-            ->latest()
+        $utility = (string) $request->query('utility', 'all');
+        $months = (int) $request->query('months', 6);
+
+        if (! in_array($utility, ['all', 'Water', 'Electricity'], true)) {
+            $utility = 'all';
+        }
+
+        $allowedMonths = [1, 3, 6, 12];
+        if (! in_array($months, $allowedMonths, true)) {
+            $months = 6;
+        }
+
+        $residentBillsQuery = $resident->bills()
+            ->when(
+                $utility !== 'all',
+                fn ($query) => $query->where('utility_type', $utility)
+            )
+            ->whereDate('billing_period_end', '>=', now()->subMonths($months)->startOfDay())
+            ->latest();
+
+        $residentBills = $residentBillsQuery
             ->paginate(10, ['*'], 'transactions_page')
             ->withQueryString();
 
         return view('admin.residentInfo', [
             'resident' => $resident,
             'residentBills' => $residentBills,
+            'selectedUtility' => $utility,
+            'selectedMonths' => $months,
         ]);
     }
 

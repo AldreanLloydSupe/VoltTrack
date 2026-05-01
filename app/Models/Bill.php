@@ -12,7 +12,7 @@ class Bill extends Model
         'user_id', 'meter_no', 'utility_type', 'previous_reading',
         'current_reading', 'consumption', 'reading_date',
         'billing_period_start', 'billing_period_end',
-        'price_per_unit', 'service_fee', 'total_bill',
+        'price_per_unit', 'service_fee', 'base_total_bill', 'total_bill',
         'status', 'is_done', 'paid_at', 'overdue_notified_at', 'payment_reference'
     ];
 
@@ -27,7 +27,9 @@ class Bill extends Model
         'consumption' => 'decimal:2',
         'price_per_unit' => 'decimal:2',
         'service_fee' => 'decimal:2',
+        'base_total_bill' => 'decimal:2',
         'total_bill' => 'decimal:2',
+        'penalty_days_applied' => 'integer',
         'is_done' => 'boolean',
     ];
 
@@ -38,6 +40,8 @@ class Bill extends Model
 
     public static function markPastDueAsOverdue(): int
     {
+        static::applyDailyOverduePenalties();
+
         $bills = static::query()
             ->with('user')
             ->where('status', 'Pending')
@@ -58,6 +62,48 @@ class Bill extends Model
         });
 
         return $bills->count();
+    }
+
+    public static function applyDailyOverduePenalties(): int
+    {
+        if (! Schema::hasColumn('bills', 'base_total_bill') || ! Schema::hasColumn('bills', 'penalty_days_applied')) {
+            return 0;
+        }
+
+        $overdueBills = static::query()
+            ->where('status', 'Overdue')
+            ->whereDate('billing_period_end', '<', today())
+            ->get();
+
+        $updated = 0;
+
+        foreach ($overdueBills as $bill) {
+            if (! $bill->billing_period_end) {
+                continue;
+            }
+
+            $daysOverdue = max(0, Carbon::parse($bill->billing_period_end)->startOfDay()->diffInDays(today()->startOfDay()));
+            $baseAmount = (float) ($bill->base_total_bill ?? $bill->total_bill);
+            $nextTotal = round($baseAmount * (1.05 ** $daysOverdue), 2);
+
+            $hasChanges = (int) $bill->penalty_days_applied !== $daysOverdue
+                || (float) $bill->total_bill !== $nextTotal
+                || is_null($bill->base_total_bill);
+
+            if (! $hasChanges) {
+                continue;
+            }
+
+            $bill->forceFill([
+                'base_total_bill' => $baseAmount,
+                'penalty_days_applied' => $daysOverdue,
+                'total_bill' => $nextTotal,
+            ])->save();
+
+            $updated++;
+        }
+
+        return $updated;
     }
 
     public static function statusForDueDate(string $status, $billingPeriodEnd): string
@@ -126,7 +172,9 @@ class Bill extends Model
             'consumption'      => $consumption,
             'price_per_unit'   => $pricePerUnit,
             'service_fee'      => $serviceFee,
+            'base_total_bill'  => $total,
             'total_bill'       => $total,
+            'penalty_days_applied' => 0,
         ]);
     }
 

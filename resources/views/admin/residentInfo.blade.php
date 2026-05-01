@@ -123,18 +123,36 @@
             <h3 class="text-xl font-bold text-[#1e3a8a]">
                 Recent Transactions
             </h3>
-            <div class="flex space-x-3">
-                <div class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-500 cursor-pointer flex items-center">
-                    <i class="fas fa-filter mr-2"></i> 
-                    All Utilities
-                    <i class="fas fa-chevron-down ml-2 opacity-50"></i>
+            <form method="GET" action="{{ route('admin.residentInfo', $resident->id) }}" class="flex space-x-3">
+                <div class="relative">
+                    <i class="fas fa-filter pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-500"></i>
+                    <select
+                        name="utility"
+                        onchange="this.form.submit()"
+                        class="appearance-none rounded-lg border border-slate-200 bg-slate-50 py-2 pl-8 pr-8 text-xs font-bold text-slate-500 outline-none"
+                    >
+                        <option value="all" {{ ($selectedUtility ?? 'all') === 'all' ? 'selected' : '' }}>All Utilities</option>
+                        <option value="Water" {{ ($selectedUtility ?? 'all') === 'Water' ? 'selected' : '' }}>Water</option>
+                        <option value="Electricity" {{ ($selectedUtility ?? 'all') === 'Electricity' ? 'selected' : '' }}>Electricity</option>
+                    </select>
+                    <i class="fas fa-chevron-down pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400"></i>
                 </div>
-                <div class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-500 cursor-pointer flex items-center">
-                    <i class="far fa-calendar mr-2"></i> 
-                    Last 6 Months
-                    <i class="fas fa-chevron-down ml-2 opacity-50"></i>
+
+                <div class="relative">
+                    <i class="far fa-calendar pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-500"></i>
+                    <select
+                        name="months"
+                        onchange="this.form.submit()"
+                        class="appearance-none rounded-lg border border-slate-200 bg-slate-50 py-2 pl-8 pr-8 text-xs font-bold text-slate-500 outline-none"
+                    >
+                        <option value="1" {{ (int) ($selectedMonths ?? 6) === 1 ? 'selected' : '' }}>Last 1 Month</option>
+                        <option value="3" {{ (int) ($selectedMonths ?? 6) === 3 ? 'selected' : '' }}>Last 3 Months</option>
+                        <option value="6" {{ (int) ($selectedMonths ?? 6) === 6 ? 'selected' : '' }}>Last 6 Months</option>
+                        <option value="12" {{ (int) ($selectedMonths ?? 6) === 12 ? 'selected' : '' }}>Last 12 Months</option>
+                    </select>
+                    <i class="fas fa-chevron-down pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400"></i>
                 </div>
-            </div>
+            </form>
         </div>
 
         <div class="overflow-x-auto">
@@ -222,4 +240,5 @@
         @endif
     </div>
 </div>
+
 </x-layout>

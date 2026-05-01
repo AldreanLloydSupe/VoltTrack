@@ -16,7 +16,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @if (file_exists(public_path('hot')) || file_exists(public_path('build/manifest.json')))
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endif
 </head>
 <body class="font-sans antialiased text-slate-900">
     @if ($showAdminNav)
@@ -27,13 +29,13 @@
             @php($unreadResidentMessages = $user->adminNotifications()->whereNull('read_at')->count())
             @php($latestAdminNotifications = $user->adminNotifications()->with('resident')->latest()->limit(6)->get())
         @endif
-        <header class="relative z-20 bg-[#1E3A8A] text-white py-4 px-10 flex items-center">
+        <header id="admin-top-nav" class="relative z-20 bg-[#1E3A8A] text-white py-4 px-10 flex items-center">
             <h1 class="text-3xl font-bold mr-32">
                 VoltTrack
             </h1>
 
             <nav class="flex space-x-16 text-base font-semibold tracking-wide items-center">
-                <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'border-b-2 border-white' : 'border-b-2 border-transparent hover:border-white/70' }}">
+                <a href="{{ route('admin.dashboard') }}" data-instant-nav class="{{ request()->routeIs('admin.dashboard') ? 'border-b-2 border-white' : 'border-b-2 border-transparent hover:border-white/70' }}">
                     Dashboard
                 </a>
 
@@ -46,10 +48,10 @@
                     </div>
 
                     <div class="absolute left-0 top-full hidden group-hover:block w-56 bg-[#1e3a8a] shadow-xl rounded-b-lg border-t border-white/10 z-50 overflow-hidden">
-                        <a href="{{ route('admin.pending') }}" class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors">
+                        <a href="{{ route('admin.pending') }}" data-instant-nav class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors">
                             Pending Residents
                         </a>
-                        <a href="{{ route('admin.residentList') }}" class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors border-t border-white/5">
+                        <a href="{{ route('admin.residentList') }}" data-instant-nav class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors border-t border-white/5">
                             Residents List
                         </a>
                     </div>
@@ -64,10 +66,10 @@
                     </div>
 
                     <div class="absolute left-0 top-full hidden group-hover:block w-56 bg-[#1e3a8a] shadow-xl rounded-b-lg border-t border-white/10 z-50 overflow-hidden">
-                        <a href="{{ route('admin.property')}}" class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors">
+                        <a href="{{ route('admin.property')}}" data-instant-nav class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors">
                             Properties & Meters
                         </a>
-                        <a href="{{ route('admin.billingHistory')}}" class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors border-t border-white/5">
+                        <a href="{{ route('admin.billingHistory')}}" data-instant-nav class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors border-t border-white/5">
                             Billing History
                         </a>
                     </div>
@@ -200,7 +202,7 @@
     @endif
 
     @if ($showAdminNav)
-        <div class="admin-glass-page">
+        <div id="admin-page-content" class="admin-glass-page">
             {{ $slot }}
         </div>
     @else
@@ -211,7 +213,7 @@
 
     @if ($showAdminNav && isset($user) && $user && $user->isAdmin())
         <script>
-            document.addEventListener('DOMContentLoaded', () => {
+            const initAdminNotificationModal = () => {
                 const modal = document.getElementById('admin-notification-modal');
                 const unreadBadge = document.querySelector('[data-admin-unread-count]');
                 const subject = document.getElementById('admin-notification-subject');
@@ -228,6 +230,12 @@
                 if (!modal) {
                     return;
                 }
+
+                if (modal.dataset.bound === 'true') {
+                    return;
+                }
+
+                modal.dataset.bound = 'true';
 
                 const closeModal = () => {
                     modal.classList.add('hidden');
@@ -285,6 +293,121 @@
                     if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
                         closeModal();
                     }
+                });
+            };
+
+            window.initAdminNotificationModal = initAdminNotificationModal;
+            document.addEventListener('DOMContentLoaded', initAdminNotificationModal);
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const executeScripts = (container) => {
+                    if (!container) {
+                        return;
+                    }
+
+                    container.querySelectorAll('script').forEach((oldScript) => {
+                        const newScript = document.createElement('script');
+
+                        Array.from(oldScript.attributes).forEach((attr) => {
+                            newScript.setAttribute(attr.name, attr.value);
+                        });
+
+                        if (!oldScript.src) {
+                            newScript.textContent = oldScript.textContent;
+                        }
+
+                        oldScript.replaceWith(newScript);
+                    });
+                };
+
+                const swapAdminPage = (doc) => {
+                    const nextHeader = doc.getElementById('admin-top-nav');
+                    const nextContent = doc.getElementById('admin-page-content');
+                    const nextModal = doc.getElementById('admin-notification-modal');
+
+                    const currentHeader = document.getElementById('admin-top-nav');
+                    const currentContent = document.getElementById('admin-page-content');
+                    const currentModal = document.getElementById('admin-notification-modal');
+
+                    if (!nextHeader || !nextContent || !currentHeader || !currentContent) {
+                        throw new Error('Instant navigation target missing.');
+                    }
+
+                    currentHeader.outerHTML = nextHeader.outerHTML;
+                    currentContent.innerHTML = nextContent.innerHTML;
+
+                    if (currentModal && nextModal) {
+                        currentModal.outerHTML = nextModal.outerHTML;
+                    }
+
+                    document.title = doc.title;
+                    executeScripts(document.getElementById('admin-page-content'));
+
+                    if (typeof window.initAdminNotificationModal === 'function') {
+                        window.initAdminNotificationModal();
+                    }
+                };
+
+                const shouldInstantNavigate = (link) => {
+                    if (!link || !link.matches('a[data-instant-nav]')) {
+                        return false;
+                    }
+
+                    const href = link.getAttribute('href');
+                    if (!href || href.startsWith('#')) {
+                        return false;
+                    }
+
+                    const url = new URL(href, window.location.origin);
+                    return url.origin === window.location.origin;
+                };
+
+                const loadPage = async (url, push = true) => {
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-Instant-Nav': '1',
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Navigation request failed.');
+                    }
+
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    swapAdminPage(doc);
+
+                    if (push) {
+                        history.pushState({ instantNav: true }, '', url);
+                    }
+                };
+
+                document.addEventListener('click', (event) => {
+                    const link = event.target.closest('a[data-instant-nav]');
+                    if (!shouldInstantNavigate(link)) {
+                        return;
+                    }
+
+                    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    loadPage(link.href).catch(() => {
+                        window.location.href = link.href;
+                    });
+                });
+
+                window.addEventListener('popstate', () => {
+                    loadPage(window.location.href, false).catch(() => {
+                        window.location.reload();
+                    });
                 });
             });
         </script>

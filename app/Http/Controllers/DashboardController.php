@@ -69,6 +69,26 @@ class DashboardController extends Controller
             ];
         })->values();
 
+        $dailyStart = now()->startOfDay();
+        $dailyPaidBills = Bill::query()
+            ->where('status', 'Paid')
+            ->whereNotNull('paid_at')
+            ->whereBetween('paid_at', [$dailyStart, now()->endOfDay()])
+            ->get(['total_bill', 'paid_at']);
+
+        $dailyCollections = collect(range(0, 23))->map(function ($hour) use ($dailyStart, $dailyPaidBills) {
+            $slotStart = $dailyStart->copy()->addHours($hour);
+            $slotEnd = $slotStart->copy()->endOfHour();
+            $total = $dailyPaidBills
+                ->filter(fn ($bill) => $bill->paid_at && $bill->paid_at->betweenIncluded($slotStart, $slotEnd))
+                ->sum('total_bill');
+
+            return [
+                'label' => $slotStart->format('ga'),
+                'value' => round((float) $total, 2),
+            ];
+        })->values();
+
         $monthlyStart = now()->startOfMonth()->subMonths(5);
         $monthlyPaidBills = Bill::query()
             ->where('status', 'Paid')
@@ -88,6 +108,25 @@ class DashboardController extends Controller
             ];
         })->values();
 
+        $yearlyStart = now()->startOfYear()->subYears(4);
+        $yearlyPaidBills = Bill::query()
+            ->where('status', 'Paid')
+            ->whereNotNull('paid_at')
+            ->whereBetween('paid_at', [$yearlyStart, now()->endOfYear()])
+            ->get(['total_bill', 'paid_at']);
+
+        $yearlyCollections = collect(range(0, 4))->map(function ($yearOffset) use ($yearlyStart, $yearlyPaidBills) {
+            $date = $yearlyStart->copy()->addYears($yearOffset);
+            $total = $yearlyPaidBills
+                ->filter(fn ($bill) => $bill->paid_at?->format('Y') === $date->format('Y'))
+                ->sum('total_bill');
+
+            return [
+                'label' => $date->format('Y'),
+                'value' => round((float) $total, 2),
+            ];
+        })->values();
+
         return view('admin.dashboard', [
             'pending_bills' => $pending_bills,
             'totalBoardingHouses' => $totalBoardingHouses,
@@ -98,6 +137,12 @@ class DashboardController extends Controller
             'approvedResidents' => $approvedResidents,
             'pendingBillsCount' => $pendingBillsCount,
             'collectionChart' => [
+                'daily' => [
+                    'title' => 'Daily Collection',
+                    'subtitle' => 'Paid bills for today by hour',
+                    'total' => round((float) $dailyCollections->sum('value'), 2),
+                    'items' => $dailyCollections,
+                ],
                 'weekly' => [
                     'title' => 'Weekly Collection',
                     'subtitle' => 'Paid bills for the last 7 days',
@@ -109,6 +154,12 @@ class DashboardController extends Controller
                     'subtitle' => 'Paid bills for the last 6 months',
                     'total' => round((float) $monthlyCollections->sum('value'), 2),
                     'items' => $monthlyCollections,
+                ],
+                'yearly' => [
+                    'title' => 'Yearly Collection',
+                    'subtitle' => 'Paid bills for the last 5 years',
+                    'total' => round((float) $yearlyCollections->sum('value'), 2),
+                    'items' => $yearlyCollections,
                 ],
             ],
         ]);

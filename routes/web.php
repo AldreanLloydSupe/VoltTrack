@@ -8,6 +8,7 @@ use App\Http\Controllers\AdminPropertyController;
 use App\Http\Controllers\AdminBillingController;
 use App\Http\Controllers\AdminUtilityController;
 use App\Http\Controllers\AdminNotificationController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 
@@ -24,6 +25,19 @@ Route::get('/', function () {
 Route::get('/register', function () {
     return view('register');
 })->middleware('no.cache')->name('register');
+
+Route::get('/forgot-password', [ForgotPasswordController::class, 'create'])
+    ->middleware(['guest', 'no.cache'])
+    ->name('password.request');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'store'])
+    ->middleware(['guest', 'no.cache'])
+    ->name('password.email');
+Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'edit'])
+    ->middleware(['guest', 'no.cache'])
+    ->name('password.reset');
+Route::post('/reset-password', [ForgotPasswordController::class, 'update'])
+    ->middleware(['guest', 'no.cache'])
+    ->name('password.update');
 
 Route::get('/admin/residentList', [AdminResidentController::class, 'list'])
     ->middleware(['auth', 'no.cache'])

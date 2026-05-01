@@ -24,8 +24,8 @@
                     <p class="mt-2 text-2xl font-bold text-rose-600">{{ number_format($overduePayments) }}</p>
                 </div>
                 <div class="bg-white border border-slate-200 rounded-xl p-5">
-                    <p class="text-xs text-slate-500 uppercase font-semibold">Collected This Month</p>
-                    <p class="mt-2 text-2xl font-bold text-slate-900">PHP {{ number_format($collectedMonthly, 2) }}</p>
+                    <p id="collectedRangeLabel" class="text-xs text-slate-500 uppercase font-semibold">Collected This Month</p>
+                    <p id="collectedRangeValue" class="mt-2 text-2xl font-bold text-slate-900">PHP {{ number_format($collectedMonthly, 2) }}</p>
                 </div>
             </div>
 
@@ -59,8 +59,10 @@
                             id="collectionChartRange"
                             class="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                         >
+                            <option value="daily">Daily</option>
                             <option value="weekly">Weekly</option>
                             <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
                         </select>
                     </div>
                 </div>
@@ -153,13 +155,23 @@
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        (() => {
+            if (typeof window.__adminCollectionChartCleanup === 'function') {
+                window.__adminCollectionChartCleanup();
+            }
+
             const select = document.getElementById('collectionChartRange');
             const canvas = document.getElementById('collectionChart');
             const title = document.getElementById('collectionChartTitle');
             const subtitle = document.getElementById('collectionChartSubtitle');
             const context = canvas.getContext('2d');
             const chartData = @json($collectionChart);
+            const collectedRangeLabel = document.getElementById('collectedRangeLabel');
+            const collectedRangeValue = document.getElementById('collectedRangeValue');
+
+            if (!select || !canvas || !title || !subtitle || !context) {
+                return;
+            }
 
             const money = new Intl.NumberFormat('en-PH', {
                 style: 'currency',
@@ -198,6 +210,18 @@
 
                 title.textContent = data.title;
                 subtitle.textContent = data.subtitle;
+                const rangeLabelMap = {
+                    daily: 'Collected Today',
+                    weekly: 'Collected This Week',
+                    monthly: 'Collected This Month',
+                    yearly: 'Collected This Yearly Range',
+                };
+                if (collectedRangeLabel) {
+                    collectedRangeLabel.textContent = rangeLabelMap[range] || 'Collected Amount';
+                }
+                if (collectedRangeValue) {
+                    collectedRangeValue.textContent = money.format(Number(data.total || 0));
+                }
 
                 context.clearRect(0, 0, width, height);
                 context.fillStyle = '#f8fafc';
@@ -269,6 +293,11 @@
             select.addEventListener('change', render);
             window.addEventListener('resize', render);
             render();
-        });
+
+            window.__adminCollectionChartCleanup = () => {
+                select.removeEventListener('change', render);
+                window.removeEventListener('resize', render);
+            };
+        })();
     </script>
 </x-layout>

@@ -2,15 +2,12 @@
     @php
         $baseBill = (float) $bill->consumption * (float) $bill->price_per_unit;
         $serviceFee = (float) $bill->service_fee;
-        $subtotal = (float) $bill->total_bill;
+        $subtotal = (float) ($bill->base_total_bill ?? $bill->total_bill);
         $status = strtolower($bill->status);
-        $paidAfterDueDate = $status === 'paid'
-            && $bill->paid_at
-            && $bill->billing_period_end
-            && $bill->paid_at->copy()->startOfDay()->gt($bill->billing_period_end->copy()->startOfDay());
-        $penalty = ($status === 'overdue' || $paidAfterDueDate) ? $subtotal * 0.05 : 0;
+        $penalty = max((float) $bill->total_bill - $subtotal, 0);
+        $penaltyDays = (int) ($bill->penalty_days_applied ?? 0);
         $vat = $subtotal * 0.12;
-        $totalBill = $subtotal + $penalty + $vat;
+        $totalBill = (float) $bill->total_bill + $vat;
         $unitLabel = $bill->utility_type === 'Electricity' ? 'kWh' : 'm3';
         $statusClasses = match ($status) {
             'paid' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
@@ -83,7 +80,9 @@
                         </div>
                         @if($penalty > 0)
                             <div class="flex justify-between items-center text-xs">
-                                <span class="font-bold text-slate-400 uppercase tracking-widest text-[9px]">Penalty (5%)</span>
+                                <span class="font-bold text-slate-400 uppercase tracking-widest text-[9px]">
+                                    Penalty (5% Daily{{ $penaltyDays > 0 ? ' x '.$penaltyDays.' day'.($penaltyDays > 1 ? 's' : '') : '' }})
+                                </span>
                                 <span class="font-bold text-red-600">PHP {{ number_format($penalty, 2) }}</span>
                             </div>
                         @endif

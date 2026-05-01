@@ -95,6 +95,11 @@ class AdminBillingController extends Controller
         $bill->status = $status;
         $bill->is_done = $status === 'Paid';
 
+        if (! in_array($status, ['Overdue', 'Paid'], true)) {
+            $bill->penalty_days_applied = 0;
+            $bill->total_bill = $bill->base_total_bill ?? $bill->total_bill;
+        }
+
         if ($status === 'Paid') {
             $bill->paid_at = $bill->paid_at ?? now();
 
@@ -171,7 +176,9 @@ class AdminBillingController extends Controller
             'billing_period_end' => $validated['billing_period_end'],
             'price_per_unit' => $pricePerUnit,
             'service_fee' => $serviceFee,
+            'base_total_bill' => ($consumption * $pricePerUnit) + $serviceFee,
             'total_bill' => ($consumption * $pricePerUnit) + $serviceFee,
+            'penalty_days_applied' => 0,
             'status' => $status,
             'is_done' => $request->boolean('is_done') || $status === 'Paid',
             'paid_at' => $status === 'Paid' ? ($bill->paid_at ?? now()) : null,
@@ -248,7 +255,9 @@ class AdminBillingController extends Controller
             'reading_date' => $validated['reading_date'],
             'price_per_unit' => $pricePerUnit,
             'service_fee' => $serviceFee,
+            'base_total_bill' => $totalBill,
             'total_bill' => $totalBill,
+            'penalty_days_applied' => 0,
             'status' => $status,
             'is_done' => $status === 'Paid',
             'payment_reference' => $this->generatePaymentReference($utilityType),

@@ -111,7 +111,7 @@
                             <input type="checkbox" name="remember" class="mr-2 rounded border-slate-300 text-blue-600 focus:ring-blue-500" {{ old('remember') ? 'checked' : '' }}>
                             REMEMBER ME
                         </label>
-                        <a href="#" class="text-blue-600 transition-colors hover:text-blue-800 hover:underline">
+                        <a href="{{ route('password.request') }}" class="text-blue-600 transition-colors hover:text-blue-800 hover:underline">
                             Forgot Password?
                         </a>
                     </div>
