@@ -50,7 +50,7 @@
                         <a class="nav-link" href="#">Residents</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Utilities</a>
+                        <a class="nav-link" href="{{ route('admin.financials') }}">Utilities</a>
                     </li>
                 </ul>
             </div>

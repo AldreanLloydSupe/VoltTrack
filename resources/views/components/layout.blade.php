@@ -29,7 +29,7 @@
             @php($unreadResidentMessages = $user->adminNotifications()->whereNull('read_at')->count())
             @php($latestAdminNotifications = $user->adminNotifications()->with('resident')->latest()->limit(6)->get())
         @endif
-        <header id="admin-top-nav" class="relative z-20 bg-[#1E3A8A] text-white py-4 px-10 flex items-center">
+        <header id="admin-top-nav" class="sticky top-0 z-50 bg-[#1E3A8A] text-white py-4 px-10 flex items-center">
             <h1 class="text-3xl font-bold mr-32">
                 VoltTrack
             </h1>
@@ -405,6 +405,48 @@
                     loadPage(link.href).catch(() => {
                         window.location.href = link.href;
                     });
+                });
+
+                document.addEventListener('submit', (event) => {
+                    const form = event.target.closest('form[data-instant-form]');
+                    if (!form) {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    const action = form.getAttribute('action') || window.location.href;
+                    const method = (form.getAttribute('method') || 'GET').toUpperCase();
+                    const formData = new FormData(form);
+
+                    fetch(action, {
+                        method,
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-Instant-Nav': '1',
+                        },
+                    })
+                        .then((response) => {
+                            if (!response.ok) {
+                                throw new Error('Form request failed.');
+                            }
+
+                            return response.text().then((html) => ({
+                                html,
+                                finalUrl: response.url || action,
+                            }));
+                        })
+                        .then(({ html, finalUrl }) => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+
+                            swapAdminPage(doc);
+                            history.pushState({ instantNav: true }, '', finalUrl);
+                        })
+                        .catch(() => {
+                            form.submit();
+                        });
                 });
 
                 window.addEventListener('popstate', () => {

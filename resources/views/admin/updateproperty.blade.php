@@ -16,7 +16,7 @@
                 </div>
             @endif
 
-            <form id="update-form" action="{{ route('admin.property.update', $property->id) }}" method="POST" class="space-y-6">
+            <form id="update-form" action="{{ route('admin.property.update', $property->id) }}" method="POST" data-instant-form class="space-y-6">
                 @csrf
                 @method('PATCH')
 
@@ -25,14 +25,14 @@
                         <nav class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">
                             PROPERTIES & METERS <span class="mx-1 text-slate-300">></span> PROPERTY DETAILS <span class="mx-1 text-slate-300">></span> <span class="text-blue-700">UPDATE PROPERTY</span>
                         </nav>
-                        <h1 class="text-5xl font-black text-[#0f172a] tracking-tight">Update Property</h1>
+                        <h1 class="text-5xl font-black text-[#ffffff] tracking-tight">Update Property</h1>
                         <p class="mt-2 text-sm font-medium text-slate-500">
                             Edit the assigned resident, property details, and current meter setup for this unit.
                         </p>
                     </div>
 
                     <div class="flex items-center space-x-4">
-                        <a href="{{ route('admin.propertyInfo', $property->id) }}" class="text-[12px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-all">
+                        <a href="{{ route('admin.propertyInfo', $property->id) }}" data-instant-nav class="text-[12px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-all">
                             Cancel
                         </a>
                         <button type="submit" class="bg-[#1e3a8a] hover:bg-blue-900 text-white text-[12px] font-black px-8 py-4 rounded-2xl shadow-xl uppercase tracking-widest transition-all active:scale-95">

@@ -113,7 +113,7 @@
                                 {{ $resident->bills->where('status', 'Paid')->sortByDesc('paid_at')->first()?->paid_at?->format('M d, Y') ?? 'No payments' }}
                             </td>
                             <td class="px-8 py-6 text-right">
-                                <a href="{{ route('admin.residentInfo', $resident->id) }}" class="text-[12px] font-black text-blue-600 uppercase hover:underline">
+                                <a href="{{ route('admin.residentInfo', $resident->id) }}" data-instant-nav class="text-[12px] font-black text-blue-600 uppercase hover:underline">
                                     View
                                 </a>
                             </td>
@@ -174,7 +174,7 @@
                         </div>
 
                         <div class="mt-5 flex justify-end border-t border-slate-100 pt-4">
-                            <a href="{{ route('admin.residentInfo', $resident->id) }}" class="text-[12px] font-black uppercase text-blue-600 hover:underline">
+                            <a href="{{ route('admin.residentInfo', $resident->id) }}" data-instant-nav class="text-[12px] font-black uppercase text-blue-600 hover:underline">
                                 View Account
                             </a>
                         </div>

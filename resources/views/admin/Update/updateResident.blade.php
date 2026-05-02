@@ -11,11 +11,11 @@
         @endif
 
         <nav class="flex text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 gap-2">
-            <a href="{{ route('admin.residentList') }}" class="hover:text-black transition-all">
+            <a href="{{ route('admin.residentList') }}" data-instant-nav class="hover:text-black transition-all">
                 Resident List
             </a>
             <span>&gt;</span>
-            <a href="{{ route('admin.residentInfo', $resident->id) }}" class="hover:text-black transition-all">
+            <a href="{{ route('admin.residentInfo', $resident->id) }}" data-instant-nav class="hover:text-black transition-all">
                 {{ $resident->first_name }} {{ $resident->last_name }}
             </a>
             <span>&gt;</span>
@@ -25,7 +25,7 @@
         </nav>
 
         <div class="bg-white p-10 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
-            <form action="{{ route('admin.resident.update', $resident->id) }}" method="POST">
+            <form action="{{ route('admin.resident.update', $resident->id) }}" method="POST" data-instant-form>
                 @csrf
                 @method('PATCH')
 
@@ -40,7 +40,7 @@
                     </div>
 
                     <div class="flex gap-3">
-                        <a href="{{ route('admin.residentInfo', $resident->id) }}" class="px-6 py-2.5 bg-slate-100 text-slate-600 font-black rounded-xl text-sm hover:bg-slate-200 transition-colors">
+                        <a href="{{ route('admin.residentInfo', $resident->id) }}" data-instant-nav class="px-6 py-2.5 bg-slate-100 text-slate-600 font-black rounded-xl text-sm hover:bg-slate-200 transition-colors">
                             Cancel
                         </a>
                         <button type="submit" class="px-6 py-2.5 bg-[#001D4E] text-white font-black rounded-xl text-sm shadow-lg shadow-blue-900/20 hover:scale-[1.02] active:scale-95 transition-all">

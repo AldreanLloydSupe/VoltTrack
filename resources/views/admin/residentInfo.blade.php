@@ -20,7 +20,7 @@
         </div>
         
         <div class="flex space-x-4">
-            <a href="{{ route('admin.resident.edit', $resident->id) }}" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
+            <a href="{{ route('admin.resident.edit', $resident->id) }}" data-instant-nav class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
                 UPDATE ACCOUNT
             </a>
             <form action="{{ route('admin.resident.destroy', $resident->id) }}" method="POST" onsubmit="return confirm('Delete this resident permanently? This cannot be undone.');">
@@ -40,7 +40,7 @@
 
                 <div class="absolute right-0 hidden group-hover:block pt-2 z-50">
                     <div class="w-56 bg-white rounded-xl shadow-2xl border border-slate-100 py-2 animate-in fade-in zoom-in-95 duration-150">
-                        <a href="{{ route('admin.Create.createNewElectricityBill', ['resident_id' => $resident->id]) }}" class="flex items-center px-4 py-3 hover:bg-slate-50 transition-colors group/item">
+                        <a href="{{ route('admin.Create.createNewElectricityBill', ['resident_id' => $resident->id]) }}" data-instant-nav class="flex items-center px-4 py-3 hover:bg-slate-50 transition-colors group/item">
                             <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mr-3 group-hover/item:bg-blue-50 transition-colors">
                                 <i class="fas fa-bolt text-[#001D4E]"></i>
                             </div>
@@ -49,7 +49,7 @@
                             </span>
                         </a>
 
-                        <a href="{{ route('admin.Create.createNewWaterBill', ['resident_id' => $resident->id]) }}" class="flex items-center px-4 py-3 hover:bg-slate-50 transition-colors group/item">
+                        <a href="{{ route('admin.Create.createNewWaterBill', ['resident_id' => $resident->id]) }}" data-instant-nav class="flex items-center px-4 py-3 hover:bg-slate-50 transition-colors group/item">
                             <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mr-3 group-hover/item:bg-blue-50 transition-colors">
                                 <i class="fas fa-tint text-[#001D4E]"></i>
                             </div>
@@ -201,7 +201,7 @@
                     <td class="px-8 py-6 text-center">
                         @if($bill->status !== 'Paid')
                             <div class="flex items-center justify-center gap-3">
-                                <a href="{{ route('admin.bills.edit', $bill->id) }}" class="text-[11px] font-black text-blue-600 uppercase hover:underline">
+                                <a href="{{ route('admin.bills.edit', $bill->id) }}" data-instant-nav class="text-[11px] font-black text-blue-600 uppercase hover:underline">
                                     Update
                                 </a>
                                 <form

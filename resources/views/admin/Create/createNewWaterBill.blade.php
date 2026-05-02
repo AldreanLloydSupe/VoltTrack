@@ -28,7 +28,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.Create.storeNewWaterBill') }}" class="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm">
+        <form method="POST" action="{{ route('admin.Create.storeNewWaterBill') }}" data-instant-form class="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm">
             @csrf
 
             <div>
@@ -109,7 +109,7 @@
             </div>
 
             <div class="flex items-center gap-3 pt-2">
-                <a href="{{ $selectedResidentId ? route('admin.residentInfo', $selectedResidentId) : route('admin.billingHistory') }}" class="px-5 py-2.5 rounded-lg bg-slate-200 text-slate-700 font-semibold">
+                <a href="{{ $selectedResidentId ? route('admin.residentInfo', $selectedResidentId) : route('admin.billingHistory') }}" data-instant-nav class="px-5 py-2.5 rounded-lg bg-slate-200 text-slate-700 font-semibold">
                     Cancel
                 </a>
                 <button type="submit" class="px-5 py-2.5 rounded-lg bg-[#001D4E] text-white font-semibold">

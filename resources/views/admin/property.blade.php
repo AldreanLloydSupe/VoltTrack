@@ -31,7 +31,7 @@
                     </button>
                 </div>
 
-                <a href="{{ route('admin.createnew') }}" class="rounded-lg bg-[#1e3a8a] px-6 py-3.5 text-[11px] font-black uppercase tracking-wider text-white shadow-lg shadow-blue-900/20 transition-all hover:bg-blue-900 active:scale-95">
+                <a href="{{ route('admin.createnew') }}" data-instant-nav class="rounded-lg bg-[#1e3a8a] px-6 py-3.5 text-[11px] font-black uppercase tracking-wider text-white shadow-lg shadow-blue-900/20 transition-all hover:bg-blue-900 active:scale-95">
                     Add Property
                 </a>
             </div>
@@ -162,7 +162,7 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('admin.propertyInfo', $property->id) }}" class="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-[#1e3a8a] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-900/15 transition-all hover:bg-blue-900 active:scale-95">
+                        <a href="{{ route('admin.propertyInfo', $property->id) }}" data-instant-nav class="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-[#1e3a8a] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-900/15 transition-all hover:bg-blue-900 active:scale-95">
                             View Details
                         </a>
                     </article>
@@ -235,7 +235,7 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-6 text-right">
-                                    <a href="{{ route('admin.propertyInfo', $property->id) }}" class="text-[11px] font-black uppercase tracking-widest text-blue-600 transition-all hover:text-blue-800 hover:underline">View</a>
+                                    <a href="{{ route('admin.propertyInfo', $property->id) }}" data-instant-nav class="text-[11px] font-black uppercase tracking-widest text-blue-600 transition-all hover:text-blue-800 hover:underline">View</a>
                                 </td>
                             </tr>
                         @empty

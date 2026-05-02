@@ -6,7 +6,7 @@
             </div>
         @endif
         <nav class="flex text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 gap-2">
-            <a href="{{ route('admin.property') }}" class="hover:text-black transition-all">Properties & Meters</a>
+            <a href="{{ route('admin.property') }}" data-instant-nav class="hover:text-black transition-all">Properties & Meters</a>
             <span class="mx-1 text-slate-300">></span>
             <span class="text-blue-600">Property Details</span>
         </nav>
@@ -24,7 +24,7 @@
                         Delete Property
                     </button>
                 </form>
-                <a href="{{ route('admin.property.edit', $property->id) }}" class="px-6 py-2.5 bg-[#001D4E] text-white font-black rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-slate-600/20 hover:scale-[1.02] transition-all">
+                <a href="{{ route('admin.property.edit', $property->id) }}" data-instant-nav class="px-6 py-2.5 bg-[#001D4E] text-white font-black rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-slate-600/20 hover:scale-[1.02] transition-all">
                     Update Property
                 </a>
             </div>

@@ -19,12 +19,17 @@ class AdminFinancialController extends Controller
 
         $monthStart = now()->startOfMonth();
         $monthEnd = now()->endOfMonth();
+        $billColumns = ['service_fee', 'total_bill', 'paid_at'];
+
+        if (Schema::hasColumn('bills', 'base_total_bill')) {
+            $billColumns[] = 'base_total_bill';
+        }
 
         $paidThisMonth = Bill::query()
             ->where('status', 'Paid')
             ->whereNotNull('paid_at')
             ->whereBetween('paid_at', [$monthStart, $monthEnd])
-            ->get(['service_fee', 'base_total_bill', 'total_bill', 'paid_at']);
+            ->get($billColumns);
 
         $serviceFeeCollected = $paidThisMonth->sum('service_fee');
         $penaltyCollected = $paidThisMonth->sum(function (Bill $bill) {
@@ -36,7 +41,7 @@ class AdminFinancialController extends Controller
             ->where('status', 'Paid')
             ->whereNotNull('paid_at')
             ->whereBetween('paid_at', [$monthlyStart, $monthEnd])
-            ->get(['service_fee', 'base_total_bill', 'total_bill', 'paid_at']);
+            ->get($billColumns);
 
         $monthlyFinancials = collect(range(0, 11))->map(function ($monthOffset) use ($monthlyStart, $paidFinancialBills) {
             $date = $monthlyStart->copy()->addMonths($monthOffset);

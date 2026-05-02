@@ -3,14 +3,14 @@
         <div class="mb-8 flex items-start justify-between gap-4">
             <div>
                 <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    <a href="{{ route('admin.residentList') }}" class="hover:text-black">Resident List</a>
-                    > <a href="{{ route('admin.residentInfo', $resident->id) }}" class="hover:text-black">{{ $resident->first_name }} {{ $resident->last_name }}</a>
+                    <a href="{{ route('admin.residentList') }}" data-instant-nav class="hover:text-black">Resident List</a>
+                    > <a href="{{ route('admin.residentInfo', $resident->id) }}" data-instant-nav class="hover:text-black">{{ $resident->first_name }} {{ $resident->last_name }}</a>
                     > <span class="text-blue-600">Update Electricity Bill</span>
                 </p>
                 <h1 class="text-3xl font-black text-[#001D4E] mt-2">Update Electricity Bill</h1>
                 <p class="text-sm text-slate-500 mt-2">Edit readings, charges, and status for this electricity transaction.</p>
             </div>
-            <a href="{{ route('admin.residentInfo', $resident->id) }}" class="px-5 py-2.5 rounded-lg bg-slate-200 text-slate-700 font-semibold text-sm">Cancel</a>
+            <a href="{{ route('admin.residentInfo', $resident->id) }}" data-instant-nav class="px-5 py-2.5 rounded-lg bg-slate-200 text-slate-700 font-semibold text-sm">Cancel</a>
         </div>
 
         @if($errors->any())
@@ -24,7 +24,7 @@
         @endif
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <form method="POST" action="{{ route('admin.bills.update', $bill->id) }}" class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm" onsubmit="if (!confirm('Update this electricity bill?')) return false; if (this.querySelector('[name=status]').value === 'Paid') return confirm('Confirm again: set this electricity bill to Paid?'); return true;">
+            <form method="POST" action="{{ route('admin.bills.update', $bill->id) }}" data-instant-form class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm" onsubmit="if (!confirm('Update this electricity bill?')) return false; if (this.querySelector('[name=status]').value === 'Paid') return confirm('Confirm again: set this electricity bill to Paid?'); return true;">
                 @csrf
                 @method('PATCH')
 
@@ -79,7 +79,7 @@
                 </label>
 
                 <div class="flex items-center gap-3 pt-2">
-                    <a href="{{ route('admin.residentInfo', $resident->id) }}" class="px-5 py-2.5 rounded-lg bg-slate-200 text-slate-700 font-semibold">Cancel</a>
+                    <a href="{{ route('admin.residentInfo', $resident->id) }}" data-instant-nav class="px-5 py-2.5 rounded-lg bg-slate-200 text-slate-700 font-semibold">Cancel</a>
                     <button type="submit" class="px-5 py-2.5 rounded-lg bg-[#001D4E] text-white font-semibold">Update Bill</button>
                 </div>
             </form>
@@ -108,3 +108,4 @@
         </div>
     </div>
 </x-layout>
+
