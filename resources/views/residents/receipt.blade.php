@@ -36,36 +36,39 @@
                 </div>
 
                 <div class="w-full bg-white rounded-2xl p-8 shadow-sm border border-slate-100 mb-8">
-                    <div class="mb-6 border-b border-slate-900/10 pb-5">
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Reference ID</span>
-                        <p class="mt-1 text-sm font-bold text-slate-700">{{ $bill->payment_reference ?: 'No reference yet' }}</p>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4 mb-6 text-sm">
-                        <div>
-                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Resident</span>
-                            <p class="mt-1 font-bold text-slate-700">{{ $user->first_name }} {{ $user->last_name }}</p>
-                        </div>
-                        <div>
-                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Utility</span>
-                            <p class="mt-1 font-bold text-slate-700">{{ $bill->utility_type }}</p>
-                        </div>
-                        <div>
-                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Billing Start</span>
-                            <p class="mt-1 font-bold text-slate-700">{{ $bill->billing_period_start?->format('M d, Y') ?? 'N/A' }}</p>
-                        </div>
-                        <div>
-                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Billing End</span>
-                            <p class="mt-1 font-bold text-slate-700">{{ $bill->billing_period_end?->format('M d, Y') ?? 'N/A' }}</p>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between items-center mb-4 pb-4 border-b border-slate-900/10">
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Units Used</span>
-                        <span class="text-sm font-bold text-slate-600">{{ number_format((float) $bill->consumption, 2) }} {{ $unitLabel }}</span>
-                    </div>
-
                     <div class="space-y-4">
+                        <div class="flex items-start justify-between gap-4 border-b border-slate-900/10 pb-4 text-xs">
+                            <span class="font-black text-slate-400 uppercase tracking-widest text-[9px]">Reference ID</span>
+                            <span class="max-w-[12rem] text-right font-bold text-slate-700 break-words">{{ $bill->payment_reference ?: 'No reference yet' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-slate-400 uppercase tracking-widest text-[9px]">Resident</span>
+                            <span class="font-bold text-slate-600 text-right">{{ $user->first_name }} {{ $user->last_name }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-slate-400 uppercase tracking-widest text-[9px]">Utility</span>
+                            <span class="font-bold text-slate-600">{{ $bill->utility_type }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-slate-400 uppercase tracking-widest text-[9px]">Billing Start</span>
+                            <span class="font-bold text-slate-600">{{ $bill->billing_period_start?->format('M d, Y') ?? 'N/A' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-slate-400 uppercase tracking-widest text-[9px]">Billing End</span>
+                            <span class="font-bold text-slate-600">{{ $bill->billing_period_end?->format('M d, Y') ?? 'N/A' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-slate-400 uppercase tracking-widest text-[9px]">Previous Reading</span>
+                            <span class="font-bold text-slate-600">{{ number_format((float) $bill->previous_reading, 2) }} {{ $unitLabel }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-slate-400 uppercase tracking-widest text-[9px]">Current Reading</span>
+                            <span class="font-bold text-slate-600">{{ number_format((float) $bill->current_reading, 2) }} {{ $unitLabel }}</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-slate-900/10 pb-4 text-xs">
+                            <span class="font-bold text-slate-400 uppercase tracking-widest text-[9px]">Units Used</span>
+                            <span class="font-bold text-slate-600">{{ number_format((float) $bill->consumption, 2) }} {{ $unitLabel }}</span>
+                        </div>
                         <div class="flex justify-between items-center text-xs">
                             <span class="font-bold text-slate-400 uppercase tracking-widest text-[9px]">Base Bill</span>
                             <span class="font-bold text-slate-600">PHP {{ number_format($baseBill, 2) }}</span>

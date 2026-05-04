@@ -2,15 +2,14 @@
     <div class="max-w-5xl mx-auto p-8 bg-slate-50 min-h-screen">
         <div class="mb-8 flex items-start justify-between gap-4">
             <div>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    <a href="{{ route('admin.residentList') }}" data-instant-nav class="hover:text-black">Resident List</a>
-                    > <a href="{{ route('admin.residentInfo', $resident->id) }}" data-instant-nav class="hover:text-black">{{ $resident->first_name }} {{ $resident->last_name }}</a>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    <a href="{{ route('admin.residentList') }}" data-instant-nav class="hover:text-slate-300">Resident List</a>
+                    > <a href="{{ route('admin.residentInfo', $resident->id) }}" data-instant-nav class="hover:text-slate-300">{{ $resident->first_name }} {{ $resident->last_name }}</a>
                     > <span class="text-blue-600">Update Water Bill</span>
                 </p>
-                <h1 class="text-3xl font-black text-[#001D4E] mt-2">Update Water Bill</h1>
-                <p class="text-sm text-slate-500 mt-2">Edit readings, charges, and status for this water transaction.</p>
+                <h1 class="text-3xl font-black text-[#F8FAFC] mt-2">Update Water Bill</h1>
+                <p class="text-sm text-slate-400 mt-2">Edit readings, charges, and status for this water transaction.</p>
             </div>
-            <a href="{{ route('admin.residentInfo', $resident->id) }}" data-instant-nav class="px-5 py-2.5 rounded-lg bg-slate-200 text-slate-700 font-semibold text-sm">Cancel</a>
         </div>
 
         @if($errors->any())

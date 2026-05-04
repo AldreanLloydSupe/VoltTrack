@@ -28,6 +28,10 @@
             </div>
         @endif
 
+        @php
+            $selectedLatestReading = $latestReadingsByResident[$selectedResidentId] ?? null;
+        @endphp
+
         <form method="POST" action="{{ route('admin.Create.storeNewWaterBill') }}" data-instant-form class="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm">
             @csrf
 
@@ -35,12 +39,12 @@
                 <label class="block text-sm font-semibold text-slate-700 mb-2">
                     Resident
                 </label>
-                <select name="resident_id" class="w-full rounded-lg border border-slate-300 px-3 py-2" required>
+                <select id="resident_id" name="resident_id" class="w-full rounded-lg border border-slate-300 px-3 py-2" required>
                     <option value="">
                         Select resident
                     </option>
                     @foreach($residents as $resident)
-                        <option value="{{ $resident->id }}" @selected((string) old('resident_id', $selectedResidentId) === (string) $resident->id)>
+                        <option value="{{ $resident->id }}" data-latest-reading="{{ $latestReadingsByResident[$resident->id] ?? '' }}" @selected((string) old('resident_id', $selectedResidentId) === (string) $resident->id)>
                             {{ $resident->first_name }} {{ $resident->last_name }} ({{ $resident->email }})
                         </option>
                     @endforeach
@@ -52,7 +56,7 @@
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
                         Previous Reading (m3)
                     </label>
-                    <input type="number" step="0.01" min="0" name="previous_reading" value="{{ old('previous_reading') }}" class="w-full rounded-lg border border-slate-300 px-3 py-2" required>
+                    <input id="previous_reading" type="number" step="0.01" min="0" name="previous_reading" value="{{ old('previous_reading', $selectedLatestReading) }}" class="w-full rounded-lg border border-slate-300 px-3 py-2" required>
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
@@ -118,4 +122,20 @@
             </div>
         </form>
     </div>
+
+    <script>
+        (() => {
+            const residentSelect = document.getElementById('resident_id');
+            const previousReadingInput = document.getElementById('previous_reading');
+
+            if (!residentSelect || !previousReadingInput) {
+                return;
+            }
+
+            residentSelect.addEventListener('change', () => {
+                const latestReading = residentSelect.selectedOptions[0]?.dataset.latestReading ?? '';
+                previousReadingInput.value = latestReading;
+            });
+        })();
+    </script>
 </x-layout>

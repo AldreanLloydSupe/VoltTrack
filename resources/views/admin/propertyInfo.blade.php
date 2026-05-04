@@ -6,7 +6,7 @@
             </div>
         @endif
         <nav class="flex text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 gap-2">
-            <a href="{{ route('admin.property') }}" data-instant-nav class="hover:text-black transition-all">Properties & Meters</a>
+            <a href="{{ route('admin.property') }}" data-instant-nav class="hover:text-slate-300 transition-all">Properties & Meters</a>
             <span class="mx-1 text-slate-300">></span>
             <span class="text-blue-600">Property Details</span>
         </nav>

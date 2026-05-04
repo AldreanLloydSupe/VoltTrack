@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 
 class AdminBillingController extends Controller
@@ -56,6 +57,7 @@ class AdminBillingController extends Controller
             'selectedResidentId' => $selectedResidentId,
             'defaultServiceFee' => FinancialSetting::getAmount('water_service_fee', 100),
             'defaultPricePerUnit' => FinancialSetting::getAmount('water_price_per_unit', 0),
+            'latestReadingsByResident' => $this->latestCurrentReadingsByResident('Water'),
         ]);
     }
 
@@ -78,6 +80,7 @@ class AdminBillingController extends Controller
             'selectedResidentId' => $selectedResidentId,
             'defaultServiceFee' => FinancialSetting::getAmount('electricity_service_fee', 100),
             'defaultPricePerUnit' => FinancialSetting::getAmount('electricity_price_per_unit', 0),
+            'latestReadingsByResident' => $this->latestCurrentReadingsByResident('Electricity'),
         ]);
     }
 
@@ -209,8 +212,8 @@ class AdminBillingController extends Controller
 
         $validated = $request->validate([
             'resident_id' => ['required', 'integer', 'exists:users,id'],
-            'previous_reading' => ['required', 'numeric', 'min:0'],
-            'current_reading' => ['required', 'numeric', 'gte:previous_reading'],
+            'previous_reading' => ['nullable', 'numeric', 'min:0'],
+            'current_reading' => ['required', 'numeric', 'min:0'],
             'reading_date' => ['required', 'date'],
             'billing_period_start' => ['required', 'date'],
             'billing_period_end' => ['required', 'date', 'after_or_equal:billing_period_start'],
@@ -233,8 +236,23 @@ class AdminBillingController extends Controller
             return back()->with('error', 'Selected resident is not approved or does not exist.');
         }
 
-        $previousReading = (float) $validated['previous_reading'];
+        $latestCurrentReading = $this->latestCurrentReadingForResident($resident->id, $utilityType);
+        $previousReading = $latestCurrentReading ?? (isset($validated['previous_reading']) ? (float) $validated['previous_reading'] : null);
+
+        if ($previousReading === null) {
+            throw ValidationException::withMessages([
+                'previous_reading' => 'The previous reading is required when this resident has no saved bill for this utility yet.',
+            ]);
+        }
+
         $currentReading = (float) $validated['current_reading'];
+
+        if ($currentReading < $previousReading) {
+            throw ValidationException::withMessages([
+                'current_reading' => 'The current reading must be greater than or equal to the latest saved reading for this resident.',
+            ]);
+        }
+
         $consumption = max($currentReading - $previousReading, 0);
         $pricePerUnit = (float) $validated['price_per_unit'];
         $serviceFee = (float) ($validated['service_fee'] ?? 0);
@@ -276,6 +294,29 @@ class AdminBillingController extends Controller
                 'success',
                 "{$utilityType} bill created for {$resident->first_name} {$resident->last_name}."
             );
+    }
+
+    protected function latestCurrentReadingForResident(int $residentId, string $utilityType): ?float
+    {
+        $reading = Bill::query()
+            ->where('user_id', $residentId)
+            ->where('utility_type', $utilityType)
+            ->orderByDesc('reading_date')
+            ->orderByDesc('id')
+            ->value('current_reading');
+
+        return $reading === null ? null : (float) $reading;
+    }
+
+    protected function latestCurrentReadingsByResident(string $utilityType)
+    {
+        return Bill::query()
+            ->where('utility_type', $utilityType)
+            ->orderByDesc('reading_date')
+            ->orderByDesc('id')
+            ->get(['user_id', 'current_reading'])
+            ->unique('user_id')
+            ->mapWithKeys(fn (Bill $bill) => [$bill->user_id => (float) $bill->current_reading]);
     }
 
     protected function approvedResidents()

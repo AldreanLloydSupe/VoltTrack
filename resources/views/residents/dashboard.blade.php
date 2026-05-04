@@ -138,7 +138,7 @@
                             <div>
                                 <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">Electricity</p>
                                 <div class="mt-1 flex items-end gap-2">
-                                    <span class="text-4xl font-black tracking-tight text-[#1846c0]">PHP {{ number_format($electricBill?->consumption ?? 0, 2) }}</span>
+                                    <span class="text-4xl font-black tracking-tight text-[#1846c0]">PHP {{ number_format($electricBill?->price_per_unit ?? 0, 2) }}</span>
                                     <span class="pb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-500"> per kWh</span>
                                 </div>
                             </div>
@@ -164,7 +164,7 @@
                             <div>
                                 <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">Water</p>
                                 <div class="mt-1 flex items-end gap-2">
-                                    <span class="text-4xl font-black tracking-tight text-[#334155]">PHP {{ number_format($waterBill?->consumption ?? 0, 1) }}</span>
+                                    <span class="text-4xl font-black tracking-tight text-[#334155]">PHP {{ number_format($waterBill?->price_per_unit ?? 0, 2) }}</span>
                                     <span class="pb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-500">per m3</span>
                                 </div>
                             </div>
@@ -273,6 +273,8 @@
                                                 data-status="{{ $bill->status }}"
                                                 data-billing-start="{{ $bill->billing_period_start?->format('M d, Y') ?? 'N/A' }}"
                                                 data-billing-end="{{ $bill->billing_period_end?->format('M d, Y') ?? 'N/A' }}"
+                                                data-previous-reading="{{ number_format((float) $bill->previous_reading, 2) }} {{ $receiptUnitLabel }}"
+                                                data-current-reading="{{ number_format((float) $bill->current_reading, 2) }} {{ $receiptUnitLabel }}"
                                                 data-units="{{ number_format((float) $bill->consumption, 2) }} {{ $receiptUnitLabel }}"
                                                 data-base-bill="PHP {{ number_format($receiptBaseBill, 2) }}"
                                                 data-service-fee="PHP {{ number_format($receiptServiceFee, 2) }}"
@@ -381,36 +383,39 @@
                     </div>
 
                     <div class="mb-8 w-full rounded-2xl border border-slate-100 bg-white p-8 shadow-sm">
-                        <div class="mb-6 border-b border-slate-900/10 pb-5">
-                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Reference ID</span>
-                            <p id="receipt-reference" class="mt-1 text-sm font-bold text-slate-700">No reference yet</p>
-                        </div>
-
-                        <div class="mb-6 grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Resident</span>
-                                <p id="receipt-resident" class="mt-1 font-bold text-slate-700">N/A</p>
-                            </div>
-                            <div>
-                                <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Utility</span>
-                                <p id="receipt-utility" class="mt-1 font-bold text-slate-700">N/A</p>
-                            </div>
-                            <div>
-                                <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Billing Start</span>
-                                <p id="receipt-billing-start" class="mt-1 font-bold text-slate-700">N/A</p>
-                            </div>
-                            <div>
-                                <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Billing End</span>
-                                <p id="receipt-billing-end" class="mt-1 font-bold text-slate-700">N/A</p>
-                            </div>
-                        </div>
-
-                        <div class="mb-4 flex items-center justify-between border-b border-slate-900/10 pb-4">
-                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Units Used</span>
-                            <span id="receipt-units" class="text-sm font-bold text-slate-600">0.00</span>
-                        </div>
-
                         <div class="space-y-4">
+                            <div class="flex items-start justify-between gap-4 border-b border-slate-900/10 pb-4 text-xs">
+                                <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Reference ID</span>
+                                <span id="receipt-reference" class="max-w-[12rem] break-words text-right font-bold text-slate-700">No reference yet</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Resident</span>
+                                <span id="receipt-resident" class="text-right font-bold text-slate-600">N/A</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Utility</span>
+                                <span id="receipt-utility" class="font-bold text-slate-600">N/A</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Billing Start</span>
+                                <span id="receipt-billing-start" class="font-bold text-slate-600">N/A</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Billing End</span>
+                                <span id="receipt-billing-end" class="font-bold text-slate-600">N/A</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Previous Reading</span>
+                                <span id="receipt-previous-reading" class="font-bold text-slate-600">N/A</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Current Reading</span>
+                                <span id="receipt-current-reading" class="font-bold text-slate-600">N/A</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-slate-900/10 pb-4 text-xs">
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Units Used</span>
+                                <span id="receipt-units" class="font-bold text-slate-600">0.00</span>
+                            </div>
                             <div class="flex items-center justify-between text-xs">
                                 <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Base Bill</span>
                                 <span id="receipt-base-bill" class="font-bold text-slate-600">PHP 0.00</span>
@@ -508,6 +513,8 @@
                 utility: document.getElementById('receipt-utility'),
                 billingStart: document.getElementById('receipt-billing-start'),
                 billingEnd: document.getElementById('receipt-billing-end'),
+                previousReading: document.getElementById('receipt-previous-reading'),
+                currentReading: document.getElementById('receipt-current-reading'),
                 units: document.getElementById('receipt-units'),
                 baseBill: document.getElementById('receipt-base-bill'),
                 serviceFee: document.getElementById('receipt-service-fee'),
@@ -536,6 +543,8 @@
                 setText(fields.utility, button.dataset.utility);
                 setText(fields.billingStart, button.dataset.billingStart);
                 setText(fields.billingEnd, button.dataset.billingEnd);
+                setText(fields.previousReading, button.dataset.previousReading);
+                setText(fields.currentReading, button.dataset.currentReading);
                 setText(fields.units, button.dataset.units);
                 setText(fields.baseBill, button.dataset.baseBill);
                 setText(fields.serviceFee, button.dataset.serviceFee);

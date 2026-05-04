@@ -8,7 +8,7 @@
 
     <div class="mb-2">
         <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-            <a href="{{ route('admin.residentList') }}" class="hover:text-black transition-all">Residents List</a>
+            <a href="{{ route('admin.residentList') }}" class="hover:text-slate-300 transition-all">Residents List</a>
             > <span class="text-blue-600 text-shadow-slate-400 text-shadow-xs">{{ $resident->first_name }} {{ $resident->last_name }}</span>
         </p>
     </div>

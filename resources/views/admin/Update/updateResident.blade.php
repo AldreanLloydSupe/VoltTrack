@@ -11,11 +11,11 @@
         @endif
 
         <nav class="flex text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 gap-2">
-            <a href="{{ route('admin.residentList') }}" data-instant-nav class="hover:text-black transition-all">
+            <a href="{{ route('admin.residentList') }}" data-instant-nav class="hover:text-slate-300 transition-all">
                 Resident List
             </a>
             <span>&gt;</span>
-            <a href="{{ route('admin.residentInfo', $resident->id) }}" data-instant-nav class="hover:text-black transition-all">
+            <a href="{{ route('admin.residentInfo', $resident->id) }}" data-instant-nav class="hover:text-slate-300 transition-all">
                 {{ $resident->first_name }} {{ $resident->last_name }}
             </a>
             <span>&gt;</span>
