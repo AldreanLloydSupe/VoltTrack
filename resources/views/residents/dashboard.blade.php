@@ -237,10 +237,10 @@
                                         };
                                         $receiptBaseBill = (float) $bill->consumption * (float) $bill->price_per_unit;
                                         $receiptServiceFee = (float) $bill->service_fee;
-                                        $receiptSubtotal = (float) ($bill->base_total_bill ?? $bill->total_bill);
-                                        $receiptPenalty = max((float) $bill->total_bill - $receiptSubtotal, 0);
-                                        $receiptVat = $receiptSubtotal * 0.12;
-                                        $receiptTotal = (float) $bill->total_bill + $receiptVat;
+                                        $receiptSubtotal = (float) $bill->base_amount;
+                                        $receiptPenalty = (float) $bill->penalty_amount;
+                                        $receiptVat = (float) $bill->vat_amount;
+                                        $receiptTotal = (float) $bill->amount_payable;
                                         $receiptUnitLabel = $bill->utility_type === 'Electricity' ? 'kWh' : 'm3';
                                     @endphp
                                     <tr class="border-b border-slate-100 text-sm text-slate-700 last:border-b-0">
@@ -255,7 +255,7 @@
                                                 data-billing-end="{{ \Illuminate\Support\Carbon::parse($bill->billing_period_end)->format('Y-m-d') }}"
                                             ></span>
                                         </td>
-                                        <td class="px-4 py-4 font-bold text-slate-900">PHP {{ number_format($bill->total_bill, 2) }}</td>
+                                        <td class="px-4 py-4 font-bold text-slate-900">PHP {{ number_format($bill->amount_payable, 2) }}</td>
                                         <td class="px-4 py-4">
                                             <span class="text-[11px] font-black uppercase tracking-[0.16em] {{ $statusClasses }}">
                                                 {{ $bill->status }}

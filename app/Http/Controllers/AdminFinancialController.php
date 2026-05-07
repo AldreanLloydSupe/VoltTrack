@@ -33,7 +33,10 @@ class AdminFinancialController extends Controller
 
         $serviceFeeCollected = $paidThisMonth->sum('service_fee');
         $penaltyCollected = $paidThisMonth->sum(function (Bill $bill) {
-            return max((float) $bill->total_bill - (float) ($bill->base_total_bill ?? $bill->total_bill), 0);
+            return (float) $bill->penalty_amount;
+        });
+        $vatCollected = $paidThisMonth->sum(function (Bill $bill) {
+            return (float) $bill->vat_amount;
         });
 
         $monthlyStart = now()->startOfMonth()->subMonths(11);
@@ -49,26 +52,32 @@ class AdminFinancialController extends Controller
                 ->filter(fn (Bill $bill) => $bill->paid_at?->format('Y-m') === $date->format('Y-m'));
             $serviceFeeTotal = $monthlyBills->sum('service_fee');
             $penaltyTotal = $monthlyBills->sum(function (Bill $bill) {
-                return max((float) $bill->total_bill - (float) ($bill->base_total_bill ?? $bill->total_bill), 0);
+                return (float) $bill->penalty_amount;
+            });
+            $vatTotal = $monthlyBills->sum(function (Bill $bill) {
+                return (float) $bill->vat_amount;
             });
 
             return [
                 'label' => $date->format('M Y'),
                 'service_fee' => round((float) $serviceFeeTotal, 2),
                 'penalty' => round((float) $penaltyTotal, 2),
-                'value' => round((float) $serviceFeeTotal + (float) $penaltyTotal, 2),
+                'vat' => round((float) $vatTotal, 2),
+                'value' => round((float) $serviceFeeTotal + (float) $penaltyTotal + (float) $vatTotal, 2),
             ];
         })->values();
 
         return view('admin.financials', [
             'serviceFeeCollected' => round((float) $serviceFeeCollected, 2),
             'penaltyCollected' => round((float) $penaltyCollected, 2),
+            'vatCollected' => round((float) $vatCollected, 2),
             'monthlyServiceFeeChart' => [
                 'title' => 'Monthly Financial Income',
-                'subtitle' => 'Paid bills only, service fee and penalty charges for the last 12 months',
+                'subtitle' => 'Paid bills only, service fee, penalty, and VAT charges for the last 12 months',
                 'total' => round((float) $monthlyFinancials->sum('value'), 2),
                 'serviceFeeTotal' => round((float) $monthlyFinancials->sum('service_fee'), 2),
                 'penaltyTotal' => round((float) $monthlyFinancials->sum('penalty'), 2),
+                'vatTotal' => round((float) $monthlyFinancials->sum('vat'), 2),
                 'items' => $monthlyFinancials,
             ],
             'electricityServiceFee' => FinancialSetting::getAmount('electricity_service_fee', 100),

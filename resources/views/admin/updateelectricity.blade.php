@@ -96,7 +96,7 @@
                     </div>
                     <div>
                         <p class="text-white/50">Current Total</p>
-                        <p class="text-3xl font-black">&#8369;{{ number_format($bill->total_bill, 2) }}</p>
+                        <p class="text-3xl font-black">&#8369;{{ number_format($bill->amount_payable, 2) }}</p>
                     </div>
                     <div class="border-t border-white/10 pt-4">
                         <p class="text-white/50">Consumption</p>
@@ -107,4 +107,3 @@
         </div>
     </div>
 </x-layout>
-

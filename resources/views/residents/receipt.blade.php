@@ -2,12 +2,12 @@
     @php
         $baseBill = (float) $bill->consumption * (float) $bill->price_per_unit;
         $serviceFee = (float) $bill->service_fee;
-        $subtotal = (float) ($bill->base_total_bill ?? $bill->total_bill);
+        $subtotal = (float) $bill->base_amount;
         $status = strtolower($bill->status);
-        $penalty = max((float) $bill->total_bill - $subtotal, 0);
+        $penalty = (float) $bill->penalty_amount;
         $penaltyDays = (int) ($bill->penalty_days_applied ?? 0);
-        $vat = $subtotal * 0.12;
-        $totalBill = (float) $bill->total_bill + $vat;
+        $vat = (float) $bill->vat_amount;
+        $totalBill = (float) $bill->amount_payable;
         $unitLabel = $bill->utility_type === 'Electricity' ? 'kWh' : 'm3';
         $statusClasses = match ($status) {
             'paid' => 'bg-emerald-50 text-emerald-700 border-emerald-100',

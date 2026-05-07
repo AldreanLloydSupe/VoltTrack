@@ -60,7 +60,7 @@
                                 </td>
                                 <td class="px-10 py-6 text-sm font-medium text-slate-600">{{ $bill->utility_type }}</td>
                                 <td class="px-10 py-6 text-sm font-medium text-slate-500">{{ $bill->reading_date?->format('M d, Y') ?? 'N/A' }}</td>
-                                <td class="px-10 py-6 text-sm font-bold text-[#1e3a8a]">&#8369;{{ number_format($bill->total_bill, 2) }}</td>
+                                <td class="px-10 py-6 text-sm font-bold text-[#1e3a8a]">&#8369;{{ number_format($bill->amount_payable, 2) }}</td>
                                 <td class="px-10 py-6 text-center">
                                     @if($bill->status === 'Paid')
                                         <span class="inline-flex items-center rounded-full bg-blue-100 px-4 py-1.5 text-[10px] font-black uppercase tracking-wider text-blue-600">

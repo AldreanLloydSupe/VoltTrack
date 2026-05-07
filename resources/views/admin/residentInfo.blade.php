@@ -68,6 +68,9 @@
             ->where('status', 'Paid')
             ->sortByDesc('paid_at')
             ->first();
+        $currentBalance = $resident->bills
+            ->where('status', '!=', 'Paid')
+            ->sum('amount_payable');
         $daysRented = 0;
 
         if ($resident->created_at) {
@@ -84,7 +87,7 @@
                 Current Balance
             </p>
             <h2 class="text-4xl font-bold text-[#1e3a8a]">
-                ₱{{ number_format($resident->bills->where('status', '!=', 'Paid')->sum('total_bill'), 2) }}
+                ₱{{ number_format($currentBalance, 2) }}
             </h2>
             <div class="mt-6 inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold border border-blue-100">
                 <i class="far fa-clock mr-2"></i>
@@ -98,7 +101,7 @@
                 Last Amount Paid
             </p>
             <h2 class="text-4xl font-bold text-[#1e3a8a]">
-                ₱{{ number_format($lastPaidBill?->total_bill ?? 0, 2) }}
+                ₱{{ number_format($lastPaidBill?->amount_payable ?? 0, 2) }}
             </h2>
             <p class="mt-6 text-xs font-bold text-slate-400">
                 {{ $lastPaidBill?->paid_at?->format('M d, Y') ?? 'No payments' }}
@@ -165,12 +168,22 @@
                     <th class="px-8 py-5">Amount</th>
                     <th class="px-8 py-5 text-center">Status</th>
                     <th class="px-8 py-5 text-center">Done</th>
+                    <th class="px-8 py-5 text-center">Full Bill</th>
                     <th class="px-8 py-5 text-center">Action</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
                 @forelse($residentBills as $bill)
-                @php($isHighlightedBill = (string) request('highlight_bill') === (string) $bill->id)
+                @php
+                    $isHighlightedBill = (string) request('highlight_bill') === (string) $bill->id;
+                    $receiptUnitLabel = $bill->utility_type === 'Electricity' ? 'kWh' : 'm3';
+                    $receiptBaseBill = (float) $bill->consumption * (float) $bill->price_per_unit;
+                    $receiptServiceFee = (float) $bill->service_fee;
+                    $receiptSubtotal = (float) $bill->base_amount;
+                    $receiptPenalty = (float) $bill->penalty_amount;
+                    $receiptVat = (float) $bill->vat_amount;
+                    $receiptTotal = (float) $bill->amount_payable;
+                @endphp
                 <tr
                     id="bill-row-{{ $bill->id }}"
                     data-highlighted-bill="{{ $isHighlightedBill ? 'true' : 'false' }}"
@@ -182,7 +195,7 @@
                         <p class="text-sm font-bold text-slate-800">{{ $bill->consumption }} {{ $bill->utility_type === 'Electricity' ? 'kWh' : 'm³' }}</p>
                         <p class="text-[10px] text-slate-400 italic font-medium">Current: {{ $bill->current_reading }}</p>
                     </td>
-                    <td class="px-8 py-6 text-sm font-bold text-[#1e3a8a]">₱{{ number_format($bill->total_bill, 2) }}</td>
+                    <td class="px-8 py-6 text-sm font-bold text-[#1e3a8a]">₱{{ number_format($bill->amount_payable, 2) }}</td>
                     <td class="px-8 py-6 text-center">
                         <span class="
                             @if($bill->status === 'Pending') bg-amber-400 text-white
@@ -197,6 +210,31 @@
                         @else
                             <span class="text-slate-400">-</span>
                         @endif
+                    </td>
+                    <td class="px-8 py-6 text-center">
+                        <button
+                            type="button"
+                            class="admin-receipt-button inline-flex items-center justify-center rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-blue-700 transition-colors hover:bg-blue-100"
+                            data-reference="{{ $bill->payment_reference ?: 'No reference yet' }}"
+                            data-resident="{{ $resident->first_name }} {{ $resident->last_name }}"
+                            data-utility="{{ $bill->utility_type }}"
+                            data-status="{{ $bill->status }}"
+                            data-billing-start="{{ $bill->billing_period_start?->format('M d, Y') ?? 'N/A' }}"
+                            data-billing-end="{{ $bill->billing_period_end?->format('M d, Y') ?? 'N/A' }}"
+                            data-previous-reading="{{ number_format((float) $bill->previous_reading, 2) }} {{ $receiptUnitLabel }}"
+                            data-current-reading="{{ number_format((float) $bill->current_reading, 2) }} {{ $receiptUnitLabel }}"
+                            data-units="{{ number_format((float) $bill->consumption, 2) }} {{ $receiptUnitLabel }}"
+                            data-base-bill="PHP {{ number_format($receiptBaseBill, 2) }}"
+                            data-service-fee="PHP {{ number_format($receiptServiceFee, 2) }}"
+                            data-subtotal="PHP {{ number_format($receiptSubtotal, 2) }}"
+                            data-penalty="PHP {{ number_format($receiptPenalty, 2) }}"
+                            data-has-penalty="{{ $receiptPenalty > 0 ? 'true' : 'false' }}"
+                            data-penalty-days="{{ (int) ($bill->penalty_days_applied ?? 0) }}"
+                            data-vat="PHP {{ number_format($receiptVat, 2) }}"
+                            data-total="PHP {{ number_format($receiptTotal, 2) }}"
+                        >
+                            View Full Bill
+                        </button>
                     </td>
                     <td class="px-8 py-6 text-center">
                         @if($bill->status !== 'Paid')
@@ -224,7 +262,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="px-8 py-6 text-center text-slate-500">
+                    <td colspan="8" class="px-8 py-6 text-center text-slate-500">
                         No bills found for this resident
                     </td>
                 </tr>
@@ -244,6 +282,97 @@
             </div>
         @endif
     </div>
+
+    <div id="admin-receipt-modal" class="fixed inset-0 z-[120] hidden items-start justify-center overflow-y-auto bg-slate-950/70 px-4 pb-6 pt-24">
+        <div class="absolute inset-0" data-admin-receipt-close></div>
+
+        <div class="relative max-h-[calc(100vh-7rem)] w-full max-w-sm overflow-y-auto rounded-2xl bg-white shadow-2xl">
+            <div class="bg-[#F8FAFC] px-6 pb-6 pt-7">
+                <div class="mb-6 relative flex items-start justify-center">
+                    <div class="text-center">
+                        <h2 class="mb-1 text-3xl font-black tracking-tighter text-[#001D4E]">VoltTrack</h2>
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Tagum City</p>
+                    </div>
+
+                    <button type="button" data-admin-receipt-close class="absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition-all hover:border-slate-300 hover:bg-white hover:text-slate-700" aria-label="Close receipt">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="mb-6 text-center">
+                    <p class="mb-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Total Amount Payable</p>
+                    <h3 id="admin-receipt-total-display" class="text-4xl font-black tracking-tighter text-[#001D4E]">PHP 0.00</h3>
+                </div>
+
+                <div class="mb-5 w-full rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                    <div class="space-y-3">
+                        <div class="flex items-start justify-between gap-4 border-b border-slate-900/10 pb-4 text-xs">
+                            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Reference ID</span>
+                            <span id="admin-receipt-reference" class="max-w-[12rem] break-words text-right font-bold text-slate-700">No reference yet</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Resident</span>
+                            <span id="admin-receipt-resident" class="text-right font-bold text-slate-600">N/A</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Utility</span>
+                            <span id="admin-receipt-utility" class="font-bold text-slate-600">N/A</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Billing Start</span>
+                            <span id="admin-receipt-billing-start" class="font-bold text-slate-600">N/A</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Billing End</span>
+                            <span id="admin-receipt-billing-end" class="font-bold text-slate-600">N/A</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Previous Reading</span>
+                            <span id="admin-receipt-previous-reading" class="font-bold text-slate-600">N/A</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Current Reading</span>
+                            <span id="admin-receipt-current-reading" class="font-bold text-slate-600">N/A</span>
+                        </div>
+                        <div class="flex items-center justify-between border-b border-slate-900/10 pb-4 text-xs">
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Units Used</span>
+                            <span id="admin-receipt-units" class="font-bold text-slate-600">0.00</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Base Bill</span>
+                            <span id="admin-receipt-base-bill" class="font-bold text-slate-600">PHP 0.00</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Service Fee</span>
+                            <span id="admin-receipt-service-fee" class="font-bold text-slate-600">PHP 0.00</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Subtotal</span>
+                            <span id="admin-receipt-subtotal" class="font-bold text-slate-600">PHP 0.00</span>
+                        </div>
+                        <div id="admin-receipt-penalty-row" class="hidden items-center justify-between text-xs">
+                            <span id="admin-receipt-penalty-label" class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Penalty (5% Daily)</span>
+                            <span id="admin-receipt-penalty" class="font-bold text-red-600">PHP 0.00</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">VAT (12%)</span>
+                            <span id="admin-receipt-vat" class="font-bold text-slate-600">PHP 0.00</span>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-slate-900/10 pt-4 text-xs">
+                            <span class="text-[9px] font-black uppercase tracking-widest text-slate-500">Status</span>
+                            <span id="admin-receipt-status" class="font-black uppercase tracking-widest text-[#001D4E]">N/A</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" data-admin-receipt-close class="w-full rounded-xl bg-[#1e3a8a] py-3 text-center text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-lg transition-all hover:bg-blue-900 active:scale-95">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -260,6 +389,107 @@
                 block: 'center',
             });
         });
+    })();
+</script>
+
+<script>
+    (() => {
+        const initAdminReceiptModal = () => {
+            const modal = document.getElementById('admin-receipt-modal');
+            const buttons = document.querySelectorAll('.admin-receipt-button');
+            const closeButtons = document.querySelectorAll('[data-admin-receipt-close]');
+            const fields = {
+                total: document.getElementById('admin-receipt-total-display'),
+                reference: document.getElementById('admin-receipt-reference'),
+                resident: document.getElementById('admin-receipt-resident'),
+                utility: document.getElementById('admin-receipt-utility'),
+                billingStart: document.getElementById('admin-receipt-billing-start'),
+                billingEnd: document.getElementById('admin-receipt-billing-end'),
+                previousReading: document.getElementById('admin-receipt-previous-reading'),
+                currentReading: document.getElementById('admin-receipt-current-reading'),
+                units: document.getElementById('admin-receipt-units'),
+                baseBill: document.getElementById('admin-receipt-base-bill'),
+                serviceFee: document.getElementById('admin-receipt-service-fee'),
+                subtotal: document.getElementById('admin-receipt-subtotal'),
+                penalty: document.getElementById('admin-receipt-penalty'),
+                penaltyLabel: document.getElementById('admin-receipt-penalty-label'),
+                penaltyRow: document.getElementById('admin-receipt-penalty-row'),
+                vat: document.getElementById('admin-receipt-vat'),
+                status: document.getElementById('admin-receipt-status'),
+            };
+
+            if (!modal || modal.dataset.bound === 'true') {
+                return;
+            }
+
+            modal.dataset.bound = 'true';
+
+            const setText = (field, value) => {
+                if (field) {
+                    field.textContent = value || 'N/A';
+                }
+            };
+
+            const openReceipt = (button) => {
+                setText(fields.total, button.dataset.total);
+                setText(fields.reference, button.dataset.reference);
+                setText(fields.resident, button.dataset.resident);
+                setText(fields.utility, button.dataset.utility);
+                setText(fields.billingStart, button.dataset.billingStart);
+                setText(fields.billingEnd, button.dataset.billingEnd);
+                setText(fields.previousReading, button.dataset.previousReading);
+                setText(fields.currentReading, button.dataset.currentReading);
+                setText(fields.units, button.dataset.units);
+                setText(fields.baseBill, button.dataset.baseBill);
+                setText(fields.serviceFee, button.dataset.serviceFee);
+                setText(fields.subtotal, button.dataset.subtotal);
+                setText(fields.penalty, button.dataset.penalty);
+                setText(fields.vat, button.dataset.vat);
+                setText(fields.status, button.dataset.status);
+
+                if (fields.penaltyLabel) {
+                    const days = parseInt(button.dataset.penaltyDays || '0', 10);
+                    fields.penaltyLabel.textContent = days > 0
+                        ? `Penalty (5% Daily x ${days} day${days > 1 ? 's' : ''})`
+                        : 'Penalty (5% Daily)';
+                }
+
+                if (fields.penaltyRow) {
+                    fields.penaltyRow.classList.toggle('hidden', button.dataset.hasPenalty !== 'true');
+                    fields.penaltyRow.classList.toggle('flex', button.dataset.hasPenalty === 'true');
+                }
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.classList.add('overflow-hidden');
+            };
+
+            const closeReceipt = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.classList.remove('overflow-hidden');
+            };
+
+            buttons.forEach((button) => {
+                button.addEventListener('click', () => openReceipt(button));
+            });
+
+            closeButtons.forEach((button) => {
+                button.addEventListener('click', closeReceipt);
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    closeReceipt();
+                }
+            });
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAdminReceiptModal);
+        } else {
+            initAdminReceiptModal();
+        }
     })();
 </script>
 

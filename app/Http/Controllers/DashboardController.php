@@ -34,7 +34,8 @@ class DashboardController extends Controller
         $collectedMonthly = Bill::query()
             ->where('status', 'Paid')
             ->whereBetween('reading_date', [now()->startOfMonth(), now()->endOfMonth()])
-            ->sum('total_bill');
+            ->get()
+            ->sum('amount_payable');
 
         $pendingApprovals = $hasUserStatus
             ? User::where('role', 'renter')->where('status', 'pending')->count()
@@ -55,13 +56,13 @@ class DashboardController extends Controller
             ->where('status', 'Paid')
             ->whereNotNull('paid_at')
             ->whereBetween('paid_at', [$weeklyStart, now()->endOfDay()])
-            ->get(['total_bill', 'paid_at']);
+            ->get(['total_bill', 'base_total_bill', 'paid_at']);
 
         $weeklyCollections = collect(range(0, 6))->map(function ($daysAgo) use ($weeklyStart, $weeklyPaidBills) {
             $date = $weeklyStart->copy()->addDays($daysAgo);
             $total = $weeklyPaidBills
                 ->filter(fn ($bill) => $bill->paid_at?->isSameDay($date))
-                ->sum('total_bill');
+                ->sum('amount_payable');
 
             return [
                 'label' => $date->format('M d'),
@@ -74,14 +75,14 @@ class DashboardController extends Controller
             ->where('status', 'Paid')
             ->whereNotNull('paid_at')
             ->whereBetween('paid_at', [$dailyStart, now()->endOfDay()])
-            ->get(['total_bill', 'paid_at']);
+            ->get(['total_bill', 'base_total_bill', 'paid_at']);
 
         $dailyCollections = collect(range(0, 23))->map(function ($hour) use ($dailyStart, $dailyPaidBills) {
             $slotStart = $dailyStart->copy()->addHours($hour);
             $slotEnd = $slotStart->copy()->endOfHour();
             $total = $dailyPaidBills
                 ->filter(fn ($bill) => $bill->paid_at && $bill->paid_at->betweenIncluded($slotStart, $slotEnd))
-                ->sum('total_bill');
+                ->sum('amount_payable');
 
             return [
                 'label' => $slotStart->format('ga'),
@@ -94,13 +95,13 @@ class DashboardController extends Controller
             ->where('status', 'Paid')
             ->whereNotNull('paid_at')
             ->whereBetween('paid_at', [$monthlyStart, now()->endOfMonth()])
-            ->get(['total_bill', 'paid_at']);
+            ->get(['total_bill', 'base_total_bill', 'paid_at']);
 
         $monthlyCollections = collect(range(0, 5))->map(function ($monthsAgo) use ($monthlyStart, $monthlyPaidBills) {
             $date = $monthlyStart->copy()->addMonths($monthsAgo);
             $total = $monthlyPaidBills
                 ->filter(fn ($bill) => $bill->paid_at?->format('Y-m') === $date->format('Y-m'))
-                ->sum('total_bill');
+                ->sum('amount_payable');
 
             return [
                 'label' => $date->format('M Y'),
@@ -113,13 +114,13 @@ class DashboardController extends Controller
             ->where('status', 'Paid')
             ->whereNotNull('paid_at')
             ->whereBetween('paid_at', [$yearlyStart, now()->endOfYear()])
-            ->get(['total_bill', 'paid_at']);
+            ->get(['total_bill', 'base_total_bill', 'paid_at']);
 
         $yearlyCollections = collect(range(0, 4))->map(function ($yearOffset) use ($yearlyStart, $yearlyPaidBills) {
             $date = $yearlyStart->copy()->addYears($yearOffset);
             $total = $yearlyPaidBills
                 ->filter(fn ($bill) => $bill->paid_at?->format('Y') === $date->format('Y'))
-                ->sum('total_bill');
+                ->sum('amount_payable');
 
             return [
                 'label' => $date->format('Y'),

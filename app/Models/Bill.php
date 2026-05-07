@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Schema;
 
 class Bill extends Model
 {
+    public const PENALTY_RATE = 0.05;
+    public const VAT_RATE = 0.12;
+
     protected $fillable = [
         'user_id', 'meter_no', 'utility_type', 'previous_reading',
         'current_reading', 'consumption', 'reading_date',
@@ -82,9 +85,10 @@ class Bill extends Model
                 continue;
             }
 
-            $daysOverdue = max(0, Carbon::parse($bill->billing_period_end)->startOfDay()->diffInDays(today()->startOfDay()));
             $baseAmount = (float) ($bill->base_total_bill ?? $bill->total_bill);
-            $nextTotal = round($baseAmount * (1.05 ** $daysOverdue), 2);
+            $amounts = static::calculateAmounts($baseAmount, $bill->billing_period_end, $bill->status);
+            $daysOverdue = $amounts['penalty_days'];
+            $nextTotal = $amounts['total_before_vat'];
 
             $hasChanges = (int) $bill->penalty_days_applied !== $daysOverdue
                 || (float) $bill->total_bill !== $nextTotal
@@ -104,6 +108,55 @@ class Bill extends Model
         }
 
         return $updated;
+    }
+
+    public static function calculateAmounts(float $baseAmount, $billingPeriodEnd = null, string $status = 'Pending'): array
+    {
+        $baseAmount = round(max($baseAmount, 0), 2);
+        $penaltyDays = static::penaltyDaysFor($billingPeriodEnd, $status);
+        $totalBeforeVat = $penaltyDays > 0
+            ? round($baseAmount * ((1 + static::PENALTY_RATE) ** $penaltyDays), 2)
+            : $baseAmount;
+        $penaltyAmount = round(max($totalBeforeVat - $baseAmount, 0), 2);
+        $vatAmount = round($baseAmount * static::VAT_RATE, 2);
+
+        return [
+            'base_amount' => $baseAmount,
+            'penalty_days' => $penaltyDays,
+            'penalty_amount' => $penaltyAmount,
+            'vat_amount' => $vatAmount,
+            'total_before_vat' => $totalBeforeVat,
+            'amount_payable' => round($totalBeforeVat + $vatAmount, 2),
+        ];
+    }
+
+    public static function penaltyDaysFor($billingPeriodEnd = null, string $status = 'Pending'): int
+    {
+        if ($status !== 'Overdue' || ! $billingPeriodEnd) {
+            return 0;
+        }
+
+        return (int) max(0, Carbon::parse($billingPeriodEnd)->startOfDay()->diffInDays(today()->startOfDay()));
+    }
+
+    public function getBaseAmountAttribute(): float
+    {
+        return round((float) ($this->base_total_bill ?? $this->total_bill), 2);
+    }
+
+    public function getPenaltyAmountAttribute(): float
+    {
+        return round(max((float) $this->total_bill - $this->base_amount, 0), 2);
+    }
+
+    public function getVatAmountAttribute(): float
+    {
+        return round($this->base_amount * static::VAT_RATE, 2);
+    }
+
+    public function getAmountPayableAttribute(): float
+    {
+        return round((float) $this->total_bill + $this->vat_amount, 2);
     }
 
     public static function statusForDueDate(string $status, $billingPeriodEnd): string
@@ -140,7 +193,7 @@ class Bill extends Model
         $dueDate = $this->billing_period_end
             ? Carbon::parse($this->billing_period_end)->format('M d, Y')
             : 'the due date';
-        $amount = number_format((float) $this->total_bill, 2);
+        $amount = number_format((float) $this->amount_payable, 2);
 
         AdminNotification::create([
             'user_id' => $adminId,
@@ -165,6 +218,7 @@ class Bill extends Model
     {
         $consumption = $current - $previous;
         $total = ($consumption * $pricePerUnit) + $serviceFee;
+        $amounts = static::calculateAmounts($total, $this->billing_period_end, $this->status ?? 'Pending');
 
         $this->update([
             'previous_reading' => $previous,
@@ -172,9 +226,9 @@ class Bill extends Model
             'consumption'      => $consumption,
             'price_per_unit'   => $pricePerUnit,
             'service_fee'      => $serviceFee,
-            'base_total_bill'  => $total,
-            'total_bill'       => $total,
-            'penalty_days_applied' => 0,
+            'base_total_bill'  => $amounts['base_amount'],
+            'total_bill'       => $amounts['total_before_vat'],
+            'penalty_days_applied' => $amounts['penalty_days'],
         ]);
     }
 

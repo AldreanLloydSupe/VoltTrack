@@ -54,13 +54,13 @@ class ResidentController extends Controller
         $waterBill = $bills->firstWhere('utility_type', 'Water');
 
         // Sidebar summary should reflect unpaid obligations only.
-        $totalDue = $unpaidBills->sum('total_bill');
+        $totalDue = $unpaidBills->sum('amount_payable');
         $electricServiceFee = $latestUnpaidElectricBill?->service_fee ?? 0;
         $electricUsage = $latestUnpaidElectricBill
-            ? max((float) $latestUnpaidElectricBill->total_bill - (float) $latestUnpaidElectricBill->service_fee, 0)
+            ? max((float) $latestUnpaidElectricBill->amount_payable - (float) $latestUnpaidElectricBill->service_fee, 0)
             : 0;
         $waterUsage = $latestUnpaidWaterBill
-            ? max((float) $latestUnpaidWaterBill->total_bill - (float) $latestUnpaidWaterBill->service_fee, 0)
+            ? max((float) $latestUnpaidWaterBill->amount_payable - (float) $latestUnpaidWaterBill->service_fee, 0)
             : 0;
         $waterServiceFee = $latestUnpaidWaterBill?->service_fee ?? 0;
 

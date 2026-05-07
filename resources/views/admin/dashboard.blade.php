@@ -114,7 +114,7 @@
                                     </td>
                                     <td class="px-5 py-4 text-center">{{ $bill->user?->property?->property_unit_id ?? 'N/A' }}</td>
                                     <td class="px-5 py-4 text-center">{{ $bill->utility_type }}</td>
-                                    <td class="px-5 py-4 text-center font-semibold">PHP {{ number_format($bill->total_bill, 2) }}</td>
+                                    <td class="px-5 py-4 text-center font-semibold">PHP {{ number_format($bill->amount_payable, 2) }}</td>
                                     <td class="px-5 py-4 text-center">{{ $bill->reading_date?->format('M d, Y') ?? 'N/A' }}</td>
                                     <td class="px-5 py-4 text-center">
                                         <span class="px-2 py-1 rounded text-xs font-semibold {{ $bill->status === 'Overdue' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700' }}">

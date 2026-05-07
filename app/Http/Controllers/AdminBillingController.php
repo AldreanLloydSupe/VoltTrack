@@ -106,6 +106,10 @@ class AdminBillingController extends Controller
         if (! in_array($status, ['Overdue', 'Paid'], true)) {
             $bill->penalty_days_applied = 0;
             $bill->total_bill = $bill->base_total_bill ?? $bill->total_bill;
+        } elseif ($status === 'Overdue') {
+            $amounts = Bill::calculateAmounts((float) ($bill->base_total_bill ?? $bill->total_bill), $bill->billing_period_end, $status);
+            $bill->penalty_days_applied = $amounts['penalty_days'];
+            $bill->total_bill = $amounts['total_before_vat'];
         }
 
         if ($status === 'Paid') {
@@ -174,6 +178,8 @@ class AdminBillingController extends Controller
         $pricePerUnit = (float) $validated['price_per_unit'];
         $serviceFee = (float) ($validated['service_fee'] ?? 0);
         $status = Bill::statusForDueDate($validated['status'], $validated['billing_period_end']);
+        $baseTotalBill = ($consumption * $pricePerUnit) + $serviceFee;
+        $amounts = Bill::calculateAmounts($baseTotalBill, $validated['billing_period_end'], $status);
 
         $bill->fill([
             'previous_reading' => $previousReading,
@@ -184,9 +190,9 @@ class AdminBillingController extends Controller
             'billing_period_end' => $validated['billing_period_end'],
             'price_per_unit' => $pricePerUnit,
             'service_fee' => $serviceFee,
-            'base_total_bill' => ($consumption * $pricePerUnit) + $serviceFee,
-            'total_bill' => ($consumption * $pricePerUnit) + $serviceFee,
-            'penalty_days_applied' => 0,
+            'base_total_bill' => $amounts['base_amount'],
+            'total_bill' => $amounts['total_before_vat'],
+            'penalty_days_applied' => $amounts['penalty_days'],
             'status' => $status,
             'is_done' => $request->boolean('is_done') || $status === 'Paid',
             'paid_at' => $status === 'Paid' ? ($bill->paid_at ?? now()) : null,
@@ -265,6 +271,7 @@ class AdminBillingController extends Controller
             ?? sprintf('%s-%d', strtoupper(substr($utilityType, 0, 3)), $resident->id);
 
         $status = Bill::statusForDueDate($validated['status'], $validated['billing_period_end']);
+        $amounts = Bill::calculateAmounts($totalBill, $validated['billing_period_end'], $status);
 
         $bill = Bill::create([
             'user_id' => $resident->id,
@@ -278,9 +285,9 @@ class AdminBillingController extends Controller
             'reading_date' => $validated['reading_date'],
             'price_per_unit' => $pricePerUnit,
             'service_fee' => $serviceFee,
-            'base_total_bill' => $totalBill,
-            'total_bill' => $totalBill,
-            'penalty_days_applied' => 0,
+            'base_total_bill' => $amounts['base_amount'],
+            'total_bill' => $amounts['total_before_vat'],
+            'penalty_days_applied' => $amounts['penalty_days'],
             'status' => $status,
             'is_done' => $status === 'Paid',
             'payment_reference' => $this->generatePaymentReference($utilityType),

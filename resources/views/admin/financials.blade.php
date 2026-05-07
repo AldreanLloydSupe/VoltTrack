@@ -17,11 +17,11 @@
                 <p class="text-xs font-bold uppercase tracking-[0.2em] text-slate-200">Utilities</p>
                 <h1 class="mt-1 text-3xl font-black text-white md:text-4xl">Financials</h1>
                 <p class="mt-2 max-w-2xl text-sm text-slate-200">
-                    Track service fee income from paid bills, monitor paid penalty collections, and set billing defaults.
+                    Track service fee income from paid bills, monitor paid penalty and VAT collections, and set billing defaults.
                 </p>
             </div>
 
-            <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
                 <section class="rounded-xl border border-slate-200 bg-white p-5">
                     <p class="text-xs font-semibold uppercase text-slate-500">Service Fee Collected This Month</p>
                     <p class="mt-2 text-3xl font-black text-slate-900">PHP {{ number_format($serviceFeeCollected, 2) }}</p>
@@ -32,6 +32,12 @@
                     <p class="text-xs font-semibold uppercase text-slate-500">Penalty Fee Collected This Month</p>
                     <p class="mt-2 text-3xl font-black text-rose-600">PHP {{ number_format($penaltyCollected, 2) }}</p>
                     <p class="mt-2 text-xs font-semibold text-slate-400">Paid bills only. Resets each month.</p>
+                </section>
+
+                <section class="rounded-xl border border-slate-200 bg-white p-5">
+                    <p class="text-xs font-semibold uppercase text-slate-500">VAT Collected This Month</p>
+                    <p class="mt-2 text-3xl font-black text-emerald-600">PHP {{ number_format($vatCollected, 2) }}</p>
+                    <p class="mt-2 text-xs font-semibold text-slate-400">12% VAT from paid bills. Resets each month.</p>
                 </section>
             </div>
 
@@ -56,6 +62,10 @@
                     <span class="inline-flex items-center gap-2 rounded-full bg-rose-50 px-3 py-1.5">
                         <span class="h-2.5 w-2.5 rounded-full bg-[#e11d48]"></span>
                         Penalty: PHP {{ number_format($monthlyServiceFeeChart['penaltyTotal'], 2) }}
+                    </span>
+                    <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5">
+                        <span class="h-2.5 w-2.5 rounded-full bg-[#059669]"></span>
+                        VAT: PHP {{ number_format($monthlyServiceFeeChart['vatTotal'], 2) }}
                     </span>
                 </div>
 
@@ -231,13 +241,13 @@
                 const chartWidth = width - padding.left - padding.right;
                 const chartHeight = height - padding.top - padding.bottom;
                 const maxValue = Math.max(
-                    ...items.flatMap((item) => [Number(item.service_fee || 0), Number(item.penalty || 0)]),
+                    ...items.flatMap((item) => [Number(item.service_fee || 0), Number(item.penalty || 0), Number(item.vat || 0)]),
                     0
                 );
                 const scaleMax = maxValue === 0 ? 1 : maxValue * 1.2;
                 const slotWidth = items.length ? chartWidth / items.length : chartWidth;
-                const barWidth = Math.max(8, Math.min(24, (slotWidth - 24) / 2));
-                const groupWidth = (barWidth * 2) + 6;
+                const barWidth = Math.max(8, Math.min(20, (slotWidth - 30) / 3));
+                const groupWidth = (barWidth * 3) + 12;
 
                 context.clearRect(0, 0, width, height);
                 context.fillStyle = '#f8fafc';
@@ -295,10 +305,12 @@
                 items.forEach((item, index) => {
                     const serviceFeeValue = Number(item.service_fee || 0);
                     const penaltyValue = Number(item.penalty || 0);
+                    const vatValue = Number(item.vat || 0);
                     const groupX = padding.left + index * slotWidth + (slotWidth - groupWidth) / 2;
 
                     drawBar(groupX, serviceFeeValue, '#3b82f6');
                     drawBar(groupX + barWidth + 6, penaltyValue, '#e11d48');
+                    drawBar(groupX + (barWidth + 6) * 2, vatValue, '#059669');
 
                     context.fillStyle = '#475569';
                     context.font = '700 10px Inter, sans-serif';
