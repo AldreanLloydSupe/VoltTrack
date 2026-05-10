@@ -25,7 +25,7 @@
                     </div>
 
                     <div class="flex items-center space-x-4">
-                        <a href="{{ route('admin.property') }}" class="text-[12px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-all">
+                        <a href="{{ route('admin.property') }}" data-instant-nav class="text-[12px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-all">
                             Cancel
                         </a>
                         <button type="submit" class="bg-[#1e3a8a] hover:bg-blue-900 text-white text-[12px] font-black px-8 py-4 rounded-2xl shadow-xl uppercase tracking-widest transition-all active:scale-95">

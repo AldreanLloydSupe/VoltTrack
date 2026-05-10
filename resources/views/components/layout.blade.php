@@ -77,6 +77,10 @@
                         </a>
                     </div>
                 </div>
+
+                <a href="{{ route('admin.auditLog') }}" data-instant-nav class="py-4 {{ request()->routeIs('admin.auditLog') ? 'border-b-2 border-white' : 'border-b-2 border-transparent hover:border-white/70' }}">
+                    Audit Log
+                </a>
             </nav>
 
             <div class="ml-auto flex items-center gap-4">

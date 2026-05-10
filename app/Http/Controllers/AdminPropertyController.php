@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Property;
 use App\Models\User;
 use App\Models\Meter;
+use App\Support\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -187,6 +188,20 @@ class AdminPropertyController extends Controller
             return $property;
         });
 
+        AuditLogger::log(
+            $user,
+            'property_created',
+            "Created property {$property->property_unit_id} for " . ($property->user ? trim(($property->user->first_name ?? '') . ' ' . ($property->user->last_name ?? '')) : 'Unassigned resident') . '.',
+            [
+                'property_id' => $property->id,
+                'property_unit_id' => $property->property_unit_id,
+                'assigned_resident_id' => $property->user_id,
+                'status' => $property->status,
+            ],
+            'property',
+            $request
+        );
+
         return redirect()
             ->route('admin.propertyInfo', $property->id)
             ->with('success', 'Property created and assigned successfully.');
@@ -266,6 +281,24 @@ class AdminPropertyController extends Controller
                 'm3'
             );
         });
+
+        $property->refresh();
+        $property->loadMissing('user:id,first_name,last_name');
+        $residentName = trim(($property->user?->first_name ?? '') . ' ' . ($property->user?->last_name ?? ''));
+        $residentLabel = $residentName !== '' ? $residentName : 'Unassigned resident';
+        AuditLogger::log(
+            $user,
+            'property_updated',
+            "Updated property {$property->property_unit_id} for {$residentLabel}.",
+            [
+                'property_id' => $property->id,
+                'property_unit_id' => $property->property_unit_id,
+                'assigned_resident_id' => $property->user_id,
+                'status' => $property->status,
+            ],
+            'property',
+            $request
+        );
 
         return redirect()
             ->route('admin.propertyInfo', $property->id)

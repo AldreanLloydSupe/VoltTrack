@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Bill;
 use App\Models\FinancialSetting;
 use App\Models\User;
+use App\Support\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
@@ -99,6 +100,7 @@ class AdminBillingController extends Controller
             'status' => ['required', Rule::in(['Pending', 'Overdue', 'Paid'])],
         ]);
 
+        $oldStatus = $bill->status;
         $status = Bill::statusForDueDate($validated['status'], $bill->billing_period_end);
         $bill->status = $status;
         $bill->is_done = $status === 'Paid';
@@ -124,6 +126,23 @@ class AdminBillingController extends Controller
 
         $bill->save();
         $bill->notifyResidentIfOverdue($admin->id);
+        $bill->loadMissing('user:id,first_name,last_name');
+        $residentName = trim(($bill->user?->first_name ?? '') . ' ' . ($bill->user?->last_name ?? ''));
+        $residentLabel = $residentName !== '' ? $residentName : "Resident #{$bill->user_id}";
+        AuditLogger::log(
+            $admin,
+            'bill_status_updated',
+            "Updated {$bill->utility_type} bill for {$residentLabel} from {$oldStatus} to {$status}.",
+            [
+                'bill_id' => $bill->id,
+                'resident_id' => $bill->user_id,
+                'utility_type' => $bill->utility_type,
+                'old_status' => $oldStatus,
+                'new_status' => $status,
+            ],
+            'billing',
+            $request
+        );
 
         return back()->with('success', 'Bill status updated successfully.');
     }
@@ -204,6 +223,22 @@ class AdminBillingController extends Controller
 
         $bill->save();
         $bill->notifyResidentIfOverdue($admin->id);
+        $bill->loadMissing('user:id,first_name,last_name');
+        $residentName = trim(($bill->user?->first_name ?? '') . ' ' . ($bill->user?->last_name ?? ''));
+        $residentLabel = $residentName !== '' ? $residentName : "Resident #{$bill->user_id}";
+        AuditLogger::log(
+            $admin,
+            'bill_updated',
+            "Updated {$bill->utility_type} bill for {$residentLabel}.",
+            [
+                'bill_id' => $bill->id,
+                'resident_id' => $bill->user_id,
+                'status' => $status,
+                'total_bill' => (float) $bill->total_bill,
+            ],
+            'billing',
+            $request
+        );
 
         return redirect()
             ->route('admin.residentInfo', $bill->user_id)
@@ -294,6 +329,22 @@ class AdminBillingController extends Controller
             'paid_at' => $status === 'Paid' ? now() : null,
         ]);
         $bill->notifyResidentIfOverdue($admin->id);
+        $residentName = trim(($resident->first_name ?? '') . ' ' . ($resident->last_name ?? ''));
+        $residentLabel = $residentName !== '' ? $residentName : "Resident #{$resident->id}";
+        AuditLogger::log(
+            $admin,
+            'bill_created',
+            "Created {$utilityType} bill for {$residentLabel}.",
+            [
+                'bill_id' => $bill->id,
+                'resident_id' => $resident->id,
+                'utility_type' => $utilityType,
+                'status' => $status,
+                'total_bill' => (float) $bill->total_bill,
+            ],
+            'billing',
+            $request
+        );
 
         return redirect()
             ->route('admin.residentInfo', $resident->id)
