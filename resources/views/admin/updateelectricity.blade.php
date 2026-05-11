@@ -23,7 +23,22 @@
         @endif
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <form method="POST" action="{{ route('admin.bills.update', $bill->id) }}" data-instant-form class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm" onsubmit="if (!confirm('Update this electricity bill?')) return false; if (this.querySelector('[name=status]').value === 'Paid') return confirm('Confirm again: set this electricity bill to Paid?'); return true;">
+            <form
+                method="POST"
+                action="{{ route('admin.bills.update', $bill->id) }}"
+                data-instant-form
+                data-confirm
+                data-confirm-title="Update Electricity Bill?"
+                data-confirm-message="This will save the updated readings, charges, and status for this electricity bill."
+                data-confirm-confirm-label="Update Bill"
+                data-confirm-when-field="status"
+                data-confirm-when-value="Paid"
+                data-confirm-when-title="Mark Electricity Bill Paid?"
+                data-confirm-when-message="This will update the bill and set its status to Paid."
+                data-confirm-when-label="Mark Paid"
+                data-confirm-when-variant="success"
+                class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm"
+            >
                 @csrf
                 @method('PATCH')
 

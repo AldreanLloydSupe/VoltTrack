@@ -25,6 +25,7 @@ class AdminBillingController extends Controller
         $search = trim((string) $request->input('search'));
 
         $bills = Bill::with('user')
+            ->where('status', 'Paid')
             ->when(
                 $search !== '',
                 function ($query) use ($search) {

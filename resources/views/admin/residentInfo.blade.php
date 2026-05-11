@@ -23,7 +23,15 @@
             <a href="{{ route('admin.resident.edit', $resident->id) }}" data-instant-nav class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
                 UPDATE ACCOUNT
             </a>
-            <form action="{{ route('admin.resident.destroy', $resident->id) }}" method="POST" onsubmit="return confirm('Delete this resident permanently? This cannot be undone.');">
+            <form
+                action="{{ route('admin.resident.destroy', $resident->id) }}"
+                method="POST"
+                data-confirm
+                data-confirm-title="Delete Resident?"
+                data-confirm-message="This will permanently delete {{ $resident->first_name }} {{ $resident->last_name }}'s account and cannot be undone."
+                data-confirm-confirm-label="Delete Account"
+                data-confirm-variant="danger"
+            >
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
@@ -245,14 +253,17 @@
                                 <form
                                     action="{{ route('admin.bills.updateStatus', $bill->id) }}"
                                     method="POST"
-                                    data-paid-confirm-message="Set this {{ $bill->utility_type }} bill to Paid and mark it as done?"
+                                    data-confirm
+                                    data-confirm-title="Confirm Payment Update"
+                                    data-confirm-message="Set this {{ $bill->utility_type }} bill to Paid and mark it as done?"
+                                    data-confirm-confirm-label="Mark Paid"
+                                    data-confirm-variant="success"
                                 >
                                     @csrf
                                     @method('PATCH')
                                     <input type="hidden" name="status" value="Paid">
                                     <button
-                                        type="button"
-                                        onclick="if(window.openPaidActionModal){return window.openPaidActionModal(this);} return confirm(this.form?.dataset?.paidConfirmMessage || 'Confirm this action?') ? this.form.submit() : false;"
+                                        type="submit"
                                         class="rounded-full bg-emerald-500 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-sm transition-colors hover:bg-emerald-600"
                                     >
                                         Paid
@@ -378,77 +389,6 @@
         </div>
     </div>
 </div>
-
-<div id="paid-action-modal" class="hidden" style="display:none; position:fixed; inset:0; z-index:130; align-items:flex-start; justify-content:center; padding:96px 16px 16px; background:rgba(2,6,23,0.45); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);">
-    <div class="absolute inset-0" onclick="window.closePaidActionModal && window.closePaidActionModal()"></div>
-    <div class="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-        <h3 class="text-lg font-black text-[#1e3a8a]">Confirm Payment Update</h3>
-        <p id="paid-action-modal-message" class="mt-3 text-sm font-semibold text-slate-600">Set this bill to Paid and mark it as done?</p>
-        <div class="mt-6 flex justify-end gap-3">
-            <button
-                type="button"
-                onclick="window.closePaidActionModal && window.closePaidActionModal()"
-                class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold text-slate-500 transition-colors hover:bg-slate-50"
-            >
-                Cancel
-            </button>
-            <button
-                type="button"
-                onclick="window.confirmPaidAction && window.confirmPaidAction()"
-                class="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-black text-white transition-colors hover:bg-emerald-600"
-            >
-                Confirm
-            </button>
-        </div>
-    </div>
-</div>
-
-<script>
-    (() => {
-        window.__pendingPaidActionForm = null;
-
-        window.openPaidActionModal = (button) => {
-            const form = button?.form || button?.closest('form');
-            const modal = document.getElementById('paid-action-modal');
-            const message = document.getElementById('paid-action-modal-message');
-            const text = form?.dataset?.paidConfirmMessage || 'Confirm this action?';
-
-            if (!form || !modal) {
-                return false;
-            }
-
-            window.__pendingPaidActionForm = form;
-            if (message) {
-                message.textContent = text;
-            }
-
-            modal.classList.remove('hidden');
-            modal.style.display = 'flex';
-            document.body.classList.add('overflow-hidden');
-            return false;
-        };
-
-        window.closePaidActionModal = () => {
-            const modal = document.getElementById('paid-action-modal');
-            if (!modal) {
-                return;
-            }
-
-            modal.classList.add('hidden');
-            modal.style.display = 'none';
-            document.body.classList.remove('overflow-hidden');
-            window.__pendingPaidActionForm = null;
-        };
-
-        window.confirmPaidAction = () => {
-            const form = window.__pendingPaidActionForm;
-            window.closePaidActionModal();
-            if (form) {
-                form.submit();
-            }
-        };
-    })();
-</script>
 
 <script>
     (() => {

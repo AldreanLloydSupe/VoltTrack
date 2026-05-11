@@ -68,13 +68,29 @@
                             <td class="px-6 py-5 text-sm text-slate-500">{{ $resident->created_at?->format('M d, Y') ?? 'N/A' }}</td>
                             <td class="px-6 py-5">
                                 <div class="flex items-center justify-end gap-2">
-                                    <form action="{{ route('admin.pending.approve', $resident->id) }}" method="POST">
+                                    <form
+                                        action="{{ route('admin.pending.approve', $resident->id) }}"
+                                        method="POST"
+                                        data-confirm
+                                        data-confirm-title="Approve Resident?"
+                                        data-confirm-message="This will activate {{ $resident->first_name }} {{ $resident->last_name }}'s account and allow them to access VoltTrack."
+                                        data-confirm-confirm-label="Approve"
+                                        data-confirm-variant="success"
+                                    >
                                         @csrf
                                         <button type="submit" class="rounded-lg bg-emerald-500 px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-white hover:bg-emerald-600">
                                             Approve
                                         </button>
                                     </form>
-                                    <form action="{{ route('admin.pending.reject', $resident->id) }}" method="POST" onsubmit="return confirm('Rejecting this resident will permanently delete their account. Continue?');">
+                                    <form
+                                        action="{{ route('admin.pending.reject', $resident->id) }}"
+                                        method="POST"
+                                        data-confirm
+                                        data-confirm-title="Reject Resident?"
+                                        data-confirm-message="This will permanently delete {{ $resident->first_name }} {{ $resident->last_name }}'s pending account."
+                                        data-confirm-confirm-label="Reject"
+                                        data-confirm-variant="danger"
+                                    >
                                         @csrf
                                         <button type="submit" class="rounded-lg bg-rose-500 px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-white hover:bg-rose-600">
                                             Reject

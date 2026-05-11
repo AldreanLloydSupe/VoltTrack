@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Bill;
+use App\Support\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -129,7 +130,37 @@ class AdminResidentController extends Controller
 
         $validated['phone_number'] = '+63' . $validated['phone_number'];
 
-        $resident->update($validated);
+        $residentNameBefore = trim("{$resident->first_name} {$resident->last_name}");
+        $resident->fill($validated);
+
+        $changes = collect($resident->getDirty())
+            ->mapWithKeys(fn ($value, $field) => [
+                $field => [
+                    'from' => $resident->getOriginal($field),
+                    'to' => $value,
+                ],
+            ])
+            ->all();
+
+        $resident->save();
+
+        if ($changes !== []) {
+            $residentNameAfter = trim("{$resident->first_name} {$resident->last_name}");
+
+            AuditLogger::log(
+                $user,
+                'Updated resident account',
+                "Updated resident account for {$residentNameAfter}.",
+                [
+                    'resident_id' => $resident->id,
+                    'resident_name_before' => $residentNameBefore,
+                    'resident_name_after' => $residentNameAfter,
+                    'changes' => $changes,
+                ],
+                'Residents',
+                $request
+            );
+        }
 
         return redirect()
             ->route('admin.residentInfo', $resident->id)

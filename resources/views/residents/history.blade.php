@@ -124,6 +124,10 @@
             <div class="relative h-[calc(100vh-1.5rem)] w-full max-w-sm overflow-hidden rounded-xl bg-white shadow-2xl">
                 <div class="flex h-full flex-col bg-[#F8FAFC] px-4 pb-3 pt-3">
                     <div class="mb-2 relative flex items-start justify-center">
+                        <button type="button" data-receipt-save-image class="absolute left-0 top-0 flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition-all hover:border-[#1846c0] hover:bg-[#e7ecff] hover:text-[#1846c0]" aria-label="Save receipt as image" title="Save as image">
+                            <i class="fas fa-download text-[11px]"></i>
+                        </button>
+
                         <div class="text-center">
                             <h2 class="text-xl font-black tracking-tighter text-[#001D4E]">VoltTrack</h2>
                             <p class="text-[8px] font-bold uppercase tracking-widest text-slate-400">Tagum City</p>
@@ -216,6 +220,7 @@
                 const modal = document.getElementById('receipt-modal');
                 const slipButtons = document.querySelectorAll('.receipt-slip-button');
                 const closeButtons = document.querySelectorAll('[data-receipt-close]');
+                const saveButtons = document.querySelectorAll('[data-receipt-save-image]');
                 const fields = {
                     total: document.getElementById('receipt-total-display'),
                     reference: document.getElementById('receipt-reference'),
@@ -246,6 +251,113 @@
                     if (field) {
                         field.textContent = value || 'N/A';
                     }
+                };
+
+                const drawText = (context, text, x, y, maxWidth, lineHeight) => {
+                    const words = String(text || '').split(' ');
+                    let line = '';
+
+                    words.forEach((word) => {
+                        const nextLine = line ? `${line} ${word}` : word;
+
+                        if (context.measureText(nextLine).width > maxWidth && line) {
+                            context.fillText(line, x, y);
+                            line = word;
+                            y += lineHeight;
+                        } else {
+                            line = nextLine;
+                        }
+                    });
+
+                    context.fillText(line, x, y);
+                    return y;
+                };
+
+                const saveReceiptImage = () => {
+                    const canvas = document.createElement('canvas');
+                    const scale = 2;
+                    const width = 420;
+                    const height = 680;
+                    canvas.width = width * scale;
+                    canvas.height = height * scale;
+
+                    const context = canvas.getContext('2d');
+                    context.scale(scale, scale);
+                    context.fillStyle = '#f8fafc';
+                    context.fillRect(0, 0, width, height);
+                    context.fillStyle = '#ffffff';
+                    context.strokeStyle = '#e2e8f0';
+                    context.lineWidth = 1;
+                    context.beginPath();
+                    context.roundRect(18, 18, width - 36, height - 36, 18);
+                    context.fill();
+                    context.stroke();
+
+                    context.textAlign = 'center';
+                    context.fillStyle = '#001D4E';
+                    context.font = '900 30px Inter, Arial, sans-serif';
+                    context.fillText('VoltTrack', width / 2, 62);
+                    context.fillStyle = '#94a3b8';
+                    context.font = '700 10px Inter, Arial, sans-serif';
+                    context.fillText('TAGUM CITY', width / 2, 80);
+                    context.fillText('PAYMENT RECEIPT', width / 2, 103);
+
+                    context.fillStyle = '#001D4E';
+                    context.font = '900 30px Inter, Arial, sans-serif';
+                    context.fillText(fields.total?.textContent || 'PHP 0.00', width / 2, 143);
+
+                    const rows = [
+                        ['Reference ID', fields.reference?.textContent],
+                        ['Resident', fields.resident?.textContent],
+                        ['Utility', fields.utility?.textContent],
+                        ['Billing Start', fields.billingStart?.textContent],
+                        ['Billing End', fields.billingEnd?.textContent],
+                        ['Previous Reading', fields.previousReading?.textContent],
+                        ['Current Reading', fields.currentReading?.textContent],
+                        ['Units Used', fields.units?.textContent],
+                        ['Base Bill', fields.baseBill?.textContent],
+                        ['Service Fee', fields.serviceFee?.textContent],
+                        ['Subtotal', fields.subtotal?.textContent],
+                    ];
+
+                    if (fields.penaltyRow && !fields.penaltyRow.classList.contains('hidden')) {
+                        rows.push([fields.penaltyLabel?.textContent || 'Penalty', fields.penalty?.textContent]);
+                    }
+
+                    rows.push(['VAT (12%)', fields.vat?.textContent]);
+                    rows.push(['Status', fields.status?.textContent]);
+
+                    let y = 185;
+                    rows.forEach(([label, value], index) => {
+                        if (index === 8 || label === 'Status') {
+                            context.strokeStyle = '#e2e8f0';
+                            context.beginPath();
+                            context.moveTo(42, y - 18);
+                            context.lineTo(width - 42, y - 18);
+                            context.stroke();
+                        }
+
+                        context.textAlign = 'left';
+                        context.fillStyle = '#64748b';
+                        context.font = '800 10px Inter, Arial, sans-serif';
+                        context.fillText(String(label).toUpperCase(), 42, y);
+                        context.textAlign = 'right';
+                        context.fillStyle = label === 'Status' ? '#001D4E' : '#334155';
+                        context.font = '800 12px Inter, Arial, sans-serif';
+                        context.fillText(value || 'N/A', width - 42, y);
+                        y += 31;
+                    });
+
+                    context.textAlign = 'center';
+                    context.fillStyle = '#94a3b8';
+                    context.font = '700 10px Inter, Arial, sans-serif';
+                    drawText(context, 'Generated from VoltTrack resident portal', width / 2, height - 38, width - 90, 14);
+
+                    const reference = (fields.reference?.textContent || 'receipt').replace(/[^a-z0-9_-]+/gi, '-').replace(/^-|-$/g, '');
+                    const link = document.createElement('a');
+                    link.download = `volttrack-${reference || 'receipt'}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
                 };
 
                 const openReceipt = (button) => {
@@ -294,6 +406,10 @@
 
                 closeButtons.forEach((button) => {
                     button.addEventListener('click', closeReceipt);
+                });
+
+                saveButtons.forEach((button) => {
+                    button.addEventListener('click', saveReceiptImage);
                 });
 
                 document.addEventListener('keydown', (event) => {

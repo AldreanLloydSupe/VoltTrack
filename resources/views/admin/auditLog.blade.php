@@ -13,7 +13,7 @@
                         name="search"
                         value="{{ $search }}"
                         placeholder="Search action, module, description"
-                        class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     >
                     <button type="submit" class="rounded-xl bg-[#001D4E] px-5 py-3 text-xs font-black uppercase tracking-[0.15em] text-white hover:bg-[#163571]">
                         Search

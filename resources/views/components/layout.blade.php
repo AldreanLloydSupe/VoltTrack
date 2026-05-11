@@ -195,7 +195,16 @@
                             </div>
                         </form>
 
-                        <form id="admin-notification-delete-form" method="POST" class="mt-3" onsubmit="return confirm('Delete this notification permanently?');">
+                        <form
+                            id="admin-notification-delete-form"
+                            method="POST"
+                            class="mt-3"
+                            data-confirm
+                            data-confirm-title="Delete Message?"
+                            data-confirm-message="This notification will be permanently deleted."
+                            data-confirm-confirm-label="Delete Message"
+                            data-confirm-variant="danger"
+                        >
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="w-full rounded-lg border border-red-200 px-5 py-2.5 text-xs font-black uppercase tracking-[0.16em] text-red-600 transition-colors hover:bg-red-50">
@@ -217,6 +226,170 @@
             {{ $slot }}
         </div>
     @endif
+
+    <div id="app-confirmation-modal" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-slate-950/60 px-4 py-6 backdrop-blur-sm">
+        <div class="absolute inset-0" data-confirm-cancel></div>
+        <div class="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-2xl">
+            <div class="flex items-start gap-4">
+                <div id="app-confirmation-icon" class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p id="app-confirmation-eyebrow" class="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">Confirmation Required</p>
+                    <h2 id="app-confirmation-title" class="mt-1 text-xl font-black text-[#1e3a8a]">Confirm Action</h2>
+                    <p id="app-confirmation-message" class="mt-3 text-sm font-semibold leading-6 text-slate-600">Please confirm before continuing.</p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" data-confirm-cancel class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-50">
+                    Cancel
+                </button>
+                <button type="button" id="app-confirmation-confirm" class="rounded-lg bg-[#001D4E] px-4 py-2 text-sm font-black text-white transition-colors hover:bg-[#163571]">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (() => {
+            if (window.__voltTrackConfirmationBound) {
+                return;
+            }
+
+            window.__voltTrackConfirmationBound = true;
+            let pendingForm = null;
+
+            const getModal = () => document.getElementById('app-confirmation-modal');
+            const getConfirmButton = () => document.getElementById('app-confirmation-confirm');
+
+            const applyVariant = (variant) => {
+                const icon = document.getElementById('app-confirmation-icon');
+                const confirmButton = getConfirmButton();
+
+                icon.className = 'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl';
+                confirmButton.className = 'rounded-lg px-4 py-2 text-sm font-black text-white transition-colors';
+
+                if (variant === 'danger') {
+                    icon.classList.add('bg-red-50', 'text-red-600');
+                    icon.innerHTML = '<i class="fas fa-triangle-exclamation"></i>';
+                    confirmButton.classList.add('bg-rose-500', 'hover:bg-rose-600');
+                    return;
+                }
+
+                if (variant === 'success') {
+                    icon.classList.add('bg-emerald-50', 'text-emerald-600');
+                    icon.innerHTML = '<i class="fas fa-check"></i>';
+                    confirmButton.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
+                    return;
+                }
+
+                icon.classList.add('bg-blue-50', 'text-blue-700');
+                icon.innerHTML = '<i class="fas fa-circle-info"></i>';
+                confirmButton.classList.add('bg-[#001D4E]', 'hover:bg-[#163571]');
+            };
+
+            const resolveConfirmation = (form) => {
+                const fieldName = form.dataset.confirmWhenField;
+                const fieldValue = form.dataset.confirmWhenValue;
+                const field = fieldName ? Array.from(form.elements).find((element) => element.name === fieldName) : null;
+                const matchesCondition = field && field.value === fieldValue;
+
+                return {
+                    title: matchesCondition
+                        ? (form.dataset.confirmWhenTitle || form.dataset.confirmTitle || 'Confirm Action')
+                        : (form.dataset.confirmTitle || 'Confirm Action'),
+                    message: matchesCondition
+                        ? (form.dataset.confirmWhenMessage || form.dataset.confirmMessage || 'Please confirm before continuing.')
+                        : (form.dataset.confirmMessage || 'Please confirm before continuing.'),
+                    confirmLabel: matchesCondition
+                        ? (form.dataset.confirmWhenLabel || form.dataset.confirmConfirmLabel || 'Confirm')
+                        : (form.dataset.confirmConfirmLabel || 'Confirm'),
+                    variant: matchesCondition
+                        ? (form.dataset.confirmWhenVariant || form.dataset.confirmVariant || 'default')
+                        : (form.dataset.confirmVariant || 'default'),
+                };
+            };
+
+            const openConfirmation = (form) => {
+                const modal = getModal();
+                const confirmButton = getConfirmButton();
+                const title = document.getElementById('app-confirmation-title');
+                const message = document.getElementById('app-confirmation-message');
+
+                if (!modal || !confirmButton || !title || !message) {
+                    form.dataset.confirmed = 'true';
+                    form.requestSubmit();
+                    return;
+                }
+
+                const confirmation = resolveConfirmation(form);
+                pendingForm = form;
+                title.textContent = confirmation.title;
+                message.textContent = confirmation.message;
+                confirmButton.textContent = confirmation.confirmLabel;
+                applyVariant(confirmation.variant);
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.classList.add('overflow-hidden');
+                confirmButton.focus();
+            };
+
+            const closeConfirmation = () => {
+                const modal = getModal();
+
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+
+                document.body.classList.remove('overflow-hidden');
+                pendingForm = null;
+            };
+
+            document.addEventListener('click', (event) => {
+                if (event.target.closest('[data-confirm-cancel]')) {
+                    closeConfirmation();
+                    return;
+                }
+
+                if (event.target.closest('#app-confirmation-confirm')) {
+                    const form = pendingForm;
+                    closeConfirmation();
+
+                    if (form) {
+                        form.dataset.confirmed = 'true';
+                        form.requestSubmit();
+                    }
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                const modal = getModal();
+
+                if (event.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+                    closeConfirmation();
+                }
+            });
+
+            document.addEventListener('submit', (event) => {
+                const form = event.target.closest('form[data-confirm]');
+
+                if (!form || form.dataset.confirmed === 'true') {
+                    if (form) {
+                        delete form.dataset.confirmed;
+                    }
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                openConfirmation(form);
+            }, true);
+        })();
+    </script>
 
     @if ($showAdminNav && isset($user) && $user && $user->isAdmin())
         <script>

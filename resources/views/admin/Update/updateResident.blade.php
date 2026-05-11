@@ -25,7 +25,15 @@
         </nav>
 
         <div class="bg-white p-10 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
-            <form action="{{ route('admin.resident.update', $resident->id) }}" method="POST" data-instant-form>
+            <form
+                action="{{ route('admin.resident.update', $resident->id) }}"
+                method="POST"
+                data-instant-form
+                data-confirm
+                data-confirm-title="Update Resident Account?"
+                data-confirm-message="This will save the changes to {{ $resident->first_name }} {{ $resident->last_name }}'s resident profile and record the update in the audit log."
+                data-confirm-confirm-label="Apply Changes"
+            >
                 @csrf
                 @method('PATCH')
 

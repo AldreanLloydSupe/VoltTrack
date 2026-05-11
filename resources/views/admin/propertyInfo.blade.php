@@ -17,7 +17,15 @@
             </h1>
             
             <div class="flex gap-3">
-                <form method="POST" action="{{ route('admin.property.destroy', $property->id) }}" onsubmit="return confirm('Delete this property record? This action cannot be undone.');">
+                <form
+                    method="POST"
+                    action="{{ route('admin.property.destroy', $property->id) }}"
+                    data-confirm
+                    data-confirm-title="Delete Property?"
+                    data-confirm-message="This property record and its related meter links will be permanently removed. This action cannot be undone."
+                    data-confirm-confirm-label="Delete Property"
+                    data-confirm-variant="danger"
+                >
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="px-6 py-2.5 bg-rose-500 text-white font-black rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-slate-900 hover:bg-rose-600 transition-all">
