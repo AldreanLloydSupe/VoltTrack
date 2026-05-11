@@ -126,7 +126,7 @@
             <h3 class="text-xl font-bold text-[#1e3a8a]">
                 Recent Transactions
             </h3>
-            <form method="GET" action="{{ route('admin.residentInfo', $resident->id) }}" class="flex space-x-3">
+            <form method="GET" action="{{ route('admin.residentInfo', $resident->id) }}" data-instant-form class="flex space-x-3">
                 <div class="relative">
                     <i class="fas fa-filter pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-500"></i>
                     <select
@@ -245,12 +245,16 @@
                                 <form
                                     action="{{ route('admin.bills.updateStatus', $bill->id) }}"
                                     method="POST"
-                                    onsubmit="return confirm('Set this {{ $bill->utility_type }} bill to Paid and mark it as done?');"
+                                    data-paid-confirm-message="Set this {{ $bill->utility_type }} bill to Paid and mark it as done?"
                                 >
                                     @csrf
                                     @method('PATCH')
                                     <input type="hidden" name="status" value="Paid">
-                                    <button type="submit" class="rounded-full bg-emerald-500 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-sm transition-colors hover:bg-emerald-600">
+                                    <button
+                                        type="button"
+                                        onclick="if(window.openPaidActionModal){return window.openPaidActionModal(this);} return confirm(this.form?.dataset?.paidConfirmMessage || 'Confirm this action?') ? this.form.submit() : false;"
+                                        class="rounded-full bg-emerald-500 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-sm transition-colors hover:bg-emerald-600"
+                                    >
                                         Paid
                                     </button>
                                 </form>
@@ -374,6 +378,77 @@
         </div>
     </div>
 </div>
+
+<div id="paid-action-modal" class="hidden" style="display:none; position:fixed; inset:0; z-index:130; align-items:flex-start; justify-content:center; padding:96px 16px 16px; background:rgba(2,6,23,0.45); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);">
+    <div class="absolute inset-0" onclick="window.closePaidActionModal && window.closePaidActionModal()"></div>
+    <div class="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+        <h3 class="text-lg font-black text-[#1e3a8a]">Confirm Payment Update</h3>
+        <p id="paid-action-modal-message" class="mt-3 text-sm font-semibold text-slate-600">Set this bill to Paid and mark it as done?</p>
+        <div class="mt-6 flex justify-end gap-3">
+            <button
+                type="button"
+                onclick="window.closePaidActionModal && window.closePaidActionModal()"
+                class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold text-slate-500 transition-colors hover:bg-slate-50"
+            >
+                Cancel
+            </button>
+            <button
+                type="button"
+                onclick="window.confirmPaidAction && window.confirmPaidAction()"
+                class="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-black text-white transition-colors hover:bg-emerald-600"
+            >
+                Confirm
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (() => {
+        window.__pendingPaidActionForm = null;
+
+        window.openPaidActionModal = (button) => {
+            const form = button?.form || button?.closest('form');
+            const modal = document.getElementById('paid-action-modal');
+            const message = document.getElementById('paid-action-modal-message');
+            const text = form?.dataset?.paidConfirmMessage || 'Confirm this action?';
+
+            if (!form || !modal) {
+                return false;
+            }
+
+            window.__pendingPaidActionForm = form;
+            if (message) {
+                message.textContent = text;
+            }
+
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            document.body.classList.add('overflow-hidden');
+            return false;
+        };
+
+        window.closePaidActionModal = () => {
+            const modal = document.getElementById('paid-action-modal');
+            if (!modal) {
+                return;
+            }
+
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            document.body.classList.remove('overflow-hidden');
+            window.__pendingPaidActionForm = null;
+        };
+
+        window.confirmPaidAction = () => {
+            const form = window.__pendingPaidActionForm;
+            window.closePaidActionModal();
+            if (form) {
+                form.submit();
+            }
+        };
+    })();
+</script>
 
 <script>
     (() => {

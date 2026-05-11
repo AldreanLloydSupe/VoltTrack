@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Support\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -42,6 +43,17 @@ class LoginController extends Controller
         }
 
         $request->session()->regenerate();
+
+        if ($user->isAdmin()) {
+            AuditLogger::log(
+                $user,
+                'admin_login',
+                "Admin {$user->first_name} {$user->last_name} logged in.",
+                ['email' => $user->email],
+                'auth',
+                $request
+            );
+        }
 
         return redirect()->route(
             $request->user()->isAdmin() ? 'admin.dashboard' : 'resident.dashboard'

@@ -9,6 +9,7 @@ use App\Http\Controllers\AdminBillingController;
 use App\Http\Controllers\AdminFinancialController;
 use App\Http\Controllers\AdminUtilityController;
 use App\Http\Controllers\AdminNotificationController;
+use App\Http\Controllers\AdminAuditLogController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -100,6 +101,9 @@ Route::get('/admin/billingHistory', [AdminBillingController::class, 'list'])
 Route::get('/admin/financials', [AdminFinancialController::class, 'index'])
     ->middleware(['auth', 'no.cache'])
     ->name('admin.financials');
+Route::get('/admin/audit-log', [AdminAuditLogController::class, 'index'])
+    ->middleware(['auth', 'no.cache'])
+    ->name('admin.auditLog');
 Route::post('/admin/financials', [AdminFinancialController::class, 'update'])
     ->middleware(['auth', 'no.cache'])
     ->name('admin.financials.update');
