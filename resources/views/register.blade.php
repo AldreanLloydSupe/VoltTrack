@@ -72,21 +72,26 @@
                         </div>
                     </div>
 
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <div>
-                            <label class="mb-1.5 ml-1 block text-xs font-bold uppercase tracking-wider text-slate-600">Phone Number</label>
-                            <input type="text" name="phone" value="{{ old('phone') }}" placeholder="Enter your number" class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3 text-base text-[#001D4E] outline-none transition-all hover:border-slate-300 focus:border-[#3b82f6] focus:bg-white focus:shadow-[4px_4px_0_rgba(59,130,246,0.18)]">
-                            @error('phone')
-                                <p class="mt-1 ml-1 text-xs font-medium text-red-600">{{ $message }}</p>
-                            @enderror
+                    <div>
+                        <label class="mb-1.5 ml-1 block text-xs font-bold uppercase tracking-wider text-slate-600">Phone Number</label>
+                        <div class="flex overflow-hidden rounded-xl border-2 border-slate-200 bg-slate-50 text-base text-[#001D4E] transition-all hover:border-slate-300 focus-within:border-[#3b82f6] focus-within:bg-white focus-within:shadow-[4px_4px_0_rgba(59,130,246,0.18)]">
+                            <span class="flex items-center border-r-2 border-slate-200 bg-slate-100 px-4 font-bold text-slate-600">+63</span>
+                            <input
+                                type="text"
+                                name="phone"
+                                value="{{ old('phone') }}"
+                                placeholder="9123456789"
+                                inputmode="numeric"
+                                pattern="[0-9]{10}"
+                                maxlength="10"
+                                autocomplete="tel-national"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"
+                                class="min-w-0 flex-1 bg-transparent px-4 py-3 outline-none"
+                            >
                         </div>
-                        <div>
-                            <label class="mb-1.5 ml-1 block text-xs font-bold uppercase tracking-wider text-slate-600">House Number</label>
-                            <input type="text" name="house_number" value="{{ old('house_number') }}" placeholder="House Number" class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3 text-base text-[#001D4E] outline-none transition-all hover:border-slate-300 focus:border-[#3b82f6] focus:bg-white focus:shadow-[4px_4px_0_rgba(59,130,246,0.18)]">
-                            @error('house_number')
-                                <p class="mt-1 ml-1 text-xs font-medium text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        @error('phone')
+                            <p class="mt-1 ml-1 text-xs font-medium text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>

@@ -16,7 +16,7 @@
     <div class="flex justify-between items-center mb-8">
         <div>
             <h1 class="text-5xl font-bold text-[#F8FAFC] tracking-tight">{{ $resident->first_name }} {{ $resident->last_name }}</h1>
-            <p class="text-slate-300 font-medium mt-2">Account ID: #{{ $resident->id }} • House No. {{ $resident->properties->first()?->property_unit_id ?? 'N/A' }}</p>
+            <p class="text-slate-300 font-medium mt-2">Account ID: #{{ $resident->id }} • Property ID No: {{ $resident->properties->first()?->property_unit_id ?? 'N/A' }}</p>
         </div>
         
         <div class="flex space-x-4">
@@ -283,91 +283,91 @@
         @endif
     </div>
 
-    <div id="admin-receipt-modal" class="fixed inset-0 z-[120] hidden items-start justify-center overflow-y-auto bg-slate-950/70 px-4 pb-6 pt-24">
+    <div id="admin-receipt-modal" class="fixed inset-0 z-[9999] hidden items-center justify-center overflow-hidden bg-slate-950/70 p-2">
         <div class="absolute inset-0" data-admin-receipt-close></div>
 
-        <div class="relative max-h-[calc(100vh-7rem)] w-full max-w-sm overflow-y-auto rounded-2xl bg-white shadow-2xl">
-            <div class="bg-[#F8FAFC] px-6 pb-6 pt-7">
-                <div class="mb-6 relative flex items-start justify-center">
+        <div class="relative h-[calc(100vh-1.5rem)] w-full max-w-sm overflow-hidden rounded-xl bg-white shadow-2xl">
+            <div class="flex h-full flex-col bg-[#F8FAFC] px-4 pb-3 pt-3">
+                <div class="mb-2 relative flex items-start justify-center">
                     <div class="text-center">
-                        <h2 class="mb-1 text-3xl font-black tracking-tighter text-[#001D4E]">VoltTrack</h2>
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Tagum City</p>
+                        <h2 class="text-xl font-black tracking-tighter text-[#001D4E]">VoltTrack</h2>
+                        <p class="text-[8px] font-bold uppercase tracking-widest text-slate-400">Tagum City</p>
                     </div>
 
-                    <button type="button" data-admin-receipt-close class="absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition-all hover:border-slate-300 hover:bg-white hover:text-slate-700" aria-label="Close receipt">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <button type="button" data-admin-receipt-close class="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition-all hover:border-slate-300 hover:bg-white hover:text-slate-700" aria-label="Close receipt">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
-                <div class="mb-6 text-center">
-                    <p class="mb-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Total Amount Payable</p>
-                    <h3 id="admin-receipt-total-display" class="text-4xl font-black tracking-tighter text-[#001D4E]">PHP 0.00</h3>
+                <div class="mb-2 text-center">
+                    <p class="mb-0.5 text-[8px] font-black uppercase tracking-widest text-slate-400">Total Amount Payable</p>
+                    <h3 id="admin-receipt-total-display" class="text-3xl font-black tracking-tighter text-[#001D4E]">PHP 0.00</h3>
                 </div>
 
-                <div class="mb-5 w-full rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                    <div class="space-y-3">
-                        <div class="flex items-start justify-between gap-4 border-b border-slate-900/10 pb-4 text-xs">
-                            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Reference ID</span>
-                            <span id="admin-receipt-reference" class="max-w-[12rem] break-words text-right font-bold text-slate-700">No reference yet</span>
+                <div class="mb-2 min-h-0 flex-1 w-full rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
+                    <div class="space-y-1.5">
+                        <div class="flex items-start justify-between gap-3 border-b border-slate-900/10 pb-1.5 text-[11px]">
+                            <span class="text-[8px] font-black uppercase tracking-widest text-slate-400">Reference ID</span>
+                            <span id="admin-receipt-reference" class="max-w-[10rem] break-words text-right font-bold text-slate-700">No reference yet</span>
                         </div>
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Resident</span>
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-[8px] font-bold uppercase tracking-widest text-slate-400">Resident</span>
                             <span id="admin-receipt-resident" class="text-right font-bold text-slate-600">N/A</span>
                         </div>
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Utility</span>
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-[8px] font-bold uppercase tracking-widest text-slate-400">Utility</span>
                             <span id="admin-receipt-utility" class="font-bold text-slate-600">N/A</span>
                         </div>
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Billing Start</span>
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-[8px] font-bold uppercase tracking-widest text-slate-400">Billing Start</span>
                             <span id="admin-receipt-billing-start" class="font-bold text-slate-600">N/A</span>
                         </div>
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Billing End</span>
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-[8px] font-bold uppercase tracking-widest text-slate-400">Billing End</span>
                             <span id="admin-receipt-billing-end" class="font-bold text-slate-600">N/A</span>
                         </div>
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Previous Reading</span>
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-[8px] font-bold uppercase tracking-widest text-slate-400">Previous Reading</span>
                             <span id="admin-receipt-previous-reading" class="font-bold text-slate-600">N/A</span>
                         </div>
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Current Reading</span>
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-[8px] font-bold uppercase tracking-widest text-slate-400">Current Reading</span>
                             <span id="admin-receipt-current-reading" class="font-bold text-slate-600">N/A</span>
                         </div>
-                        <div class="flex items-center justify-between border-b border-slate-900/10 pb-4 text-xs">
-                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Units Used</span>
+                        <div class="flex items-center justify-between border-b border-slate-900/10 pb-1.5 text-[11px]">
+                            <span class="text-[8px] font-bold uppercase tracking-widest text-slate-400">Units Used</span>
                             <span id="admin-receipt-units" class="font-bold text-slate-600">0.00</span>
                         </div>
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Base Bill</span>
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-[8px] font-bold uppercase tracking-widest text-slate-400">Base Bill</span>
                             <span id="admin-receipt-base-bill" class="font-bold text-slate-600">PHP 0.00</span>
                         </div>
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Service Fee</span>
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-[8px] font-bold uppercase tracking-widest text-slate-400">Service Fee</span>
                             <span id="admin-receipt-service-fee" class="font-bold text-slate-600">PHP 0.00</span>
                         </div>
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Subtotal</span>
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-[8px] font-bold uppercase tracking-widest text-slate-400">Subtotal</span>
                             <span id="admin-receipt-subtotal" class="font-bold text-slate-600">PHP 0.00</span>
                         </div>
-                        <div id="admin-receipt-penalty-row" class="hidden items-center justify-between text-xs">
-                            <span id="admin-receipt-penalty-label" class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Penalty (5% Daily)</span>
+                        <div id="admin-receipt-penalty-row" class="hidden items-center justify-between text-[11px]">
+                            <span id="admin-receipt-penalty-label" class="text-[8px] font-bold uppercase tracking-widest text-slate-400">Penalty (5% Daily)</span>
                             <span id="admin-receipt-penalty" class="font-bold text-red-600">PHP 0.00</span>
                         </div>
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">VAT (12%)</span>
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-[8px] font-bold uppercase tracking-widest text-slate-400">VAT (12%)</span>
                             <span id="admin-receipt-vat" class="font-bold text-slate-600">PHP 0.00</span>
                         </div>
-                        <div class="flex items-center justify-between border-t border-slate-900/10 pt-4 text-xs">
-                            <span class="text-[9px] font-black uppercase tracking-widest text-slate-500">Status</span>
+                        <div class="flex items-center justify-between border-t border-slate-900/10 pt-1.5 text-[11px]">
+                            <span class="text-[8px] font-black uppercase tracking-widest text-slate-500">Status</span>
                             <span id="admin-receipt-status" class="font-black uppercase tracking-widest text-[#001D4E]">N/A</span>
                         </div>
                     </div>
                 </div>
 
-                <button type="button" data-admin-receipt-close class="w-full rounded-xl bg-[#1e3a8a] py-3 text-center text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-lg transition-all hover:bg-blue-900 active:scale-95">
+                <button type="button" data-admin-receipt-close class="w-full rounded-lg bg-[#1e3a8a] py-2 text-center text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-lg transition-all hover:bg-blue-900 active:scale-95">
                     Done
                 </button>
             </div>
@@ -423,6 +423,7 @@
             }
 
             modal.dataset.bound = 'true';
+            const modalHome = modal.parentElement;
 
             const setText = (field, value) => {
                 if (field) {
@@ -431,6 +432,10 @@
             };
 
             const openReceipt = (button) => {
+                if (modal.parentElement !== document.body) {
+                    document.body.appendChild(modal);
+                }
+
                 setText(fields.total, button.dataset.total);
                 setText(fields.reference, button.dataset.reference);
                 setText(fields.resident, button.dataset.resident);
@@ -468,6 +473,10 @@
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
                 document.body.classList.remove('overflow-hidden');
+
+                if (modalHome && modal.parentElement === document.body) {
+                    modalHome.appendChild(modal);
+                }
             };
 
             buttons.forEach((button) => {

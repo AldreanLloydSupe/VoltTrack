@@ -80,26 +80,22 @@
                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">
                             Phone Number
                         </label>
-                        <input
-                            type="text"
-                            name="phone_number"
-                            value="{{ old('phone_number', $resident->phone_number) }}"
-                            class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-slate-700 font-bold outline-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
-                            required
-                        >
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">
-                            House Number
-                        </label>
-                        <input
-                            type="text"
-                            name="house_number"
-                            value="{{ old('house_number', $resident->house_number) }}"
-                            class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-slate-700 font-bold outline-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
-                            required
-                        >
+                        <div class="flex overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 font-bold ring-1 ring-slate-100 transition-all focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-400">
+                            <span class="flex items-center border-r border-slate-200 bg-slate-100 px-4 text-slate-500">+63</span>
+                            <input
+                                type="text"
+                                name="phone_number"
+                                value="{{ old('phone_number', preg_replace('/^\+63/', '', $resident->phone_number)) }}"
+                                placeholder="9123456789"
+                                inputmode="numeric"
+                                pattern="[0-9]{10}"
+                                maxlength="10"
+                                autocomplete="tel-national"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"
+                                class="min-w-0 flex-1 bg-transparent p-4 outline-none"
+                                required
+                            >
+                        </div>
                     </div>
 
                     <div class="space-y-2">

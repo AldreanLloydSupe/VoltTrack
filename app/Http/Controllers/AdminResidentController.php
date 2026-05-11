@@ -114,11 +114,20 @@ class AdminResidentController extends Controller
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'phone_number' => ['required', 'string', 'max:255', Rule::unique('users', 'phone_number')->ignore($resident->id)],
-            'house_number' => ['required', 'string', 'max:255'],
+            'phone_number' => [
+                'required',
+                'digits:10',
+                function (string $attribute, mixed $value, \Closure $fail) use ($resident) {
+                    if (User::where('phone_number', '+63' . $value)->whereKeyNot($resident->id)->exists()) {
+                        $fail('The phone number has already been taken.');
+                    }
+                },
+            ],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($resident->id)],
             'gender' => ['required', Rule::in(['Male', 'Female'])],
         ]);
+
+        $validated['phone_number'] = '+63' . $validated['phone_number'];
 
         $resident->update($validated);
 

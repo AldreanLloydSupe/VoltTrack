@@ -50,7 +50,6 @@
                         <th class="px-6 py-4">Resident</th>
                         <th class="px-6 py-4">Account ID</th>
                         <th class="px-6 py-4">Phone</th>
-                        <th class="px-6 py-4">House Number</th>
                         <th class="px-6 py-4">Registered Date</th>
                         <th class="px-6 py-4 text-right">Action</th>
                     </tr>
@@ -66,7 +65,6 @@
                             </td>
                             <td class="px-6 py-5 text-sm font-medium text-slate-600">#{{ $resident->id }}</td>
                             <td class="px-6 py-5 text-sm font-medium text-slate-600">{{ $resident->phone_number }}</td>
-                            <td class="px-6 py-5 text-sm font-medium text-slate-600">{{ $resident->house_number }}</td>
                             <td class="px-6 py-5 text-sm text-slate-500">{{ $resident->created_at?->format('M d, Y') ?? 'N/A' }}</td>
                             <td class="px-6 py-5">
                                 <div class="flex items-center justify-end gap-2">
@@ -87,7 +85,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-5 text-center text-slate-500">
+                            <td colspan="5" class="px-6 py-5 text-center text-slate-500">
                                 No pending residents found
                             </td>
                         </tr>

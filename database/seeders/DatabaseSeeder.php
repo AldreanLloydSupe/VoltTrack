@@ -22,7 +22,6 @@ class DatabaseSeeder extends Seeder
             'first_name' => 'System',
             'last_name' => 'Admin',
             'phone_number' => '09170000000',
-            'house_number' => 'ADMIN-OFFICE',
             'gender' => 'Male',
             'password' => Hash::make('12345'),
             'role' => 'admin',

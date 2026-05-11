@@ -17,9 +17,16 @@ class RegisterController extends Controller
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:255', 'unique:users,phone_number'],
+            'phone' => [
+                'required',
+                'digits:10',
+                function (string $attribute, mixed $value, \Closure $fail) {
+                    if (User::where('phone_number', '+63' . $value)->exists()) {
+                        $fail('The phone number has already been taken.');
+                    }
+                },
+            ],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'house_number' => ['required', 'string', 'max:255'],
             'gender' => ['required', Rule::in(['male', 'female'])],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'agree_terms' => ['required', 'accepted'],
@@ -28,9 +35,8 @@ class RegisterController extends Controller
         $userData = [
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
-            'phone_number' => $validated['phone'],
+            'phone_number' => '+63' . $validated['phone'],
             'email' => $validated['email'],
-            'house_number' => $validated['house_number'],
             'gender' => $validated['gender'] === 'male' ? 'Male' : 'Female',
             'password' => Hash::make($validated['password']),
             'role' => 'renter',

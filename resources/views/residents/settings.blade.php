@@ -80,25 +80,15 @@
                         </div>
                     </div>
 
-                    <div class="grid gap-5 sm:grid-cols-2">
-                        <div>
-                            <label for="house_number" class="mb-2 block text-sm font-semibold text-slate-700">House Number</label>
-                            <input id="house_number" type="text" name="house_number" value="{{ old('house_number', $user->house_number) }}" class="w-full rounded-lg border border-slate-300 px-3 py-2" required>
-                            @error('house_number')
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="gender" class="mb-2 block text-sm font-semibold text-slate-700">Gender</label>
-                            <select id="gender" name="gender" class="w-full rounded-lg border border-slate-300 px-3 py-2" required>
-                                <option value="Male" @selected(old('gender', $user->gender) === 'Male')>Male</option>
-                                <option value="Female" @selected(old('gender', $user->gender) === 'Female')>Female</option>
-                            </select>
-                            @error('gender')
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                    <div>
+                        <label for="gender" class="mb-2 block text-sm font-semibold text-slate-700">Gender</label>
+                        <select id="gender" name="gender" class="w-full rounded-lg border border-slate-300 px-3 py-2" required>
+                            <option value="Male" @selected(old('gender', $user->gender) === 'Male')>Male</option>
+                            <option value="Female" @selected(old('gender', $user->gender) === 'Female')>Female</option>
+                        </select>
+                        @error('gender')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="pt-2">

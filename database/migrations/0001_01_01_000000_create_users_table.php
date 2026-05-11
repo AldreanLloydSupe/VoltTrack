@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('phone_number')->unique();
             $table->string('email')->unique();
-            $table->string('house_number'); 
             $table->enum('gender', ['Male', 'Female']);
             $table->string('password');
 

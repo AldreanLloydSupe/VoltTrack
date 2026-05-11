@@ -163,7 +163,6 @@ class ResidentController extends Controller
                 'max:255',
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
-            'house_number' => ['required', 'string', 'max:255'],
             'gender' => ['required', Rule::in(['Male', 'Female'])],
         ]);
 
@@ -224,8 +223,7 @@ class ResidentController extends Controller
         $emailSubject = '[VoltTrack] Resident Message: ' . $validated['subject'];
         $emailBody = "Resident: {$user->first_name} {$user->last_name}\n"
             . "Email: {$user->email}\n"
-            . "Phone: {$user->phone_number}\n"
-            . "House Number: {$user->house_number}\n\n"
+            . "Phone: {$user->phone_number}\n\n"
             . "Message:\n{$validated['message']}";
 
         if (! empty($adminEmails)) {
