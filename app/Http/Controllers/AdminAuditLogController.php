@@ -23,7 +23,7 @@ class AdminAuditLogController extends Controller
                     ->orWhere('module', 'like', "%{$search}%");
             })
             ->latest()
-            ->paginate(15)
+            ->paginate(20)
             ->withQueryString();
 
         return view('admin.auditLog', [

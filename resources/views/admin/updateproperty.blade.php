@@ -16,7 +16,17 @@
                 </div>
             @endif
 
-            <form id="update-form" action="{{ route('admin.property.update', $property->id) }}" method="POST" data-instant-form class="space-y-6">
+            <form
+                id="update-form"
+                action="{{ route('admin.property.update', $property->id) }}"
+                method="POST"
+                data-instant-form
+                data-confirm
+                data-confirm-title="Update Property?"
+                data-confirm-message="This will save changes to property {{ $property->property_unit_id ?? '#' . $property->id }}, including resident assignment, property details, and meter setup."
+                data-confirm-confirm-label="Update Changes"
+                class="space-y-6"
+            >
                 @csrf
                 @method('PATCH')
 
@@ -62,7 +72,7 @@
 
                         <div>
                             <label class="mb-2 block text-[11px] font-black uppercase tracking-widest text-slate-400">Assign Resident (Approved)</label>
-                            <select name="user_id" class="w-full appearance-none rounded-xl border border-slate-100 bg-slate-50 px-6 py-4 text-base font-bold text-slate-700 outline-none">
+                            <select id="property-user-id" name="user_id" class="w-full appearance-none rounded-xl border border-slate-100 bg-slate-50 px-6 py-4 text-base font-bold text-slate-700 outline-none">
                                 <option value="">Unassigned</option>
                                 @foreach($approvedResidents as $resident)
                                     <option value="{{ $resident->id }}" @selected((string) old('user_id', $property->user_id) === (string) $resident->id)>
@@ -87,10 +97,9 @@
 
                         <div>
                             <label class="mb-2 block text-[11px] font-black uppercase tracking-widest text-slate-400">Property Status</label>
-                            <select name="status" class="w-full appearance-none rounded-xl border border-slate-100 bg-slate-50 px-6 py-4 text-lg font-bold text-slate-700 outline-none" required>
+                            <select id="property-status" name="status" class="w-full appearance-none rounded-xl border border-slate-100 bg-slate-50 px-6 py-4 text-lg font-bold text-slate-700 outline-none" required>
                                 <option value="Active" @selected(old('status', $property->status) === 'Active')>Active</option>
                                 <option value="Inactive" @selected(old('status', $property->status) === 'Inactive')>Inactive</option>
-                                <option value="Archived" @selected(old('status', $property->status) === 'Archived')>Archived</option>
                             </select>
                         </div>
 
@@ -137,4 +146,22 @@
             </form>
         </div>
     </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const residentSelect = document.getElementById('property-user-id');
+            const statusSelect = document.getElementById('property-status');
+
+            if (!residentSelect || !statusSelect) {
+                return;
+            }
+
+            const syncStatus = () => {
+                statusSelect.value = residentSelect.value ? 'Active' : 'Inactive';
+            };
+
+            residentSelect.addEventListener('change', syncStatus);
+            syncStatus();
+        });
+    </script>
 </x-layout>

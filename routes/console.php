@@ -12,3 +12,8 @@ Schedule::command('bills:apply-overdue-penalties')
     ->dailyAt('00:00')
     ->withoutOverlapping()
     ->runInBackground();
+
+Schedule::command('deleted-records:prune --days=30')
+    ->dailyAt('00:30')
+    ->withoutOverlapping()
+    ->runInBackground();

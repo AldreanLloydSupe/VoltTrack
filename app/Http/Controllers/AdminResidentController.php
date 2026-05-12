@@ -186,15 +186,24 @@ class AdminResidentController extends Controller
                 'status' => 'Inactive',
             ]);
 
-            $resident->bills()->delete();
-            $resident->utilityAssignments()->delete();
-            $resident->adminNotifications()->delete();
-            $resident->forceDelete();
+            $resident->delete();
         });
+
+        AuditLogger::log(
+            $user,
+            'resident_deleted',
+            "Moved resident account for {$residentName} to deleted records.",
+            [
+                'resident_id' => $resident->id,
+                'resident_name' => $residentName,
+            ],
+            'Residents',
+            $request
+        );
 
         return redirect()
             ->route('admin.residentList')
-            ->with('success', "{$residentName} account deleted permanently.");
+            ->with('success', "{$residentName} account moved to deleted records.");
     }
 
     // Sorting Kung residential ang i show or commercial

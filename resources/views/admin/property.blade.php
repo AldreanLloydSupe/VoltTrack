@@ -4,14 +4,14 @@
         $isGridView = $viewMode === 'grid';
     @endphp
 
-    <main class="min-h-screen bg-slate-50 p-10 font-sans">
+    <main class="property-registry-page min-h-screen bg-slate-50 p-4 font-sans sm:p-6 lg:p-10">
         @if (session('success'))
             <div class="mb-6 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
                 {{ session('success') }}
             </div>
         @endif
 
-        <div class="mb-8 flex items-end justify-between">
+        <div class="mb-8 flex flex-col items-start justify-between gap-5 lg:flex-row lg:items-end">
             <div>
                 <nav class="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                     Properties & Meters <span class="mx-1">></span>
@@ -21,8 +21,8 @@
                 </h1>
             </div>
 
-            <div class="flex items-center gap-6">
-                <div id="property-view-switcher" class="flex rounded-lg bg-slate-200/50 p-1 text-[11px] font-bold uppercase tracking-tight">
+            <div class="flex w-full flex-wrap items-center gap-4 sm:w-auto lg:gap-6">
+                <div id="property-view-switcher" class="flex min-w-0 rounded-lg bg-slate-200/50 p-1 text-[11px] font-bold uppercase tracking-tight">
                     <button type="button" data-view="table" class="property-view-option {{ ! $isGridView ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600' }} rounded px-4 py-1.5 transition-all">
                         Table View
                     </button>
@@ -31,17 +31,17 @@
                     </button>
                 </div>
 
-                <a href="{{ route('admin.createnew') }}" data-instant-nav class="rounded-lg bg-[#1e3a8a] px-6 py-3.5 text-[11px] font-black uppercase tracking-wider text-white shadow-lg shadow-blue-900/20 transition-all hover:bg-blue-900 active:scale-95">
+                <a href="{{ route('admin.createnew') }}" data-instant-nav class="inline-flex items-center justify-center rounded-lg bg-[#1e3a8a] px-6 py-3.5 text-[11px] font-black uppercase tracking-wider text-white shadow-lg shadow-blue-900/20 transition-all hover:bg-blue-900 active:scale-95">
                     Add Property
                 </a>
             </div>
         </div>
 
-        <div class="rounded-[24px] border border-slate-100 bg-white p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-            <div class="mb-10 flex items-center justify-between gap-6">
-                <div class="flex items-center gap-6">
-                    <div class="flex items-center gap-4">
-                        <div id="unit-type-filter" class="flex items-center bg-slate-100/50 rounded-full p-1 border border-slate-200">
+        <div class="rounded-[24px] border border-slate-100 bg-white p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:p-6 lg:p-8">
+            <div class="mb-10 flex flex-col items-stretch justify-between gap-6 xl:flex-row xl:items-center">
+                <div class="flex min-w-0 flex-col gap-4 xl:flex-row xl:items-center xl:gap-6">
+                    <div class="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center">
+                        <div id="unit-type-filter" class="flex min-w-0 items-center bg-slate-100/50 rounded-full p-1 border border-slate-200">
                             <span class="text-[9px] font-black text-slate-800 uppercase tracking-[0.15em] px-4">Type</span>
                             <button type="button"
                                 data-unit-type="all"
@@ -60,7 +60,7 @@
                             </button>
                         </div>
 
-                        <div class="flex items-center gap-2">
+                        <div class="property-status-filter flex min-w-0 items-center gap-2">
                             <label for="status" class="text-[9px] font-black text-slate-800 uppercase tracking-[0.15em]">Status:</label>
                             <select
                                 id="status"
@@ -81,8 +81,8 @@
                 </div>
 
                 {{-- Search Bar --}}
-                <div class="flex items-center gap-3">
-                    <div class="relative group">
+                <div class="property-search-controls flex items-center gap-3">
+                    <div class="relative group min-w-0">
                         <span class="absolute inset-y-0 left-5 flex items-center text-blue-500 transition-colors group-focus-within:text-blue-600">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -123,15 +123,15 @@
                             </div>
 
                             @if($property->status === 'Active')
-                                <span class="inline-flex items-center rounded-full border border-blue-100/50 bg-blue-50 px-3 py-1.5 text-[10px] font-black text-blue-700">
+                                <span class="property-status-badge inline-flex items-center rounded-full border border-blue-100/50 bg-blue-50 px-3 py-1.5 text-[10px] font-black text-blue-700">
                                     <span class="mr-2 h-1.5 w-1.5 rounded-full bg-blue-500"></span> ACTIVE
                                 </span>
                             @elseif($property->status === 'Inactive')
-                                <span class="inline-flex items-center rounded-full border border-emerald-100/50 bg-emerald-50 px-3 py-1.5 text-[10px] font-black text-emerald-700">
+                                <span class="property-status-badge inline-flex items-center rounded-full border border-emerald-100/50 bg-emerald-50 px-3 py-1.5 text-[10px] font-black text-emerald-700">
                                     <span class="mr-2 h-1.5 w-1.5 rounded-full bg-emerald-500"></span> VACANT
                                 </span>
                             @else
-                                <span class="inline-flex items-center rounded-full border border-slate-200/50 bg-slate-100 px-3 py-1.5 text-[10px] font-black text-slate-700">
+                                <span class="property-status-badge inline-flex items-center rounded-full border border-slate-200/50 bg-slate-100 px-3 py-1.5 text-[10px] font-black text-slate-700">
                                     {{ $property->status ?? 'N/A' }}
                                 </span>
                             @endif
@@ -176,8 +176,8 @@
                 </div>
             </div>
 
-            <div id="table-view" class="{{ $isGridView ? 'hidden' : '' }} overflow-hidden">
-                <table class="w-full text-left">
+            <div id="table-view" class="{{ $isGridView ? 'hidden' : '' }} admin-data-scroll overflow-x-auto">
+                <table class="w-full min-w-[980px] text-left">
                     <thead class="border-b border-slate-50 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                         <tr>
                             <th class="px-6 py-5">Property ID</th>
@@ -221,15 +221,15 @@
                                 </td>
                                 <td class="px-6 py-6">
                                     @if($property->status === 'Active')
-                                        <span class="flex w-fit items-center rounded-full border border-blue-100/50 bg-blue-50 px-4 py-1.5 text-[10px] font-black text-blue-700">
+                                        <span class="property-status-badge flex w-fit items-center rounded-full border border-blue-100/50 bg-blue-50 px-4 py-1.5 text-[10px] font-black text-blue-700">
                                             <span class="mr-2.5 h-1.5 w-1.5 rounded-full bg-blue-500"></span> ACTIVE
                                         </span>
                                     @elseif($property->status === 'Inactive')
-                                        <span class="flex w-fit items-center rounded-full border border-emerald-100/50 bg-emerald-50 px-4 py-1.5 text-[10px] font-black text-emerald-700">
+                                        <span class="property-status-badge flex w-fit items-center rounded-full border border-emerald-100/50 bg-emerald-50 px-4 py-1.5 text-[10px] font-black text-emerald-700">
                                             <span class="mr-2.5 h-1.5 w-1.5 rounded-full bg-emerald-500"></span> VACANT
                                         </span>
                                     @else
-                                        <span class="flex w-fit items-center rounded-full border border-slate-200/50 bg-slate-100 px-4 py-1.5 text-[10px] font-black text-slate-700">
+                                        <span class="property-status-badge flex w-fit items-center rounded-full border border-slate-200/50 bg-slate-100 px-4 py-1.5 text-[10px] font-black text-slate-700">
                                             {{ $property->status ?? 'N/A' }}
                                         </span>
                                     @endif
@@ -254,7 +254,7 @@
                 </table>
             </div>
 
-            <div class="mt-10 flex items-center justify-between border-t border-slate-50 pt-8 text-[11px] font-bold text-slate-400">
+            <div class="mt-10 flex flex-col items-start justify-between gap-4 border-t border-slate-50 pt-8 text-[11px] font-bold text-slate-400 sm:flex-row sm:items-center">
                 <p>
                     Showing
                     <span class="text-slate-600">{{ number_format($properties->firstItem() ?? 0) }}-{{ number_format($properties->lastItem() ?? 0) }}</span>

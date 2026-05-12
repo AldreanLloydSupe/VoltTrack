@@ -9,14 +9,14 @@
     @endphp
 
     <div class="min-h-screen bg-[#eef2f7]">
-        <header class="border-b border-[#2f8cff]/40 bg-[#1b2d73] px-6 py-3 text-white shadow-[0_6px_30px_rgba(10,28,74,0.2)]">
+        <header class="resident-top-nav relative overflow-visible border-b border-[#2f8cff]/40 bg-[#1b2d73] px-6 py-3 text-white shadow-[0_6px_30px_rgba(10,28,74,0.2)]">
             <div class="mx-auto flex max-w-7xl items-center justify-between">
                 <div>
                     <h1 class="text-4xl font-black tracking-tight">VoltTrack</h1>
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <details class="relative">
+                    <details class="resident-notification-details relative">
                         <summary class="list-none cursor-pointer">
                             <div class="relative flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 transition-all hover:bg-white/15">
                                 <i class="fas fa-bell text-sm text-white"></i>
@@ -28,13 +28,13 @@
                             </div>
                         </summary>
 
-                        <div class="absolute right-0 z-30 mt-3 w-96 rounded-xl border border-slate-200 bg-white text-slate-900 shadow-2xl">
+                        <div class="resident-notification-popover absolute right-0 z-30 mt-3 w-96 rounded-xl border border-slate-200 bg-white text-slate-900 shadow-2xl">
                             <div class="border-b border-slate-100 px-4 py-3">
                                 <p class="text-sm font-bold">Admin Replies</p>
                                 <p class="text-xs text-slate-500">Latest {{ ($adminReplies ?? collect())->count() }}</p>
                             </div>
 
-                            <div class="max-h-96 overflow-y-auto">
+                            <div class="resident-notification-list max-h-96 overflow-y-auto">
                                 @forelse(($adminReplies ?? collect()) as $reply)
                                     <button
                                         type="button"

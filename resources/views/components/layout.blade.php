@@ -29,25 +29,25 @@
             @php($unreadResidentMessages = $user->adminNotifications()->whereNull('read_at')->count())
             @php($latestAdminNotifications = $user->adminNotifications()->with('resident')->latest()->limit(6)->get())
         @endif
-        <header id="admin-top-nav" class="sticky top-0 z-50 bg-[#1E3A8A] text-white py-4 px-10 flex items-center">
-            <h1 class="text-3xl font-bold mr-32">
+        <header id="admin-top-nav" class="sticky top-0 z-50 flex flex-wrap items-center gap-4 bg-[#1E3A8A] px-4 py-4 text-white sm:px-6 lg:flex-nowrap lg:px-10">
+            <h1 class="shrink-0 text-2xl font-bold sm:text-3xl lg:mr-16 xl:mr-32">
                 VoltTrack
             </h1>
 
-            <nav class="flex space-x-16 text-base font-semibold tracking-wide items-center">
+            <nav class="admin-main-nav order-3 flex w-full items-center gap-6 overflow-x-auto pb-1 text-sm font-semibold tracking-wide lg:order-none lg:w-auto lg:gap-12 lg:overflow-visible lg:pb-0 xl:gap-16 xl:text-base">
                 <a href="{{ route('admin.dashboard') }}" data-instant-nav class="{{ request()->routeIs('admin.dashboard') ? 'border-b-2 border-white' : 'border-b-2 border-transparent hover:border-white/70' }}">
                     Dashboard
                 </a>
 
-                <div class="group relative cursor-pointer py-4 {{ request()->routeIs('admin.pending', 'admin.residentList', 'admin.residentInfo', 'admin.confirming') ? 'border-b-2 border-white' : 'border-b-2 border-transparent hover:border-white/70' }}">
-                    <div class="flex items-center space-x-2">
+                <div class="admin-nav-item group relative shrink-0 py-4 {{ request()->routeIs('admin.pending', 'admin.residentList', 'admin.residentInfo', 'admin.confirming') ? 'border-b-2 border-white' : 'border-b-2 border-transparent hover:border-white/70' }}">
+                    <button type="button" class="admin-nav-toggle flex items-center space-x-2" aria-expanded="false">
                         <span>Residents</span>
                         <svg class="w-2.5 h-2.5 opacity-80 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
                         </svg>
-                    </div>
+                    </button>
 
-                    <div class="absolute left-0 top-full hidden group-hover:block w-56 bg-[#1e3a8a] shadow-xl rounded-b-lg border-t border-white/10 z-50 overflow-hidden">
+                    <div class="admin-nav-dropdown absolute left-0 top-full hidden group-hover:block group-focus-within:block w-56 bg-[#1e3a8a] shadow-xl rounded-b-lg border-t border-white/10 z-50 overflow-hidden">
                         <a href="{{ route('admin.pending') }}" data-instant-nav class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors">
                             Pending Residents
                         </a>
@@ -57,15 +57,15 @@
                     </div>
                 </div>
 
-                <div class="group relative cursor-pointer py-4 {{ request()->routeIs('admin.property', 'admin.propertyInfo', 'admin.createnew', 'admin.billingHistory', 'admin.financials', 'admin.Create.*') ? 'border-b-2 border-white' : 'border-b-2 border-transparent hover:border-white/70' }}">
-                    <div class="flex items-center space-x-2">
+                <div class="admin-nav-item group relative shrink-0 py-4 {{ request()->routeIs('admin.property', 'admin.propertyInfo', 'admin.createnew', 'admin.billingHistory', 'admin.financials', 'admin.Create.*') ? 'border-b-2 border-white' : 'border-b-2 border-transparent hover:border-white/70' }}">
+                    <button type="button" class="admin-nav-toggle flex items-center space-x-2" aria-expanded="false">
                         <span>Utilities</span>
                         <svg class="w-2.5 h-2.5 opacity-80 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
                         </svg>
-                    </div>
+                    </button>
 
-                    <div class="absolute left-0 top-full hidden group-hover:block w-56 bg-[#1e3a8a] shadow-xl rounded-b-lg border-t border-white/10 z-50 overflow-hidden">
+                    <div class="admin-nav-dropdown absolute left-0 top-full hidden group-hover:block group-focus-within:block w-56 bg-[#1e3a8a] shadow-xl rounded-b-lg border-t border-white/10 z-50 overflow-hidden">
                         <a href="{{ route('admin.property')}}" data-instant-nav class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors">
                             Properties & Meters
                         </a>
@@ -78,14 +78,28 @@
                     </div>
                 </div>
 
-                <a href="{{ route('admin.auditLog') }}" data-instant-nav class="py-4 {{ request()->routeIs('admin.auditLog') ? 'border-b-2 border-white' : 'border-b-2 border-transparent hover:border-white/70' }}">
-                    Audit Log
-                </a>
+                <div class="admin-nav-item group relative shrink-0 py-4 {{ request()->routeIs('admin.auditLog', 'admin.deletedRecords') ? 'border-b-2 border-white' : 'border-b-2 border-transparent hover:border-white/70' }}">
+                    <button type="button" class="admin-nav-toggle flex items-center space-x-2" aria-expanded="false">
+                        <span>Activity Logs</span>
+                        <svg class="w-2.5 h-2.5 opacity-80 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+
+                    <div class="admin-nav-dropdown absolute left-0 top-full hidden group-hover:block group-focus-within:block w-56 bg-[#1e3a8a] shadow-xl rounded-b-lg border-t border-white/10 z-50 overflow-hidden">
+                        <a href="{{ route('admin.auditLog') }}" data-instant-nav class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors">
+                            Audit Logs
+                        </a>
+                        <a href="{{ route('admin.deletedRecords') }}" data-instant-nav class="block px-6 py-4 text-white font-bold hover:bg-white/10 transition-colors border-t border-white/5">
+                            Deleted Records
+                        </a>
+                    </div>
+                </div>
             </nav>
 
-            <div class="ml-auto flex items-center gap-4">
+            <div class="ml-auto flex min-w-0 items-center gap-3 sm:gap-4">
                 @if($user && $user->isAdmin())
-                    <details class="relative">
+                    <details class="admin-notification-details relative">
                         <summary class="list-none cursor-pointer">
                             <div class="relative flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-white/10 hover:bg-white/20 transition-all">
                                 <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,13 +113,13 @@
                             </div>
                         </summary>
 
-                        <div class="absolute right-0 top-full z-50 mt-3 w-96 rounded-xl border border-slate-200 bg-white text-slate-900 shadow-2xl">
+                        <div class="admin-notification-popover absolute right-0 top-full z-50 mt-3 w-96 rounded-xl border border-slate-200 bg-white text-slate-900 shadow-2xl">
                             <div class="border-b border-slate-100 px-4 py-3">
                                 <p class="text-sm font-bold">Resident Notifications</p>
                                 <p class="text-xs text-slate-500">Latest {{ $latestAdminNotifications->count() }}</p>
                             </div>
 
-                            <div class="max-h-96 overflow-y-auto">
+                            <div class="admin-notification-list max-h-96 overflow-y-auto">
                                 @forelse($latestAdminNotifications as $notice)
                                     <button
                                         type="button"
@@ -142,18 +156,18 @@
                     </details>
                 @endif
 
-                <div class="text-right">
+                <div class="hidden text-right sm:block">
                     <p class="text-sm font-semibold">{{ $user?->first_name }} {{ $user?->last_name }}</p>
                     <p class="text-xs uppercase tracking-[0.22em] text-blue-100">Admin</p>
                 </div>
 
-                <div class="h-12 w-12 overflow-hidden rounded-full border-2 border-white/25 bg-white">
+                <div class="h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white/25 bg-white sm:h-12 sm:w-12">
                     <img src="{{ asset('image/profile.png') }}" alt="Profile logo" class="h-full w-full object-cover">
                 </div>
 
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="rounded-full border border-white/20 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-white/10">
+                    <button type="submit" class="rounded-full border border-white/20 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-white transition-all hover:bg-white/10 sm:px-4 sm:text-xs sm:tracking-[0.2em]">
                         Log Out
                     </button>
                 </form>
@@ -393,6 +407,60 @@
 
     @if ($showAdminNav && isset($user) && $user && $user->isAdmin())
         <script>
+            const initAdminDropdownMenus = () => {
+                const closeMenus = (except = null) => {
+                    document.querySelectorAll('#admin-top-nav .admin-nav-item.is-open').forEach((item) => {
+                        if (item === except) {
+                            return;
+                        }
+
+                        item.classList.remove('is-open');
+                        item.querySelector('.admin-nav-toggle')?.setAttribute('aria-expanded', 'false');
+                    });
+                };
+
+                document.querySelectorAll('#admin-top-nav .admin-nav-toggle').forEach((button) => {
+                    if (button.dataset.bound === 'true') {
+                        return;
+                    }
+
+                    button.dataset.bound = 'true';
+
+                    button.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const item = button.closest('.admin-nav-item');
+                        if (!item) {
+                            return;
+                        }
+
+                        const willOpen = !item.classList.contains('is-open');
+                        closeMenus(item);
+                        item.classList.toggle('is-open', willOpen);
+                        button.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+                    });
+                });
+
+                if (document.body.dataset.adminDropdownsBound === 'true') {
+                    return;
+                }
+
+                document.body.dataset.adminDropdownsBound = 'true';
+
+                document.addEventListener('click', (event) => {
+                    if (!event.target.closest('#admin-top-nav .admin-nav-item')) {
+                        closeMenus();
+                    }
+                });
+
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape') {
+                        closeMenus();
+                    }
+                });
+            };
+
             const initAdminNotificationModal = () => {
                 const modal = document.getElementById('admin-notification-modal');
                 const unreadBadge = document.querySelector('[data-admin-unread-count]');
@@ -476,7 +544,9 @@
                 });
             };
 
+            window.initAdminDropdownMenus = initAdminDropdownMenus;
             window.initAdminNotificationModal = initAdminNotificationModal;
+            document.addEventListener('DOMContentLoaded', initAdminDropdownMenus);
             document.addEventListener('DOMContentLoaded', initAdminNotificationModal);
         </script>
         <script>
@@ -526,6 +596,10 @@
 
                     if (typeof window.initAdminNotificationModal === 'function') {
                         window.initAdminNotificationModal();
+                    }
+
+                    if (typeof window.initAdminDropdownMenus === 'function') {
+                        window.initAdminDropdownMenus();
                     }
                 };
 

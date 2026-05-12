@@ -50,9 +50,8 @@
                         class="appearance-none bg-white border border-slate-200 rounded-lg pl-10 pr-10 py-2 font-bold text-sm text-slate-700 shadow-sm cursor-pointer outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                     >
                         <option value="All">Status: All</option>
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Vacant</option>
-                        <option value="Archived">Archived</option>
+                        <option value="Assigned">Assigned</option>
+                        <option value="Unassigned">Unassigned</option>
                     </select>
 
                     <i class="fas fa-circle-check absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
@@ -77,8 +76,8 @@
         </div>
 
         <div class="bg-white rounded-[20px] border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden">
-            <div id="resident-table-view">
-                <table class="w-full text-left border-collapse">
+            <div id="resident-table-view" class="admin-data-scroll overflow-x-auto">
+                <table class="w-full min-w-[920px] text-left border-collapse">
                     <thead class="bg-slate-50/50 border-b border-slate-100">
                         <tr class="text-[11px] font-black text-slate-400 uppercase tracking-widest">
                             <th class="px-8 py-5">Renter Name</th>
@@ -92,7 +91,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @forelse($residents as $resident)
-                        <tr class="resident-row hover:bg-slate-50/80 transition-colors group" data-unit-type="{{ $resident->property->unit_type ?? 'N/A' }}" data-status="{{ $resident->property?->status ?? 'N/A' }}">
+                        <tr class="resident-row hover:bg-slate-50/80 transition-colors group" data-unit-type="{{ $resident->property->unit_type ?? 'N/A' }}" data-status="{{ $resident->property ? 'Assigned' : 'Unassigned' }}">
                             <td class="px-8 py-6">
                                 <p class="font-bold text-[#0f172a] text-base group-hover:text-blue-600 transition-colors">
                                     {{ $resident->first_name }} {{ $resident->last_name }}
@@ -104,7 +103,7 @@
                                 {{ $resident->property->unit_type ?? 'N/A' }}
                             </td>
                             <td class="px-8 py-6 text-sm font-bold text-slate-800">
-                                {{ $resident->property?->status === 'Inactive' ? 'Vacant' : ($resident->property?->status ?? 'N/A') }}
+                                {{ $resident->property ? 'Assigned' : 'Unassigned' }}
                             </td>
                             <td class="px-8 py-6 text-sm text-slate-500">
                                 {{ $resident->created_at?->format('M d, Y') ?? 'N/A' }}
@@ -139,7 +138,7 @@
             <div id="resident-grid-view" class="hidden grid-cols-1 gap-5 p-6 md:grid-cols-2 xl:grid-cols-3">
                 @forelse($residents as $resident)
                     @php($lastPaid = $resident->bills->where('status', 'Paid')->sortByDesc('paid_at')->first())
-                    <article class="resident-card rounded-2xl border border-slate-100 bg-slate-50/70 p-6 transition-all hover:-translate-y-0.5 hover:border-blue-100 hover:bg-white hover:shadow-xl hover:shadow-slate-200/60" data-unit-type="{{ $resident->property->unit_type ?? 'N/A' }}" data-status="{{ $resident->property?->status ?? 'N/A' }}">
+                    <article class="resident-card rounded-2xl border border-slate-100 bg-slate-50/70 p-6 transition-all hover:-translate-y-0.5 hover:border-blue-100 hover:bg-white hover:shadow-xl hover:shadow-slate-200/60" data-unit-type="{{ $resident->property->unit_type ?? 'N/A' }}" data-status="{{ $resident->property ? 'Assigned' : 'Unassigned' }}">
                         <div class="mb-5 flex items-start justify-between gap-4">
                             <div>
                                 <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Resident</p>
@@ -160,7 +159,7 @@
                             </div>
                             <div class="rounded-xl border border-slate-100 bg-white p-4">
                                 <p class="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Status</p>
-                                <p class="mt-2 text-sm font-black text-slate-700">{{ $resident->property?->status === 'Inactive' ? 'Vacant' : ($resident->property?->status ?? 'N/A') }}</p>
+                                <p class="mt-2 text-sm font-black text-slate-700">{{ $resident->property ? 'Assigned' : 'Unassigned' }}</p>
                             </div>
                             <div class="rounded-xl border border-slate-100 bg-white p-4">
                                 <p class="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Applied</p>

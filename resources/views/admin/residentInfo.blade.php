@@ -28,7 +28,7 @@
                 method="POST"
                 data-confirm
                 data-confirm-title="Delete Resident?"
-                data-confirm-message="This will permanently delete {{ $resident->first_name }} {{ $resident->last_name }}'s account and cannot be undone."
+                data-confirm-message="This will move {{ $resident->first_name }} {{ $resident->last_name }}'s account to deleted records."
                 data-confirm-confirm-label="Delete Account"
                 data-confirm-variant="danger"
             >

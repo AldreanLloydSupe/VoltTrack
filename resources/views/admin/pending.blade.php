@@ -44,7 +44,8 @@
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <table class="w-full text-left border-collapse">
+            <div class="admin-data-scroll overflow-x-auto">
+            <table class="w-full min-w-[760px] text-left border-collapse">
                 <thead class="bg-slate-50 text-[11px] font-bold uppercase text-slate-400 tracking-widest">
                     <tr>
                         <th class="px-6 py-4">Resident</th>
@@ -108,6 +109,7 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
     </main>
 </x-layout>

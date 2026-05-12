@@ -22,7 +22,7 @@
                     action="{{ route('admin.property.destroy', $property->id) }}"
                     data-confirm
                     data-confirm-title="Delete Property?"
-                    data-confirm-message="This property record and its related meter links will be permanently removed. This action cannot be undone."
+                    data-confirm-message="This property will be moved to deleted records."
                     data-confirm-confirm-label="Delete Property"
                     data-confirm-variant="danger"
                 >

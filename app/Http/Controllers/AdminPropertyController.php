@@ -91,7 +91,7 @@ class AdminPropertyController extends Controller
 
         return view('admin.updateproperty', [
             'property' => $property,
-            'approvedResidents' => $this->approvedResidents(),
+            'approvedResidents' => $this->approvedResidents($property->id),
         ]);
     }
 
@@ -115,42 +115,24 @@ class AdminPropertyController extends Controller
             'water_initial_reading' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        if (
-            empty($validated['electric_serial_number'])
-            && $request->filled('electric_initial_reading')
-        ) {
+        $residentAssignmentError = $this->residentAssignmentError($validated['user_id'] ?? null);
+        if ($residentAssignmentError) {
             return back()
                 ->withInput()
-                ->withErrors(['electric_serial_number' => 'Electric serial number is required when adding an electricity meter.']);
-        }
-
-        if (
-            empty($validated['water_serial_number'])
-            && $request->filled('water_initial_reading')
-        ) {
-            return back()
-                ->withInput()
-                ->withErrors(['water_serial_number' => 'Water serial number is required when adding a water meter.']);
-        }
-
-        if (! empty($validated['user_id']) && Schema::hasColumn('users', 'status')) {
-            $selectedResident = User::find($validated['user_id']);
-            if (! $selectedResident || $selectedResident->status !== 'approved') {
-                return back()
-                    ->withInput()
-                    ->withErrors(['user_id' => 'Only approved residents can be assigned to a property.']);
-            }
+                ->withErrors(['user_id' => $residentAssignmentError]);
         }
 
         $property = DB::transaction(function () use ($validated) {
+            $assignedResidentId = $validated['user_id'] ?? null;
+
             $property = Property::create([
-                'user_id' => $validated['user_id'] ?? null,
+                'user_id' => $assignedResidentId,
                 'property_unit_id' => $validated['property_unit_id'],
                 'physical_address' => $validated['physical_address'],
                 'unit_type' => $validated['unit_type'],
                 'cluster_housing' => $validated['cluster_housing'] ?? null,
                 'lease_commencement_date' => $validated['lease_commencement_date'] ?? null,
-                'status' => $validated['status'],
+                'status' => $this->statusForResidentAssignment($assignedResidentId),
             ]);
 
             if (! empty($validated['electric_serial_number'])) {
@@ -243,24 +225,24 @@ class AdminPropertyController extends Controller
                 ->withErrors(['water_serial_number' => 'Water serial number is required when adding a water meter.']);
         }
 
-        if (! empty($validated['user_id']) && Schema::hasColumn('users', 'status')) {
-            $selectedResident = User::find($validated['user_id']);
-            if (! $selectedResident || $selectedResident->status !== 'approved') {
-                return back()
-                    ->withInput()
-                    ->withErrors(['user_id' => 'Only approved residents can be assigned to a property.']);
-            }
+        $residentAssignmentError = $this->residentAssignmentError($validated['user_id'] ?? null, $property->id);
+        if ($residentAssignmentError) {
+            return back()
+                ->withInput()
+                ->withErrors(['user_id' => $residentAssignmentError]);
         }
 
         DB::transaction(function () use ($property, $validated, $electricMeter, $waterMeter) {
+            $assignedResidentId = $validated['user_id'] ?? null;
+
             $property->update([
-                'user_id' => $validated['user_id'] ?? null,
+                'user_id' => $assignedResidentId,
                 'property_unit_id' => $validated['property_unit_id'],
                 'physical_address' => $validated['physical_address'],
                 'unit_type' => $validated['unit_type'],
                 'cluster_housing' => $validated['cluster_housing'] ?? null,
                 'lease_commencement_date' => $validated['lease_commencement_date'] ?? null,
-                'status' => $validated['status'],
+                'status' => $this->statusForResidentAssignment($assignedResidentId),
             ]);
 
             $this->upsertMeterAssignment(
@@ -305,7 +287,7 @@ class AdminPropertyController extends Controller
             ->with('success', 'Property details updated successfully.');
     }
 
-public function destroy(Request $request, $id)
+    public function destroy(Request $request, $id)
     {
         $user = $request->user();
 
@@ -313,31 +295,30 @@ public function destroy(Request $request, $id)
 
         $property = Property::with('meters')->findOrFail($id);
         $propertyLabel = $property->property_unit_id ?: "#{$property->id}";
+        $meterSerialNumbers = $property->meters->pluck('serial_number')->filter()->values()->all();
 
-        // Collect meter IDs and serial numbers before deletion
-        $meters = $property->meters;
-        $meterIds = $meters->pluck('id')->toArray();
-        $meterSerialNumbers = $meters->pluck('serial_number')->filter()->toArray();
+        $property->delete();
 
-        DB::transaction(function () use ($property, $meterIds) {
-            // 1. Permanently delete the meters assigned to this property
-            if (!empty($meterIds)) {
-                Meter::whereIn('id', $meterIds)->forceDelete();
-            }
-
-            // 2. Detach relationships from the pivot table (this is already a permanent action)
-            $property->meters()->detach();
-
-            // 3. Permanently delete the property itself
-            $property->forceDelete();
-        });
+        AuditLogger::log(
+            $user,
+            'property_deleted',
+            "Moved property {$propertyLabel} to deleted records.",
+            [
+                'property_id' => $property->id,
+                'property_unit_id' => $property->property_unit_id,
+                'assigned_resident_id' => $property->user_id,
+                'meter_serial_numbers' => $meterSerialNumbers,
+            ],
+            'property',
+            $request
+        );
 
         return redirect()
             ->route('admin.property')
-            ->with('success', "Property {$propertyLabel} and associated meters deleted successfully.");
+            ->with('success', "Property {$propertyLabel} moved to deleted records.");
     }
 
-    protected function approvedResidents()
+    protected function approvedResidents(?int $currentPropertyId = null)
     {
         return User::query()
             ->where('role', 'renter')
@@ -345,9 +326,46 @@ public function destroy(Request $request, $id)
                 Schema::hasColumn('users', 'status'),
                 fn ($query) => $query->where('status', 'approved')
             )
+            ->where(function ($query) use ($currentPropertyId) {
+                $query->whereDoesntHave('properties')
+                    ->when($currentPropertyId, function ($query) use ($currentPropertyId) {
+                        $query->orWhereHas('properties', function ($propertyQuery) use ($currentPropertyId) {
+                            $propertyQuery->whereKey($currentPropertyId);
+                        });
+                    });
+            })
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get(['id', 'first_name', 'last_name', 'email']);
+    }
+
+    protected function residentAssignmentError(?int $residentId, ?int $currentPropertyId = null): ?string
+    {
+        if (! $residentId) {
+            return null;
+        }
+
+        $selectedResident = User::find($residentId);
+
+        if (! $selectedResident || (Schema::hasColumn('users', 'status') && $selectedResident->status !== 'approved')) {
+            return 'Only approved residents can be assigned to a property.';
+        }
+
+        $alreadyAssigned = Property::query()
+            ->where('user_id', $residentId)
+            ->when($currentPropertyId, fn ($query) => $query->whereKeyNot($currentPropertyId))
+            ->exists();
+
+        if ($alreadyAssigned) {
+            return 'This resident is already assigned to another property.';
+        }
+
+        return null;
+    }
+
+    protected function statusForResidentAssignment(?int $residentId): string
+    {
+        return $residentId ? 'Active' : 'Inactive';
     }
 
     protected function upsertMeterAssignment(

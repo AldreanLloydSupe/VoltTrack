@@ -16,7 +16,7 @@
         };
     @endphp
 
-    <div class="w-full min-h-screen bg-[#334155] flex items-center justify-center font-sans p-6">
+    <div class="receipt-page w-full min-h-screen bg-[#334155] flex items-center justify-center font-sans p-6">
         <div class="w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl">
             <div class="bg-[#F8FAFC] px-10 pt-12 pb-10">
                 <div class="mb-10 relative flex items-start justify-center">

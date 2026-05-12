@@ -80,7 +80,16 @@
                     <h2 class="mt-1 text-xl font-bold text-slate-900">Service Fees and Rate Calculators</h2>
                 </div>
 
-                <form id="financial-settings-form" method="POST" action="{{ route('admin.financials.update') }}" class="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+                <form
+                    id="financial-settings-form"
+                    method="POST"
+                    action="{{ route('admin.financials.update') }}"
+                    data-confirm
+                    data-confirm-title="Save Financial Defaults?"
+                    data-confirm-message="This will update the default service fees and calculated utility rates used for new bills."
+                    data-confirm-confirm-label="Save Defaults"
+                    class="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end"
+                >
                     @csrf
                     <input id="electricity-price-per-unit-input" type="hidden" name="electricity_price_per_unit" value="{{ old('electricity_price_per_unit', $electricityPricePerUnit) }}">
                     <input id="water-price-per-unit-input" type="hidden" name="water_price_per_unit" value="{{ old('water_price_per_unit', $waterPricePerUnit) }}">

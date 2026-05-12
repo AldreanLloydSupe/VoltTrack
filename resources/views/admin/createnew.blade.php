@@ -50,7 +50,7 @@
 
                         <div>
                             <label class="block text-[11px] font-black text-slate-400 uppercase mb-2 tracking-widest">Assign Resident (Approved)</label>
-                            <select name="user_id" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-6 py-4 text-base font-bold text-slate-700 appearance-none outline-none">
+                            <select id="property-user-id" name="user_id" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-6 py-4 text-base font-bold text-slate-700 appearance-none outline-none">
                                 <option value="">Unassigned</option>
                                 @foreach($approvedResidents as $resident)
                                     <option value="{{ $resident->id }}" @selected((string) old('user_id') === (string) $resident->id)>
@@ -85,7 +85,7 @@
 
                         <div>
                             <label class="block text-[11px] font-black text-slate-400 uppercase mb-2 tracking-widest">Property Status</label>
-                            <select name="status" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-6 py-4 text-lg font-bold text-slate-700 appearance-none outline-none" required>
+                            <select id="property-status" name="status" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-6 py-4 text-lg font-bold text-slate-700 appearance-none outline-none" required>
                                 <option value="Active" @selected(old('status', 'Active') === 'Active')>Active</option>
                                 <option value="Inactive" @selected(old('status') === 'Inactive')>Inactive</option>
                                 <option value="Archived" @selected(old('status') === 'Archived')>Archived</option>
@@ -105,7 +105,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                         <div class="space-y-4">
                             <p class="text-xs font-black uppercase tracking-[0.2em] text-[#f59e0b]">Electricity Meter</p>
-                            <input name="electric_serial_number" value="{{ old('electric_serial_number') }}" type="text" placeholder="Serial Number (required if adding meter)" class="w-full bg-slate-100 border-none rounded-xl px-6 py-4 text-base font-bold text-slate-700">
+                            <input name="electric_serial_number" value="{{ old('electric_serial_number') }}" type="text" placeholder="Meter Serial Number (optional)" class="w-full bg-slate-100 border-none rounded-xl px-6 py-4 text-base font-bold text-slate-700">
                             <div class="relative">
                                 <input name="electric_initial_reading" value="{{ old('electric_initial_reading', 0) }}" type="number" step="0.01" min="0" class="w-full bg-blue-50/50 border-none rounded-xl px-6 py-4 text-xl font-black text-blue-700">
                                 <span class="absolute right-6 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 uppercase">kWh</span>
@@ -114,7 +114,7 @@
 
                         <div class="space-y-4">
                             <p class="text-xs font-black uppercase tracking-[0.2em] text-blue-500">Water Meter</p>
-                            <input name="water_serial_number" value="{{ old('water_serial_number') }}" type="text" placeholder="Serial Number (required if adding meter)" class="w-full bg-slate-100 border-none rounded-xl px-6 py-4 text-base font-bold text-slate-700">
+                            <input name="water_serial_number" value="{{ old('water_serial_number') }}" type="text" placeholder="Meter Serial Number (optional)" class="w-full bg-slate-100 border-none rounded-xl px-6 py-4 text-base font-bold text-slate-700">
                             <div class="relative">
                                 <input name="water_initial_reading" value="{{ old('water_initial_reading', 0) }}" type="number" step="0.01" min="0" class="w-full bg-blue-50/50 border-none rounded-xl px-6 py-4 text-xl font-black text-blue-700">
                                 <span class="absolute right-6 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 uppercase">m3</span>
@@ -125,4 +125,22 @@
             </form>
         </div>
     </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const residentSelect = document.getElementById('property-user-id');
+            const statusSelect = document.getElementById('property-status');
+
+            if (!residentSelect || !statusSelect) {
+                return;
+            }
+
+            const syncStatus = () => {
+                statusSelect.value = residentSelect.value ? 'Active' : 'Inactive';
+            };
+
+            residentSelect.addEventListener('change', syncStatus);
+            syncStatus();
+        });
+    </script>
 </x-layout>

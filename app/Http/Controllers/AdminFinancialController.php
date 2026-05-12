@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bill;
 use App\Models\FinancialSetting;
+use App\Support\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
@@ -102,11 +103,108 @@ class AdminFinancialController extends Controller
             'water_price_per_unit' => ['required', 'numeric', 'min:0'],
         ]);
 
-        FinancialSetting::setAmount('electricity_service_fee', (float) $validated['electricity_service_fee']);
-        FinancialSetting::setAmount('water_service_fee', (float) $validated['water_service_fee']);
-        FinancialSetting::setAmount('electricity_price_per_unit', (float) $validated['electricity_price_per_unit']);
-        FinancialSetting::setAmount('water_price_per_unit', (float) $validated['water_price_per_unit']);
+        $previousSettings = [
+            'electricity_service_fee' => FinancialSetting::getAmount('electricity_service_fee', 100),
+            'water_service_fee' => FinancialSetting::getAmount('water_service_fee', 100),
+            'electricity_price_per_unit' => FinancialSetting::getAmount('electricity_price_per_unit', 0),
+            'water_price_per_unit' => FinancialSetting::getAmount('water_price_per_unit', 0),
+        ];
+
+        $updatedSettings = [
+            'electricity_service_fee' => (float) $validated['electricity_service_fee'],
+            'water_service_fee' => (float) $validated['water_service_fee'],
+            'electricity_price_per_unit' => (float) $validated['electricity_price_per_unit'],
+            'water_price_per_unit' => (float) $validated['water_price_per_unit'],
+        ];
+
+        foreach ($updatedSettings as $key => $value) {
+            FinancialSetting::setAmount($key, $value);
+        }
+
+        $changedSettings = $this->changedFinancialSettings($previousSettings, $updatedSettings);
+        $changedGroups = $this->changedFinancialSettingGroups($changedSettings);
+
+        AuditLogger::log(
+            $user,
+            'financial_settings_updated',
+            $this->financialSettingsAuditDescription($changedGroups),
+            [
+                'previous' => $previousSettings,
+                'updated' => $updatedSettings,
+                'changed' => $changedSettings,
+                'changed_groups' => array_values(array_keys($changedGroups)),
+            ],
+            'financials',
+            $request
+        );
 
         return back()->with('success', 'Financial service fees and unit prices saved successfully.');
+    }
+
+    protected function changedFinancialSettings(array $previousSettings, array $updatedSettings): array
+    {
+        $labels = [
+            'electricity_service_fee' => 'Electricity service fee',
+            'water_service_fee' => 'Water service fee',
+            'electricity_price_per_unit' => 'Electricity price per unit',
+            'water_price_per_unit' => 'Water price per unit',
+        ];
+
+        $changedSettings = [];
+
+        foreach ($updatedSettings as $key => $updatedValue) {
+            $previousValue = (float) ($previousSettings[$key] ?? 0);
+
+            if (round($previousValue, 2) === round((float) $updatedValue, 2)) {
+                continue;
+            }
+
+            $changedSettings[$key] = [
+                'label' => $labels[$key] ?? str_replace('_', ' ', $key),
+                'previous' => $previousValue,
+                'updated' => (float) $updatedValue,
+            ];
+        }
+
+        return $changedSettings;
+    }
+
+    protected function changedFinancialSettingGroups(array $changedSettings): array
+    {
+        $groups = [];
+
+        foreach ($changedSettings as $key => $change) {
+            $group = str_contains($key, 'service_fee') ? 'service_fees' : 'utility_prices';
+            $groups[$group][] = $change['label'];
+        }
+
+        return $groups;
+    }
+
+    protected function financialSettingsAuditDescription(array $changedGroups): string
+    {
+        if (empty($changedGroups)) {
+            return 'Saved financial defaults with no value changes.';
+        }
+
+        $parts = [];
+
+        if (isset($changedGroups['service_fees'])) {
+            $parts[] = 'service fees (' . implode(', ', $changedGroups['service_fees']) . ')';
+        }
+
+        if (isset($changedGroups['utility_prices'])) {
+            $parts[] = 'utility prices (' . implode(', ', $changedGroups['utility_prices']) . ')';
+        }
+
+        if (count($parts) === 1 && isset($changedGroups['service_fees'])) {
+            return 'Updated financial defaults: service fees only - ' . implode(', ', $changedGroups['service_fees']) . '.';
+        }
+
+        if (count($parts) === 1 && isset($changedGroups['utility_prices'])) {
+            return 'Updated financial defaults: utility prices only - ' . implode(', ', $changedGroups['utility_prices']) . '.';
+        }
+
+        return 'Updated financial defaults: ' . implode('; ', $parts) . '.';
     }
 }
