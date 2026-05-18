@@ -1,3 +1,4 @@
+{{-- Renders the App view for VoltTrack. --}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,6 +59,7 @@
     </nav>
 
     <!-- Main Content -->
+    {{-- Main page content --}}
     <main class="py-4">
         <div class="container-lg">
             @yield('content')

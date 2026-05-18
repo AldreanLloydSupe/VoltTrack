@@ -1,5 +1,7 @@
+{{-- Renders the History view for VoltTrack. --}}
 <x-layout title="Payment History | VoltTrack" :show-admin-nav="false">
     <div class="min-h-screen bg-[#eef2f7]">
+        {{-- Page header --}}
         <header class="border-b border-[#2f8cff]/40 bg-[#1b2d73] px-6 py-3 text-white shadow-[0_6px_30px_rgba(10,28,74,0.2)]">
             <div class="mx-auto flex max-w-7xl items-center justify-between">
                 <div>
@@ -11,6 +13,7 @@
                     <a href="{{ route('resident.dashboard') }}" class="rounded-full border border-white/20 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-white/10">
                         Back
                     </a>
+                    {{-- Form --}}
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <button type="submit" class="rounded-full border border-white/20 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-white/10">
@@ -21,7 +24,9 @@
             </div>
         </header>
 
+        {{-- Main page content --}}
         <main class="mx-auto max-w-7xl px-6 py-8">
+            {{-- Content section --}}
             <section class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_20px_70px_rgba(15,23,42,0.08)]">
                 <div class="border-b border-slate-200 px-6 py-5">
                     <h2 class="text-lg font-black uppercase tracking-[0.2em] text-slate-700">All Payment History</h2>
@@ -29,7 +34,9 @@
                 </div>
 
                 <div class="overflow-x-auto p-6">
+                    {{-- Data table --}}
                     <table class="w-full min-w-[760px] border-collapse text-left">
+                        {{-- Table columns --}}
                         <thead>
                             <tr class="border-b border-slate-200 text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
                                 <th class="py-3 pr-4">Reference ID</th>
@@ -41,7 +48,9 @@
                                 <th class="py-3 pl-4 text-right">Slip</th>
                             </tr>
                         </thead>
+                        {{-- Table rows --}}
                         <tbody>
+                            {{-- List rendering --}}
                             @forelse ($bills as $bill)
                                 @php
                                     $status = strtolower($bill->status);

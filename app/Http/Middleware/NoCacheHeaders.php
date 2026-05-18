@@ -6,6 +6,9 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Handles NoCacheHeaders responsibilities.
+ */
 class NoCacheHeaders
 {
     public function handle(Request $request, Closure $next): Response

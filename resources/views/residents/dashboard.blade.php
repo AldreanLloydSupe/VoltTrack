@@ -1,3 +1,4 @@
+{{-- Renders the Dashboard view for VoltTrack. --}}
 <x-layout title="Resident Dashboard | VoltTrack" :show-admin-nav="false">
     @php
         $electricBars = $electricBill
@@ -9,6 +10,7 @@
     @endphp
 
     <div class="min-h-screen bg-[#eef2f7]">
+        {{-- Page header --}}
         <header class="resident-top-nav relative overflow-visible border-b border-[#2f8cff]/40 bg-[#1b2d73] px-6 py-3 text-white shadow-[0_6px_30px_rgba(10,28,74,0.2)]">
             <div class="mx-auto flex max-w-7xl items-center justify-between">
                 <div>
@@ -20,6 +22,7 @@
                         <summary class="list-none cursor-pointer">
                             <div class="relative flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 transition-all hover:bg-white/15">
                                 <i class="fas fa-bell text-sm text-white"></i>
+                                {{-- Conditional message/block --}}
                                 @if(($adminReplies ?? collect())->isNotEmpty())
                                     <span class="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-400 px-1.5 py-0.5 text-[10px] font-black text-[#0f172a]">
                                         {{ ($adminReplies ?? collect())->count() }}
@@ -35,6 +38,7 @@
                             </div>
 
                             <div class="resident-notification-list max-h-96 overflow-y-auto">
+                                {{-- List rendering --}}
                                 @forelse(($adminReplies ?? collect()) as $reply)
                                     <button
                                         type="button"
@@ -83,6 +87,7 @@
                         </div>
                     </details>
 
+                    {{-- Form --}}
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <button type="submit" class="rounded-full border border-white/20 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-white/10">
@@ -115,6 +120,7 @@
                     <div id="resident-reply-answer" class="mt-2 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-slate-700 whitespace-pre-line"></div>
 
                     <div class="mt-5 flex flex-wrap justify-end gap-3">
+                        {{-- Form --}}
                         <form
                             id="resident-reply-delete-form"
                             method="POST"
@@ -138,7 +144,9 @@
             </div>
         </div>
 
+        {{-- Main page content --}}
         <main class="mx-auto grid max-w-7xl gap-6 px-6 py-6 lg:grid-cols-[minmax(0,2fr)_320px]">
+            {{-- Content section --}}
             <section class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_20px_70px_rgba(15,23,42,0.08)]">
                 <div class="grid border-b border-slate-200 lg:grid-cols-2">
                     <div class="border-b border-slate-200 p-6 lg:border-b-0 lg:border-r">
@@ -158,6 +166,7 @@
                         </div>
 
                         <div class="mt-8 flex h-28 items-end gap-2">
+                            {{-- List rendering --}}
                             @foreach ($electricBars as $bar)
                                 <div
                                     class="flex-1 rounded-t-[4px] {{ $loop->last ? 'bg-[#1846c0]' : 'bg-[#9fb6ef]' }}"
@@ -184,6 +193,7 @@
                         </div>
 
                         <div class="mt-8 flex h-28 items-end gap-2">
+                            {{-- List rendering --}}
                             @foreach ($waterBars as $bar)
                                 <div
                                     class="flex-1 rounded-t-[4px] {{ $loop->last ? 'bg-[#627194]' : 'bg-[#c9d2e6]' }}"
@@ -216,6 +226,7 @@
                                 Last Month
                             </button>
                         </div>
+                        {{-- Conditional message/block --}}
                         @if ($bills->isNotEmpty())
                             <a href="{{ route('resident.history') }}" class="text-xs font-black uppercase tracking-[0.18em] text-[#1846c0] hover:underline">
                                 View All
@@ -224,7 +235,9 @@
                     </div>
 
                     <div class="overflow-x-auto">
+                        {{-- Data table --}}
                         <table class="w-full min-w-[680px] border-collapse text-left">
+                            {{-- Table columns --}}
                             <thead>
                                 <tr class="border-b border-slate-200 text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
                                     <th class="py-3 pr-4">Reference ID</th>
@@ -234,7 +247,9 @@
                                     <th class="py-3 pl-4 text-right">Slip</th>
                                 </tr>
                             </thead>
+                            {{-- Table rows --}}
                             <tbody>
+                                {{-- List rendering --}}
                                 @forelse ($bills as $bill)
                                     @php
                                         $status = strtolower($bill->status);
@@ -312,6 +327,7 @@
             </section>
 
             <aside class="grid gap-6">
+                {{-- Content section --}}
                 <section class="overflow-hidden rounded-[28px] bg-[#1846c0] text-white shadow-[0_24px_60px_rgba(24,70,192,0.28)]">
                     <div class="border-t-4 border-[#33a6ff] px-8 py-9">
                         <p class="text-[11px] font-black uppercase tracking-[0.26em] text-blue-100">
@@ -345,6 +361,7 @@
                 </section>
 
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                    {{-- Content section --}}
                     <section class="rounded-[24px] bg-white p-6 shadow-[0_16px_50px_rgba(15,23,42,0.08)]">
                         <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">Peak Demand</p>
                         <p class="mt-6 text-3xl font-black text-[#1846c0]">{{ number_format($peakDemand, 1) }} <span class="text-sm uppercase tracking-[0.2em] text-slate-500">kW</span></p>
@@ -353,6 +370,7 @@
                         </div>
                     </section>
 
+                    {{-- Content section --}}
                     <section class="rounded-[24px] bg-white p-6 shadow-[0_16px_50px_rgba(15,23,42,0.08)]">
                         <p class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">Sustainability Score</p>
                         <p class="mt-6 text-3xl font-black text-[#d94841]">{{ $sustainabilityScore }}/100</p>

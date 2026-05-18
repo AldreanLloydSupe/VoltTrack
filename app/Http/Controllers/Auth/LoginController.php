@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * Handles LoginController responsibilities.
+ */
 class LoginController extends Controller
 {
     public function store(Request $request)
@@ -60,6 +63,9 @@ class LoginController extends Controller
         );
     }
 
+    /**
+     * Destroy.
+     */
     public function destroy(Request $request)
     {
         Auth::logout();

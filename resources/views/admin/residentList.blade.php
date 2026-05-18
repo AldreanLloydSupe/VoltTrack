@@ -1,5 +1,7 @@
+{{-- Renders the Resident List view for VoltTrack. --}}
 <x-layout title="Resident List | VoltTrack">
     <div class="max-w-7xl mx-auto p-8 bg-slate-50 min-h-screen">   
+        {{-- Conditional message/block --}}
         @if (session('success'))
             <div class="mb-6 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
                 {{ session('success') }}
@@ -77,7 +79,9 @@
 
         <div class="bg-white rounded-[20px] border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden">
             <div id="resident-table-view" class="admin-data-scroll overflow-x-auto">
+                {{-- Data table --}}
                 <table class="w-full min-w-[920px] text-left border-collapse">
+                    {{-- Table columns --}}
                     <thead class="bg-slate-50/50 border-b border-slate-100">
                         <tr class="text-[11px] font-black text-slate-400 uppercase tracking-widest">
                             <th class="px-8 py-5">Renter Name</th>
@@ -89,7 +93,9 @@
                             <th class="px-8 py-5 text-right">Action</th>
                         </tr>
                     </thead>
+                    {{-- Table rows --}}
                     <tbody class="divide-y divide-slate-100">
+                        {{-- List rendering --}}
                         @forelse($residents as $resident)
                         <tr class="resident-row hover:bg-slate-50/80 transition-colors group" data-unit-type="{{ $resident->property->unit_type ?? 'N/A' }}" data-status="{{ $resident->property ? 'Assigned' : 'Unassigned' }}">
                             <td class="px-8 py-6">
@@ -124,6 +130,7 @@
                             </td>
                         </tr>
                         @endforelse
+                        {{-- Conditional message/block --}}
                         @if($residents->isNotEmpty())
                             <tr id="noFilteredResidentsRow" class="hidden">
                                 <td colspan="7" class="px-8 py-6 text-center text-slate-500">
@@ -136,6 +143,7 @@
             </div>
 
             <div id="resident-grid-view" class="hidden grid-cols-1 gap-5 p-6 md:grid-cols-2 xl:grid-cols-3">
+                {{-- List rendering --}}
                 @forelse($residents as $resident)
                     @php($lastPaid = $resident->bills->where('status', 'Paid')->sortByDesc('paid_at')->first())
                     <article class="resident-card rounded-2xl border border-slate-100 bg-slate-50/70 p-6 transition-all hover:-translate-y-0.5 hover:border-blue-100 hover:bg-white hover:shadow-xl hover:shadow-slate-200/60" data-unit-type="{{ $resident->property->unit_type ?? 'N/A' }}" data-status="{{ $resident->property ? 'Assigned' : 'Unassigned' }}">
@@ -184,6 +192,7 @@
                     </div>
                 @endforelse
 
+                {{-- Conditional message/block --}}
                 @if($residents->isNotEmpty())
                     <div id="noFilteredResidentCards" class="col-span-full hidden px-8 py-6 text-center text-slate-500">
                         No residents match the selected filters.

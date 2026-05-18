@@ -7,6 +7,9 @@ use App\Models\UtilityAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Handles AdminUtilityController responsibilities.
+ */
 class AdminUtilityController extends Controller
 {
     public function pending(Request $request)
@@ -29,6 +32,9 @@ class AdminUtilityController extends Controller
         ]);
     }
 
+    /**
+     * Approve resident.
+     */
     public function approveResident(Request $request, $id)
     {
         $admin = $request->user();
@@ -53,6 +59,9 @@ class AdminUtilityController extends Controller
             ->with('success', 'Resident approved successfully. Dashboard has been updated.');
     }
 
+    /**
+     * Reject resident.
+     */
     public function rejectResident(Request $request, $id)
     {
         $admin = $request->user();
@@ -67,6 +76,9 @@ class AdminUtilityController extends Controller
             ->with('success', 'Resident registration rejected and deleted.');
     }
 
+    /**
+     * Confirming.
+     */
     public function confirming(Request $request, $id)
     {
         $user = $request->user();

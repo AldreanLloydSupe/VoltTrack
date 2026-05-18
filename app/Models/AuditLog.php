@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Handles AuditLog responsibilities.
+ */
 class AuditLog extends Model
 {
     protected $fillable = [
@@ -21,6 +24,9 @@ class AuditLog extends Model
         'metadata' => 'array',
     ];
 
+    /**
+     * Admin.
+     */
     public function admin(): BelongsTo
     {
         return $this->belongsTo(User::class, 'admin_id');

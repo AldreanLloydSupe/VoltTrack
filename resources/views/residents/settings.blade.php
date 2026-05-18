@@ -1,5 +1,7 @@
+{{-- Renders the Settings view for VoltTrack. --}}
 <x-layout title="Settings | VoltTrack" :show-admin-nav="false">
     <div class="min-h-screen bg-[#eef2f7]">
+        {{-- Page header --}}
         <header class="border-b border-[#2f8cff]/40 bg-[#1b2d73] px-6 py-3 text-white shadow-[0_6px_30px_rgba(10,28,74,0.2)]">
             <div class="mx-auto flex max-w-7xl items-center justify-between">
                 <div>
@@ -11,6 +13,7 @@
                     <a href="{{ route('resident.dashboard') }}" class="rounded-full border border-white/20 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-white/10">
                         Back
                     </a>
+                    {{-- Form --}}
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <button type="submit" class="rounded-full border border-white/20 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-white/10">
@@ -21,25 +24,30 @@
             </div>
         </header>
 
+        {{-- Main page content --}}
         <main class="mx-auto max-w-3xl px-6 py-8">
+            {{-- Conditional message/block --}}
             @if (session('success'))
                 <div class="mb-5 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
                     {{ session('success') }}
                 </div>
             @endif
 
+            {{-- Conditional message/block --}}
             @if ($errors->any())
                 <div class="mb-5 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
                     Please review the form and fix any errors.
                 </div>
             @endif
 
+            {{-- Content section --}}
             <section class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_20px_70px_rgba(15,23,42,0.08)]">
                 <div class="mb-6">
                     <h2 class="text-lg font-black uppercase tracking-[0.2em] text-slate-700">Profile Settings</h2>
                     <p class="mt-1 text-sm text-slate-400">Update your resident account information.</p>
                 </div>
 
+                {{-- Update form --}}
                 <form method="POST" action="{{ route('resident.settings.update') }}" class="space-y-5">
                     @csrf
                     @method('PATCH')

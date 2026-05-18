@@ -1,3 +1,4 @@
+{{-- Renders the Billing History view for VoltTrack. --}}
 <x-layout title="Admin Dashboard | VoltTrack">
     <div class="mx-auto min-h-screen max-w-7xl bg-slate-50 p-8">
         <div class="mb-8">
@@ -5,6 +6,7 @@
                 Billing History >
             </p>
 
+            {{-- Conditional message/block --}}
             @if(session('success'))
                 <div class="mb-4 mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
                     {{ session('success') }}
@@ -17,6 +19,7 @@
                 </h1>
 
                 <div class="flex items-center gap-4">
+                    {{-- Form --}}
                     <form action="{{ route('admin.billingHistory') }}" method="GET" class="flex items-center gap-3">
                         <div class="relative w-80">
                             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
@@ -39,7 +42,9 @@
 
         <div class="overflow-hidden rounded-[15px] border border-slate-200 bg-white shadow-[0_15px_40px_-15px_rgba(0,0,0,0.08)]">
             <div class="overflow-x-auto">
+                {{-- Data table --}}
                 <table class="w-full min-w-[980px] border-collapse text-left">
+                    {{-- Table columns --}}
                     <thead class="border-b border-slate-100 bg-slate-50/50">
                         <tr class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                             <th class="px-10 py-6">Renter Name</th>
@@ -50,7 +55,9 @@
                             <th class="px-10 py-6 text-center">Slip</th>
                         </tr>
                     </thead>
+                    {{-- Table rows --}}
                     <tbody class="divide-y divide-slate-100">
+                        {{-- List rendering --}}
                         @forelse($bills as $bill)
                             @php
                                 $residentName = trim(($bill->user?->first_name ?? '') . ' ' . ($bill->user?->last_name ?? ''));

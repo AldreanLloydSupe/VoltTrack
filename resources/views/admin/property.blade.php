@@ -1,10 +1,13 @@
+{{-- Renders the Property view for VoltTrack. --}}
 <x-layout title="Property & Meter Registry | VoltTrack">
     @php
         $viewMode = request('view') === 'table' ? 'table' : 'grid';
         $isGridView = $viewMode === 'grid';
     @endphp
 
+    {{-- Main page content --}}
     <main class="property-registry-page min-h-screen bg-slate-50 p-4 font-sans sm:p-6 lg:p-10">
+        {{-- Conditional message/block --}}
         @if (session('success'))
             <div class="mb-6 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
                 {{ session('success') }}
@@ -104,6 +107,7 @@
             </div>
 
             <div id="grid-view" class="{{ $isGridView ? 'grid' : 'hidden' }} grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+                {{-- List rendering --}}
                 @forelse($properties as $property)
                     @php
                         $electricMeter = $property->meters->firstWhere('utility_type', 'Electricity');
@@ -122,6 +126,7 @@
                                 <p class="mt-1 text-xs font-bold uppercase tracking-wider text-slate-400">{{ $property->unit_type ?? 'N/A' }}</p>
                             </div>
 
+                            {{-- Conditional message/block --}}
                             @if($property->status === 'Active')
                                 <span class="property-status-badge inline-flex items-center rounded-full border border-blue-100/50 bg-blue-50 px-3 py-1.5 text-[10px] font-black text-blue-700">
                                     <span class="mr-2 h-1.5 w-1.5 rounded-full bg-blue-500"></span> ACTIVE
@@ -139,6 +144,7 @@
 
                         <div class="mb-5 min-h-16 rounded-xl border border-slate-100 bg-white p-4">
                             <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Resident</p>
+                            {{-- Conditional message/block --}}
                             @if($property->user)
                                 <p class="mt-1 font-black text-[#1e293b]">{{ $property->user->first_name }} {{ $property->user->last_name }}</p>
                                 <p class="text-xs text-slate-400">{{ $property->user->email }}</p>
@@ -177,7 +183,9 @@
             </div>
 
             <div id="table-view" class="{{ $isGridView ? 'hidden' : '' }} admin-data-scroll overflow-x-auto">
+                {{-- Data table --}}
                 <table class="w-full min-w-[980px] text-left">
+                    {{-- Table columns --}}
                     <thead class="border-b border-slate-50 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                         <tr>
                             <th class="px-6 py-5">Property ID</th>
@@ -189,7 +197,9 @@
                             <th class="px-6 py-5 text-right">Action</th>
                         </tr>
                     </thead>
+                    {{-- Table rows --}}
                     <tbody id="property-table-body" class="divide-y divide-slate-50 text-[13px]">
+                        {{-- List rendering --}}
                         @forelse($properties as $property)
                             @php
                                 $electricMeter = $property->meters->firstWhere('utility_type', 'Electricity');
@@ -203,6 +213,7 @@
                             >
                                 <td class="px-6 py-6 font-bold text-slate-400 group-hover:text-slate-600">{{ $property->property_unit_id ?? "#{$property->id}" }}</td>
                                 <td class="px-6 py-6">
+                                    {{-- Conditional message/block --}}
                                     @if($property->user)
                                         <p class="font-black text-[#1e293b]">
                                             {{ $property->user->first_name }} {{ $property->user->last_name }}
@@ -220,6 +231,7 @@
                                     {{ $waterMeter?->hardware_meter_number ?? $waterMeter?->serial_number ?? 'N/A' }}
                                 </td>
                                 <td class="px-6 py-6">
+                                    {{-- Conditional message/block --}}
                                     @if($property->status === 'Active')
                                         <span class="property-status-badge flex w-fit items-center rounded-full border border-blue-100/50 bg-blue-50 px-4 py-1.5 text-[10px] font-black text-blue-700">
                                             <span class="mr-2.5 h-1.5 w-1.5 rounded-full bg-blue-500"></span> ACTIVE

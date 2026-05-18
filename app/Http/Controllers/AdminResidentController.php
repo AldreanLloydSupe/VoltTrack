@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Bill;
+use App\Models\User;
 use App\Support\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
+/**
+ * Handles AdminResidentController responsibilities.
+ */
 class AdminResidentController extends Controller
 {
     public function list(Request $request)
@@ -48,6 +51,9 @@ class AdminResidentController extends Controller
         ]);
     }
 
+    /**
+     * Show.
+     */
     public function show(Request $request, $id)
     {
         $user = $request->user();
@@ -91,6 +97,9 @@ class AdminResidentController extends Controller
         ]);
     }
 
+    /**
+     * Edit.
+     */
     public function edit(Request $request, $id)
     {
         $user = $request->user();
@@ -104,6 +113,9 @@ class AdminResidentController extends Controller
         ]);
     }
 
+    /**
+     * Update.
+     */
     public function update(Request $request, $id)
     {
         $user = $request->user();
@@ -119,7 +131,7 @@ class AdminResidentController extends Controller
                 'required',
                 'digits:10',
                 function (string $attribute, mixed $value, \Closure $fail) use ($resident) {
-                    if (User::where('phone_number', '+63' . $value)->whereKeyNot($resident->id)->exists()) {
+                    if (User::where('phone_number', '+63'.$value)->whereKeyNot($resident->id)->exists()) {
                         $fail('The phone number has already been taken.');
                     }
                 },
@@ -128,7 +140,7 @@ class AdminResidentController extends Controller
             'gender' => ['required', Rule::in(['Male', 'Female'])],
         ]);
 
-        $validated['phone_number'] = '+63' . $validated['phone_number'];
+        $validated['phone_number'] = '+63'.$validated['phone_number'];
 
         $residentNameBefore = trim("{$resident->first_name} {$resident->last_name}");
         $resident->fill($validated);
@@ -167,6 +179,9 @@ class AdminResidentController extends Controller
             ->with('success', 'Resident account updated successfully.');
     }
 
+    /**
+     * Destroy.
+     */
     public function destroy(Request $request, $id)
     {
         $user = $request->user();
@@ -207,6 +222,9 @@ class AdminResidentController extends Controller
     }
 
     // Sorting Kung residential ang i show or commercial
+    /**
+     * Resident list.
+     */
     public function residentList(Request $request)
     {
         return $this->list($request);

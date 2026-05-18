@@ -1,13 +1,17 @@
+{{-- Renders the Financials view for VoltTrack. --}}
 <x-layout title="Financials | VoltTrack">
+    {{-- Main page content --}}
     <main class="min-h-screen bg-slate-50 p-6 md:p-8">
         <div class="mx-auto max-w-7xl">
             <div class="mb-6">
+                {{-- Conditional message/block --}}
                 @if (session('success'))
                     <div class="mb-4 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
                         {{ session('success') }}
                     </div>
                 @endif
 
+                {{-- Conditional message/block --}}
                 @if (! $canSaveSettings)
                     <div class="mb-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-700">
                         Run the financial settings migration before saving service fee defaults.
@@ -22,18 +26,21 @@
             </div>
 
             <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+                {{-- Content section --}}
                 <section class="rounded-xl border border-slate-200 bg-white p-5">
                     <p class="text-xs font-semibold uppercase text-slate-500">Service Fee Collected This Month</p>
                     <p class="mt-2 text-3xl font-black text-slate-900">PHP {{ number_format($serviceFeeCollected, 2) }}</p>
                     <p class="mt-2 text-xs font-semibold text-slate-400">Paid bills only. Resets each month.</p>
                 </section>
 
+                {{-- Content section --}}
                 <section class="rounded-xl border border-slate-200 bg-white p-5">
                     <p class="text-xs font-semibold uppercase text-slate-500">Penalty Fee Collected This Month</p>
                     <p class="mt-2 text-3xl font-black text-rose-600">PHP {{ number_format($penaltyCollected, 2) }}</p>
                     <p class="mt-2 text-xs font-semibold text-slate-400">Paid bills only. Resets each month.</p>
                 </section>
 
+                {{-- Content section --}}
                 <section class="rounded-xl border border-slate-200 bg-white p-5">
                     <p class="text-xs font-semibold uppercase text-slate-500">VAT Collected This Month</p>
                     <p class="mt-2 text-3xl font-black text-emerald-600">PHP {{ number_format($vatCollected, 2) }}</p>
@@ -41,6 +48,7 @@
                 </section>
             </div>
 
+            {{-- Content section --}}
             <section class="mb-6 rounded-xl border border-slate-200 bg-white p-5">
                 <div class="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                     <div>
@@ -74,12 +82,14 @@
                 </div>
             </section>
 
+            {{-- Content section --}}
             <section class="rounded-xl border border-slate-200 bg-white p-5">
                 <div class="mb-5">
                     <p class="text-xs font-semibold uppercase text-slate-500">Billing Defaults</p>
                     <h2 class="mt-1 text-xl font-bold text-slate-900">Service Fees and Rate Calculators</h2>
                 </div>
 
+                {{-- Form --}}
                 <form
                     id="financial-settings-form"
                     method="POST"

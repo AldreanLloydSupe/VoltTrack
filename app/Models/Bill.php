@@ -2,13 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Handles Bill responsibilities.
+ */
 class Bill extends Model
 {
     public const PENALTY_RATE = 0.05;
+
     public const VAT_RATE = 0.12;
 
     protected $fillable = [
@@ -16,7 +20,7 @@ class Bill extends Model
         'current_reading', 'consumption', 'reading_date',
         'billing_period_start', 'billing_period_end',
         'price_per_unit', 'service_fee', 'base_total_bill', 'total_bill',
-        'status', 'is_done', 'paid_at', 'overdue_notified_at', 'payment_reference'
+        'status', 'is_done', 'paid_at', 'overdue_notified_at', 'payment_reference',
     ];
 
     protected $casts = [
@@ -36,6 +40,9 @@ class Bill extends Model
         'is_done' => 'boolean',
     ];
 
+    /**
+     * User.
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -139,21 +146,33 @@ class Bill extends Model
         return (int) max(0, Carbon::parse($billingPeriodEnd)->startOfDay()->diffInDays(today()->startOfDay()));
     }
 
+    /**
+     * Get base amount attribute.
+     */
     public function getBaseAmountAttribute(): float
     {
         return round((float) ($this->base_total_bill ?? $this->total_bill), 2);
     }
 
+    /**
+     * Get penalty amount attribute.
+     */
     public function getPenaltyAmountAttribute(): float
     {
         return round(max((float) $this->total_bill - $this->base_amount, 0), 2);
     }
 
+    /**
+     * Get vat amount attribute.
+     */
     public function getVatAmountAttribute(): float
     {
         return round($this->base_amount * static::VAT_RATE, 2);
     }
 
+    /**
+     * Get amount payable attribute.
+     */
     public function getAmountPayableAttribute(): float
     {
         return round((float) $this->total_bill + $this->vat_amount, 2);
@@ -168,6 +187,9 @@ class Bill extends Model
         return $status;
     }
 
+    /**
+     * Notify resident if overdue.
+     */
     public function notifyResidentIfOverdue(?int $adminId = null): bool
     {
         if ($this->status !== 'Overdue' || $this->overdue_notified_at) {
@@ -222,12 +244,12 @@ class Bill extends Model
 
         $this->update([
             'previous_reading' => $previous,
-            'current_reading'  => $current,
-            'consumption'      => $consumption,
-            'price_per_unit'   => $pricePerUnit,
-            'service_fee'      => $serviceFee,
-            'base_total_bill'  => $amounts['base_amount'],
-            'total_bill'       => $amounts['total_before_vat'],
+            'current_reading' => $current,
+            'consumption' => $consumption,
+            'price_per_unit' => $pricePerUnit,
+            'service_fee' => $serviceFee,
+            'base_total_bill' => $amounts['base_amount'],
+            'total_bill' => $amounts['total_before_vat'],
             'penalty_days_applied' => $amounts['penalty_days'],
         ]);
     }

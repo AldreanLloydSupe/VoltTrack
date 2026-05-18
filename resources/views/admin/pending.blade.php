@@ -1,10 +1,14 @@
+{{-- Renders the Pending view for VoltTrack. --}}
 <x-layout title="Pending Residents | VoltTrack">
+    {{-- Main page content --}}
     <main class="p-10 bg-slate-50 min-h-screen">
+        {{-- Conditional message/block --}}
         @if (session('success'))
             <div class="mb-4 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
                 {{ session('success') }}
             </div>
         @endif
+        {{-- Conditional message/block --}}
         @if (session('error'))
             <div class="mb-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
                 {{ session('error') }}
@@ -31,6 +35,7 @@
                 ];
             @endphp
 
+            {{-- List rendering --}}
             @foreach($stats as $stat)
                 <div class="bg-white p-6 rounded-xl border border-slate-100 shadow-md transition-all hover:translate-y-[-2px]">
                     <p class="text-[11px] font-black text-slate-500 uppercase tracking-wider mb-2">
@@ -45,7 +50,9 @@
 
         <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
             <div class="admin-data-scroll overflow-x-auto">
+            {{-- Data table --}}
             <table class="w-full min-w-[760px] text-left border-collapse">
+                {{-- Table columns --}}
                 <thead class="bg-slate-50 text-[11px] font-bold uppercase text-slate-400 tracking-widest">
                     <tr>
                         <th class="px-6 py-4">Resident</th>
@@ -55,7 +62,9 @@
                         <th class="px-6 py-4 text-right">Action</th>
                     </tr>
                 </thead>
+                {{-- Table rows --}}
                 <tbody class="divide-y divide-slate-50">
+                    {{-- List rendering --}}
                     @forelse($pendingResidents as $resident)
                         <tr class="hover:bg-slate-50/50 transition-colors">
                             <td class="px-6 py-5">
@@ -69,6 +78,7 @@
                             <td class="px-6 py-5 text-sm text-slate-500">{{ $resident->created_at?->format('M d, Y') ?? 'N/A' }}</td>
                             <td class="px-6 py-5">
                                 <div class="flex items-center justify-end gap-2">
+                                    {{-- Form --}}
                                     <form
                                         action="{{ route('admin.pending.approve', $resident->id) }}"
                                         method="POST"
@@ -83,6 +93,7 @@
                                             Approve
                                         </button>
                                     </form>
+                                    {{-- Form --}}
                                     <form
                                         action="{{ route('admin.pending.reject', $resident->id) }}"
                                         method="POST"

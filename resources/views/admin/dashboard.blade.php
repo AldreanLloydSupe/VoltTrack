@@ -1,7 +1,10 @@
+{{-- Renders the Dashboard view for VoltTrack. --}}
 <x-layout title="Admin Dashboard | VoltTrack">
+    {{-- Main page content --}}
     <main class="p-6 md:p-8 bg-slate-50 min-h-screen">
         <div class="max-w-7xl mx-auto">
             <div class="mb-6">
+                {{-- Conditional message/block --}}
                 @if (session('success'))
                     <div class="mb-4 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
                         {{ session('success') }}
@@ -79,7 +82,9 @@
                 </div>
 
                 <div class="overflow-x-auto">
+                    {{-- Data table --}}
                     <table class="min-w-full text-sm">
+                        {{-- Table columns --}}
                         <thead class="bg-slate-50 text-slate-600 uppercase text-xs">
                             <tr>
                                 <th class="px-5 py-3 text-left font-extrabold">
@@ -105,7 +110,9 @@
                                 </th>
                             </tr>
                         </thead>
+                        {{-- Table rows --}}
                         <tbody class="divide-y divide-slate-100">
+                            {{-- List rendering --}}
                             @forelse($pending_bills as $bill)
                                 <tr>
                                     <td class="px-5 py-4">
@@ -122,6 +129,7 @@
                                         </span>
                                     </td>
                                     <td class="px-5 py-4 text-right">
+                                        {{-- Conditional message/block --}}
                                         @if($bill->user_id)
                                             <a href="{{ route('admin.residentInfo', ['id' => $bill->user_id, 'highlight_bill' => $bill->id]) }}" data-instant-nav class="text-blue-600 font-semibold hover:underline">View</a>
                                         @else
@@ -140,6 +148,7 @@
                     </table>
                 </div>
 
+                {{-- Conditional message/block --}}
                 @if($pending_bills->hasPages())
                     <div class="flex flex-col gap-3 border-t border-slate-100 bg-slate-50/50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                         <p class="text-xs font-bold text-slate-400">

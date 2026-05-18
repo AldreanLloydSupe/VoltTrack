@@ -15,16 +15,16 @@ return new class extends Migration
             $table->id();
             $table->foreignId('property_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            
+
             // From "Confirming Utility Assignment" form
             $table->decimal('initial_deposit', 10, 2)->default(0);
             $table->text('notes')->nullable();
-            
+
             // Confirmation Details
             $table->enum('status', ['Pending', 'Confirmed', 'Rejected'])->default('Pending');
             $table->dateTime('confirmed_at')->nullable();
             $table->string('confirmed_by')->nullable();
-            
+
             $table->timestamps();
         });
     }

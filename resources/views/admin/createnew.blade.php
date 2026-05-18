@@ -1,9 +1,13 @@
+{{-- Renders the Createnew view for VoltTrack. --}}
 <x-layout title="Create New Property | VoltTrack">
+    {{-- Main page content --}}
     <main class="w-full min-h-screen bg-slate-50 p-8 font-sans">
         <div class="max-w-6xl mx-auto">
+            {{-- Conditional message/block --}}
             @if ($errors->any())
                 <div class="mb-6 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
                     <ul class="list-disc pl-5 space-y-1">
+                        {{-- List rendering --}}
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
@@ -11,6 +15,7 @@
                 </div>
             @endif
 
+            {{-- Form --}}
             <form action="{{ route('admin.createnew.store') }}" method="POST" class="space-y-6">
                 @csrf
 
@@ -34,6 +39,7 @@
                     </div>
                 </div>
 
+                {{-- Content section --}}
                 <section class="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm">
                     <div class="flex items-center space-x-3 mb-6">
                         <div class="bg-blue-50 p-2 rounded-xl text-blue-600">
@@ -52,6 +58,7 @@
                             <label class="block text-[11px] font-black text-slate-400 uppercase mb-2 tracking-widest">Assign Resident (Approved)</label>
                             <select id="property-user-id" name="user_id" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-6 py-4 text-base font-bold text-slate-700 appearance-none outline-none">
                                 <option value="">Unassigned</option>
+                                {{-- List rendering --}}
                                 @foreach($approvedResidents as $resident)
                                     <option value="{{ $resident->id }}" @selected((string) old('user_id') === (string) $resident->id)>
                                         {{ $resident->first_name }} {{ $resident->last_name }} (#{{ $resident->id }})
@@ -94,6 +101,7 @@
                     </div>
                 </section>
 
+                {{-- Content section --}}
                 <section class="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm">
                     <div class="flex items-center space-x-3 mb-6">
                         <div class="bg-blue-50 p-2 rounded-xl text-blue-600">

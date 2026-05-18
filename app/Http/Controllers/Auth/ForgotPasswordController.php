@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 
+/**
+ * Handles ForgotPasswordController responsibilities.
+ */
 class ForgotPasswordController extends Controller
 {
     public function create()
@@ -15,6 +18,9 @@ class ForgotPasswordController extends Controller
         return view('auth.forgot-password');
     }
 
+    /**
+     * Store.
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -40,11 +46,17 @@ class ForgotPasswordController extends Controller
         return redirect()->route('login')->with('success', 'Password reset successful. You can now sign in.');
     }
 
+    /**
+     * Edit.
+     */
     public function edit()
     {
         return redirect()->route('password.request');
     }
 
+    /**
+     * Update.
+     */
     public function update()
     {
         return redirect()->route('password.request');

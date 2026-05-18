@@ -1,5 +1,7 @@
+{{-- Renders the Pagination Links view for VoltTrack. --}}
 @props(['paginator'])
 
+{{-- Conditional message/block --}}
 @if ($paginator->hasPages())
     @php
         $maxVisiblePages = 10;
@@ -10,6 +12,7 @@
     @endphp
 
     <nav class="flex flex-wrap items-center justify-end gap-1" aria-label="Pagination Navigation">
+        {{-- Conditional message/block --}}
         @if ($paginator->onFirstPage())
             <span class="grid h-9 min-w-9 place-items-center rounded-lg border border-slate-200 bg-slate-100 px-3 text-xs font-bold text-slate-400">
                 <i class="fas fa-chevron-left"></i>
@@ -21,6 +24,7 @@
         @endif
 
         @for ($page = $startPage; $page <= $endPage; $page++)
+            {{-- Conditional message/block --}}
             @if ($page === $paginator->currentPage())
                 <span class="grid h-9 min-w-9 place-items-center rounded-lg bg-blue-600 px-3 text-xs font-bold text-white shadow-md shadow-blue-200">
                     {{ $page }}
@@ -32,6 +36,7 @@
             @endif
         @endfor
 
+        {{-- Conditional message/block --}}
         @if ($paginator->hasMorePages())
             <a href="{{ $paginator->nextPageUrl() }}" class="grid h-9 min-w-9 place-items-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-bold text-slate-600 transition hover:bg-slate-50">
                 <i class="fas fa-chevron-right"></i>

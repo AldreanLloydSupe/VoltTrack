@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * Handles User responsibilities.
+ */
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes;
@@ -67,21 +70,33 @@ class User extends Authenticatable
         return $this->hasMany(UtilityAssignment::class);
     }
 
+    /**
+     * Bills.
+     */
     public function bills(): HasMany
     {
         return $this->hasMany(Bill::class);
     }
 
+    /**
+     * Admin notifications.
+     */
     public function adminNotifications(): HasMany
     {
         return $this->hasMany(AdminNotification::class);
     }
 
+    /**
+     * Is admin.
+     */
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
 
+    /**
+     * Is resident.
+     */
     public function isResident(): bool
     {
         return in_array($this->role, ['renter', 'resident'], true);

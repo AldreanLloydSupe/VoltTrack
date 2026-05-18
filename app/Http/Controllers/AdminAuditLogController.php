@@ -5,8 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
 
+/**
+ * Displays admin audit logs with optional search filters.
+ */
 class AdminAuditLogController extends Controller
 {
+    /**
+     * Shows paginated audit log entries for admins.
+     */
     public function index(Request $request)
     {
         $admin = $request->user();
@@ -15,6 +21,7 @@ class AdminAuditLogController extends Controller
 
         $search = trim((string) $request->input('search'));
 
+        // Build searchable audit log query (action, description, and module).
         $logs = AuditLog::query()
             ->with('admin:id,first_name,last_name,email')
             ->when($search !== '', function ($query) use ($search) {

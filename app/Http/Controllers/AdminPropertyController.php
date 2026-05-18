@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Meter;
 use App\Models\Property;
 use App\Models\User;
-use App\Models\Meter;
 use App\Support\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
+/**
+ * Handles AdminPropertyController responsibilities.
+ */
 class AdminPropertyController extends Controller
 {
     public function list(Request $request)
@@ -56,6 +59,9 @@ class AdminPropertyController extends Controller
         ]);
     }
 
+    /**
+     * Show.
+     */
     public function show(Request $request, $id)
     {
         $user = $request->user();
@@ -70,6 +76,9 @@ class AdminPropertyController extends Controller
         ]);
     }
 
+    /**
+     * Create.
+     */
     public function create(Request $request)
     {
         $user = $request->user();
@@ -81,6 +90,9 @@ class AdminPropertyController extends Controller
         ]);
     }
 
+    /**
+     * Edit.
+     */
     public function edit(Request $request, $id)
     {
         $user = $request->user();
@@ -95,6 +107,9 @@ class AdminPropertyController extends Controller
         ]);
     }
 
+    /**
+     * Store.
+     */
     public function store(Request $request)
     {
         $user = $request->user();
@@ -173,7 +188,7 @@ class AdminPropertyController extends Controller
         AuditLogger::log(
             $user,
             'property_created',
-            "Created property {$property->property_unit_id} for " . ($property->user ? trim(($property->user->first_name ?? '') . ' ' . ($property->user->last_name ?? '')) : 'Unassigned resident') . '.',
+            "Created property {$property->property_unit_id} for ".($property->user ? trim(($property->user->first_name ?? '').' '.($property->user->last_name ?? '')) : 'Unassigned resident').'.',
             [
                 'property_id' => $property->id,
                 'property_unit_id' => $property->property_unit_id,
@@ -189,6 +204,9 @@ class AdminPropertyController extends Controller
             ->with('success', 'Property created and assigned successfully.');
     }
 
+    /**
+     * Update.
+     */
     public function update(Request $request, $id)
     {
         $user = $request->user();
@@ -266,7 +284,7 @@ class AdminPropertyController extends Controller
 
         $property->refresh();
         $property->loadMissing('user:id,first_name,last_name');
-        $residentName = trim(($property->user?->first_name ?? '') . ' ' . ($property->user?->last_name ?? ''));
+        $residentName = trim(($property->user?->first_name ?? '').' '.($property->user?->last_name ?? ''));
         $residentLabel = $residentName !== '' ? $residentName : 'Unassigned resident';
         AuditLogger::log(
             $user,
@@ -287,6 +305,9 @@ class AdminPropertyController extends Controller
             ->with('success', 'Property details updated successfully.');
     }
 
+    /**
+     * Destroy.
+     */
     public function destroy(Request $request, $id)
     {
         $user = $request->user();
@@ -318,6 +339,9 @@ class AdminPropertyController extends Controller
             ->with('success', "Property {$propertyLabel} moved to deleted records.");
     }
 
+    /**
+     * Approved residents.
+     */
     protected function approvedResidents(?int $currentPropertyId = null)
     {
         return User::query()
@@ -339,6 +363,9 @@ class AdminPropertyController extends Controller
             ->get(['id', 'first_name', 'last_name', 'email']);
     }
 
+    /**
+     * Resident assignment error.
+     */
     protected function residentAssignmentError(?int $residentId, ?int $currentPropertyId = null): ?string
     {
         if (! $residentId) {
@@ -363,11 +390,17 @@ class AdminPropertyController extends Controller
         return null;
     }
 
+    /**
+     * Status for resident assignment.
+     */
     protected function statusForResidentAssignment(?int $residentId): string
     {
         return $residentId ? 'Active' : 'Inactive';
     }
 
+    /**
+     * Upsert meter assignment.
+     */
     protected function upsertMeterAssignment(
         Property $property,
         ?Meter $meter,

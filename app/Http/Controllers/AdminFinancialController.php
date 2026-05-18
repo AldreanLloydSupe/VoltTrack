@@ -8,6 +8,9 @@ use App\Support\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Handles AdminFinancialController responsibilities.
+ */
 class AdminFinancialController extends Controller
 {
     public function index(Request $request)
@@ -89,6 +92,9 @@ class AdminFinancialController extends Controller
         ]);
     }
 
+    /**
+     * Update.
+     */
     public function update(Request $request)
     {
         $user = $request->user();
@@ -141,6 +147,9 @@ class AdminFinancialController extends Controller
         return back()->with('success', 'Financial service fees and unit prices saved successfully.');
     }
 
+    /**
+     * Changed financial settings.
+     */
     protected function changedFinancialSettings(array $previousSettings, array $updatedSettings): array
     {
         $labels = [
@@ -169,6 +178,9 @@ class AdminFinancialController extends Controller
         return $changedSettings;
     }
 
+    /**
+     * Changed financial setting groups.
+     */
     protected function changedFinancialSettingGroups(array $changedSettings): array
     {
         $groups = [];
@@ -181,6 +193,9 @@ class AdminFinancialController extends Controller
         return $groups;
     }
 
+    /**
+     * Financial settings audit description.
+     */
     protected function financialSettingsAuditDescription(array $changedGroups): string
     {
         if (empty($changedGroups)) {
@@ -190,21 +205,21 @@ class AdminFinancialController extends Controller
         $parts = [];
 
         if (isset($changedGroups['service_fees'])) {
-            $parts[] = 'service fees (' . implode(', ', $changedGroups['service_fees']) . ')';
+            $parts[] = 'service fees ('.implode(', ', $changedGroups['service_fees']).')';
         }
 
         if (isset($changedGroups['utility_prices'])) {
-            $parts[] = 'utility prices (' . implode(', ', $changedGroups['utility_prices']) . ')';
+            $parts[] = 'utility prices ('.implode(', ', $changedGroups['utility_prices']).')';
         }
 
         if (count($parts) === 1 && isset($changedGroups['service_fees'])) {
-            return 'Updated financial defaults: service fees only - ' . implode(', ', $changedGroups['service_fees']) . '.';
+            return 'Updated financial defaults: service fees only - '.implode(', ', $changedGroups['service_fees']).'.';
         }
 
         if (count($parts) === 1 && isset($changedGroups['utility_prices'])) {
-            return 'Updated financial defaults: utility prices only - ' . implode(', ', $changedGroups['utility_prices']) . '.';
+            return 'Updated financial defaults: utility prices only - '.implode(', ', $changedGroups['utility_prices']).'.';
         }
 
-        return 'Updated financial defaults: ' . implode('; ', $parts) . '.';
+        return 'Updated financial defaults: '.implode('; ', $parts).'.';
     }
 }

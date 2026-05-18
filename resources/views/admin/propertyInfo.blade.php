@@ -1,5 +1,7 @@
+{{-- Renders the Property Info view for VoltTrack. --}}
 <x-layout title="Property & Meter Registry | VoltTrack">
     <div class="max-w-6xl mx-auto py-10 px-6">
+        {{-- Conditional message/block --}}
         @if (session('success'))
             <div class="mb-4 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
                 {{ session('success') }}
@@ -17,6 +19,7 @@
             </h1>
             
             <div class="flex gap-3">
+                {{-- Form --}}
                 <form
                     method="POST"
                     action="{{ route('admin.property.destroy', $property->id) }}"
@@ -112,6 +115,7 @@
                         $waterMeter = $property->meters->firstWhere('utility_type', 'Water');
                     @endphp
 
+                    {{-- Conditional message/block --}}
                     @if($electricMeter)
                     <div class="bg-slate-50 border-l-4 border-blue-600 p-6 rounded-2xl flex items-center justify-between">
                         <div>
@@ -127,6 +131,7 @@
                     </div>
                     @endif
 
+                    {{-- Conditional message/block --}}
                     @if($waterMeter)
                     <div class="bg-slate-50 border-l-4 border-blue-600 p-6 rounded-2xl flex items-center justify-between">
                         <div>
@@ -142,6 +147,7 @@
                     </div>
                     @endif
 
+                    {{-- Conditional message/block --}}
                     @if(!$electricMeter && !$waterMeter)
                     <div class="col-span-2 p-6 bg-slate-50 rounded-2xl text-center text-slate-500">
                         No meters assigned to this property yet.

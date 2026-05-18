@@ -6,6 +6,9 @@ use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\Request;
 
+/**
+ * Handles AuditLogger responsibilities.
+ */
 class AuditLogger
 {
     public static function log(

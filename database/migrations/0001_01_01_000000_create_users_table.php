@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            
+
             // Registration Form Fields
-            $table->string('first_name'); 
+            $table->string('first_name');
             $table->string('last_name');
             $table->string('phone_number')->unique();
             $table->string('email')->unique();
@@ -22,7 +22,7 @@ return new class extends Migration
             // App Logic Fields
             $table->enum('role', ['admin', 'staff', 'renter'])->default('admin');
             $table->string('avatar')->nullable();
-            
+
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();

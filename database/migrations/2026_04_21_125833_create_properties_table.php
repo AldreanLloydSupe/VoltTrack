@@ -14,17 +14,17 @@ return new class extends Migration
         Schema::create('properties', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
-            
+
             // Property Details from "Create New Rent" form
             $table->string('property_unit_id')->unique();
             $table->string('physical_address');
             $table->enum('unit_type', ['Residential', 'Commercial']);
             $table->string('cluster_housing')->nullable();
             $table->date('lease_commencement_date')->nullable();
-            
+
             // Status
             $table->enum('status', ['Active', 'Inactive', 'Archived'])->default('Active');
-            
+
             $table->timestamps();
             $table->softDeletes();
         });

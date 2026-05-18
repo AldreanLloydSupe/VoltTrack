@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Throwable;
 
+/**
+ * Handles ResidentController responsibilities.
+ */
 class ResidentController extends Controller
 {
     protected function residentBills(int $userId)
@@ -21,6 +24,9 @@ class ResidentController extends Controller
             ->latest('created_at');
     }
 
+    /**
+     * Dashboard.
+     */
     public function dashboard(Request $request)
     {
         $user = $request->user();
@@ -98,6 +104,9 @@ class ResidentController extends Controller
         ]);
     }
 
+    /**
+     * History.
+     */
     public function history(Request $request)
     {
         $user = $request->user();
@@ -114,6 +123,9 @@ class ResidentController extends Controller
         ]);
     }
 
+    /**
+     * Receipt.
+     */
     public function receipt(Request $request, Bill $bill)
     {
         $user = $request->user();
@@ -130,6 +142,9 @@ class ResidentController extends Controller
         ]);
     }
 
+    /**
+     * Settings.
+     */
     public function settings(Request $request)
     {
         $user = $request->user();
@@ -141,6 +156,9 @@ class ResidentController extends Controller
         ]);
     }
 
+    /**
+     * Update settings.
+     */
     public function updateSettings(Request $request)
     {
         $user = $request->user();
@@ -171,6 +189,9 @@ class ResidentController extends Controller
         return back()->with('success', 'Settings updated successfully.');
     }
 
+    /**
+     * Contact admin.
+     */
     public function contactAdmin(Request $request)
     {
         $user = $request->user();
@@ -182,6 +203,9 @@ class ResidentController extends Controller
         ]);
     }
 
+    /**
+     * Send contact admin.
+     */
     public function sendContactAdmin(Request $request)
     {
         $user = $request->user();
@@ -220,11 +244,11 @@ class ResidentController extends Controller
             ->values()
             ->all();
 
-        $emailSubject = '[VoltTrack] Resident Message: ' . $validated['subject'];
+        $emailSubject = '[VoltTrack] Resident Message: '.$validated['subject'];
         $emailBody = "Resident: {$user->first_name} {$user->last_name}\n"
-            . "Email: {$user->email}\n"
-            . "Phone: {$user->phone_number}\n\n"
-            . "Message:\n{$validated['message']}";
+            ."Email: {$user->email}\n"
+            ."Phone: {$user->phone_number}\n\n"
+            ."Message:\n{$validated['message']}";
 
         if (! empty($adminEmails)) {
             try {

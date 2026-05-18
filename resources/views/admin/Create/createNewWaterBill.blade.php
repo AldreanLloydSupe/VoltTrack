@@ -1,3 +1,4 @@
+{{-- Renders the Create New Water Bill view for VoltTrack. --}}
 <x-layout title="Create Water Bills | VoltTrack">
     <div class="max-w-4xl mx-auto p-8 bg-slate-50 min-h-screen">
         <div class="mb-8">
@@ -12,15 +13,18 @@
             </p>
         </div>
 
+        {{-- Conditional message/block --}}
         @if(session('error'))
             <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 text-sm">
                 {{ session('error') }}
             </div>
         @endif
 
+        {{-- Conditional message/block --}}
         @if($errors->any())
             <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 text-sm">
                 <ul class="list-disc pl-5 space-y-1">
+                    {{-- List rendering --}}
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -32,6 +36,7 @@
             $selectedLatestReading = $latestReadingsByResident[$selectedResidentId] ?? null;
         @endphp
 
+        {{-- Form --}}
         <form method="POST" action="{{ route('admin.Create.storeNewWaterBill') }}" data-instant-form class="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm">
             @csrf
 
@@ -43,6 +48,7 @@
                     <option value="">
                         Select resident
                     </option>
+                    {{-- List rendering --}}
                     @foreach($residents as $resident)
                         <option value="{{ $resident->id }}" data-latest-reading="{{ $latestReadingsByResident[$resident->id] ?? '' }}" @selected((string) old('resident_id', $selectedResidentId) === (string) $resident->id)>
                             {{ $resident->first_name }} {{ $resident->last_name }} ({{ $resident->email }})
@@ -105,6 +111,7 @@
                         Status
                     </label>
                     <select name="status" class="w-full rounded-lg border border-slate-300 px-3 py-2" required>
+                        {{-- List rendering --}}
                         @foreach(['Pending', 'Overdue', 'Paid'] as $status)
                             <option value="{{ $status }}" @selected(old('status', 'Pending') === $status)>{{ $status }}</option>
                         @endforeach

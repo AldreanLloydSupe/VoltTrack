@@ -1,8 +1,11 @@
+{{-- Renders the Update Resident view for VoltTrack. --}}
 <x-layout title="Updating Resident Account | VoltTrack">
     <div class="max-w-5xl mx-auto py-10">
+        {{-- Conditional message/block --}}
         @if ($errors->any())
             <div class="mb-6 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
                 <ul class="list-disc pl-5 space-y-1">
+                    {{-- List rendering --}}
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -25,6 +28,7 @@
         </nav>
 
         <div class="bg-white p-10 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
+            {{-- Form --}}
             <form
                 action="{{ route('admin.resident.update', $resident->id) }}"
                 method="POST"

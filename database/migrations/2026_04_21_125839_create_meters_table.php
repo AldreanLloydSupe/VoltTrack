@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('meters', function (Blueprint $table) {
             $table->id();
-            
+
             // Meter Details from "Meter Network" section
             $table->string('serial_number')->unique();
             $table->enum('utility_type', ['Electricity', 'Water']);
             $table->string('hardware_meter_number')->nullable();
-            
+
             // Meter Status
             $table->enum('status', ['Active', 'Inactive', 'Faulty'])->default('Active');
-            
+
             $table->timestamps();
         });
     }

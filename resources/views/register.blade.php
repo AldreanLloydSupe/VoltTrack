@@ -1,3 +1,4 @@
+{{-- Renders the Register view for VoltTrack. --}}
 <x-layout-login title="Create Account | VoltTrack">
     <div class="relative min-h-screen overflow-x-hidden bg-[#0f172a] font-sans text-white">
         <div class="absolute inset-0 bg-[linear-gradient(135deg,#1e3a8a_0%,#1e293b_48%,#0f172a_100%)]"></div>
@@ -5,13 +6,16 @@
         <div class="absolute -left-20 top-36 h-72 w-72 rotate-12 rounded-[36px] bg-blue-500/20"></div>
         <div class="absolute bottom-10 right-[-120px] h-96 w-96 -rotate-12 rounded-[44px] bg-sky-400/10"></div>
 
+        {{-- Page header --}}
         <header class="relative z-10 mx-auto flex w-full max-w-7xl items-center px-5 py-5 sm:px-8 sm:py-7 lg:px-12">
             <a href="{{ route('login') }}" class="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-[44px]">
                 <span>VoltTrack</span>
             </a>
         </header>
 
+        {{-- Main page content --}}
         <main class="relative z-10 mx-auto grid min-h-[calc(100vh-86px)] w-full max-w-7xl items-center gap-8 px-5 pb-8 sm:px-8 sm:pb-12 lg:min-h-[calc(100vh-108px)] lg:grid-cols-[minmax(0,0.8fr)_minmax(560px,680px)] lg:gap-12 lg:px-12">
+            {{-- Content section --}}
             <section class="mx-auto max-w-2xl pt-2 text-center sm:pt-4 lg:mx-0 lg:pt-0 lg:text-left">
                 <p class="mb-4 inline-flex max-w-full items-center gap-2 rounded-full border border-white/20 bg-[#1e3a8a] px-4 py-2 text-xs font-semibold text-slate-100 shadow-[6px_6px_0_rgba(15,23,42,0.35)] sm:mb-5 sm:text-sm">
                     <i class="fa-solid fa-user-plus text-[#93c5fd]"></i>
@@ -36,6 +40,7 @@
                 </div>
             </section>
 
+            {{-- Content section --}}
             <section class="mx-auto w-full max-w-xl rounded-[24px] border-4 border-slate-950 bg-white px-5 py-7 text-slate-950 shadow-[12px_12px_0_rgba(15,23,42,0.7)] sm:max-w-2xl sm:rounded-[28px] sm:px-8 sm:py-9 lg:max-w-none lg:px-10">
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">
@@ -46,12 +51,14 @@
                     </p>
                 </div>
 
+                {{-- Conditional message/block --}}
                 @if ($errors->any())
                     <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
                         Please fix the highlighted fields and try again.
                     </div>
                 @endif
 
+                {{-- Form --}}
                 <form action="{{ route('register.store') }}" method="POST" class="space-y-4">
                     @csrf
 

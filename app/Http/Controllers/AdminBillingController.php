@@ -8,12 +8,18 @@ use App\Models\User;
 use App\Support\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Str;
 
+/**
+ * Handles bill listing, creation, updates, and status transitions for admins.
+ */
 class AdminBillingController extends Controller
 {
+    /**
+     * Shows paid billing history with optional resident-name search.
+     */
     public function list(Request $request)
     {
         $user = $request->user();
@@ -45,6 +51,9 @@ class AdminBillingController extends Controller
         ]);
     }
 
+    /**
+     * Loads the water bill creation page with defaults and latest readings.
+     */
     public function createWaterBill(Request $request)
     {
         $user = $request->user();
@@ -63,11 +72,17 @@ class AdminBillingController extends Controller
         ]);
     }
 
+    /**
+     * Creates a water bill for the selected resident.
+     */
     public function storeWaterBill(Request $request)
     {
         return $this->storeBillsForAllResidents($request, 'Water');
     }
 
+    /**
+     * Loads the electricity bill creation page with defaults and latest readings.
+     */
     public function createElectricityBill(Request $request)
     {
         $user = $request->user();
@@ -86,11 +101,17 @@ class AdminBillingController extends Controller
         ]);
     }
 
+    /**
+     * Creates an electricity bill for the selected resident.
+     */
     public function storeElectricityBill(Request $request)
     {
         return $this->storeBillsForAllResidents($request, 'Electricity');
     }
 
+    /**
+     * Updates bill status and recomputes penalty/payment fields when needed.
+     */
     public function updateStatus(Request $request, Bill $bill)
     {
         $admin = $request->user();
@@ -101,11 +122,13 @@ class AdminBillingController extends Controller
             'status' => ['required', Rule::in(['Pending', 'Overdue', 'Paid'])],
         ]);
 
+        // Align user-selected status with due-date business rules.
         $oldStatus = $bill->status;
         $status = Bill::statusForDueDate($validated['status'], $bill->billing_period_end);
         $bill->status = $status;
         $bill->is_done = $status === 'Paid';
 
+        // Recalculate penalty-related fields when moving into or out of overdue/paid states.
         if (! in_array($status, ['Overdue', 'Paid'], true)) {
             $bill->penalty_days_applied = 0;
             $bill->total_bill = $bill->base_total_bill ?? $bill->total_bill;
@@ -115,6 +138,7 @@ class AdminBillingController extends Controller
             $bill->total_bill = $amounts['total_before_vat'];
         }
 
+        // Manage payment timestamp/reference based on final status.
         if ($status === 'Paid') {
             $bill->paid_at = $bill->paid_at ?? now();
 
@@ -128,7 +152,7 @@ class AdminBillingController extends Controller
         $bill->save();
         $bill->notifyResidentIfOverdue($admin->id);
         $bill->loadMissing('user:id,first_name,last_name');
-        $residentName = trim(($bill->user?->first_name ?? '') . ' ' . ($bill->user?->last_name ?? ''));
+        $residentName = trim(($bill->user?->first_name ?? '').' '.($bill->user?->last_name ?? ''));
         $residentLabel = $residentName !== '' ? $residentName : "Resident #{$bill->user_id}";
         AuditLogger::log(
             $admin,
@@ -148,6 +172,9 @@ class AdminBillingController extends Controller
         return back()->with('success', 'Bill status updated successfully.');
     }
 
+    /**
+     * Opens the utility-specific edit form for an existing bill.
+     */
     public function edit(Request $request, Bill $bill)
     {
         $admin = $request->user();
@@ -174,6 +201,9 @@ class AdminBillingController extends Controller
         ]);
     }
 
+    /**
+     * Saves edited bill readings, recalculates totals, and logs the change.
+     */
     public function update(Request $request, Bill $bill)
     {
         $admin = $request->user();
@@ -192,6 +222,7 @@ class AdminBillingController extends Controller
             'is_done' => ['nullable', 'boolean'],
         ]);
 
+        // Recompute bill amounts from validated meter readings and pricing inputs.
         $previousReading = (float) $validated['previous_reading'];
         $currentReading = (float) $validated['current_reading'];
         $consumption = max($currentReading - $previousReading, 0);
@@ -225,7 +256,7 @@ class AdminBillingController extends Controller
         $bill->save();
         $bill->notifyResidentIfOverdue($admin->id);
         $bill->loadMissing('user:id,first_name,last_name');
-        $residentName = trim(($bill->user?->first_name ?? '') . ' ' . ($bill->user?->last_name ?? ''));
+        $residentName = trim(($bill->user?->first_name ?? '').' '.($bill->user?->last_name ?? ''));
         $residentLabel = $residentName !== '' ? $residentName : "Resident #{$bill->user_id}";
         AuditLogger::log(
             $admin,
@@ -246,6 +277,9 @@ class AdminBillingController extends Controller
             ->with('success', "{$bill->utility_type} bill updated successfully.");
     }
 
+    /**
+     * Shared bill-creation flow used by both water and electricity endpoints.
+     */
     protected function storeBillsForAllResidents(Request $request, string $utilityType)
     {
         $admin = $request->user();
@@ -264,6 +298,7 @@ class AdminBillingController extends Controller
             'status' => ['required', Rule::in(['Pending', 'Overdue', 'Paid'])],
         ]);
 
+        // Only approved renters can receive newly generated bills.
         $resident = User::query()
             ->where('role', 'renter')
             ->where('id', $validated['resident_id'])
@@ -278,6 +313,7 @@ class AdminBillingController extends Controller
             return back()->with('error', 'Selected resident is not approved or does not exist.');
         }
 
+        // If there is a previous saved bill, force continuity from its latest reading.
         $latestCurrentReading = $this->latestCurrentReadingForResident($resident->id, $utilityType);
         $previousReading = $latestCurrentReading ?? (isset($validated['previous_reading']) ? (float) $validated['previous_reading'] : null);
 
@@ -289,6 +325,7 @@ class AdminBillingController extends Controller
 
         $currentReading = (float) $validated['current_reading'];
 
+        // Prevent negative usage due to an invalid current reading.
         if ($currentReading < $previousReading) {
             throw ValidationException::withMessages([
                 'current_reading' => 'The current reading must be greater than or equal to the latest saved reading for this resident.',
@@ -302,6 +339,7 @@ class AdminBillingController extends Controller
         $meter = $resident->property?->meters
             ?->firstWhere('utility_type', $utilityType);
 
+        // Resolve meter identifier fallback when hardware/serial numbers are absent.
         $meterNo = $meter?->hardware_meter_number
             ?? $meter?->serial_number
             ?? sprintf('%s-%d', strtoupper(substr($utilityType, 0, 3)), $resident->id);
@@ -330,7 +368,7 @@ class AdminBillingController extends Controller
             'paid_at' => $status === 'Paid' ? now() : null,
         ]);
         $bill->notifyResidentIfOverdue($admin->id);
-        $residentName = trim(($resident->first_name ?? '') . ' ' . ($resident->last_name ?? ''));
+        $residentName = trim(($resident->first_name ?? '').' '.($resident->last_name ?? ''));
         $residentLabel = $residentName !== '' ? $residentName : "Resident #{$resident->id}";
         AuditLogger::log(
             $admin,
@@ -355,6 +393,9 @@ class AdminBillingController extends Controller
             );
     }
 
+    /**
+     * Returns the most recent saved reading for one resident and utility.
+     */
     protected function latestCurrentReadingForResident(int $residentId, string $utilityType): ?float
     {
         $reading = Bill::query()
@@ -367,6 +408,9 @@ class AdminBillingController extends Controller
         return $reading === null ? null : (float) $reading;
     }
 
+    /**
+     * Returns latest readings keyed by resident for a given utility type.
+     */
     protected function latestCurrentReadingsByResident(string $utilityType)
     {
         return Bill::query()
@@ -378,6 +422,9 @@ class AdminBillingController extends Controller
             ->mapWithKeys(fn (Bill $bill) => [$bill->user_id => (float) $bill->current_reading]);
     }
 
+    /**
+     * Fetches approved renters for bill assignment dropdowns.
+     */
     protected function approvedResidents()
     {
         return User::query()
@@ -391,6 +438,9 @@ class AdminBillingController extends Controller
             ->get(['id', 'first_name', 'last_name', 'email']);
     }
 
+    /**
+     * Generates a unique payment reference scoped by utility prefix and date.
+     */
     protected function generatePaymentReference(string $utilityType): string
     {
         $prefix = strtoupper(substr($utilityType, 0, 3));
@@ -406,5 +456,4 @@ class AdminBillingController extends Controller
 
         return $reference;
     }
-    
 }

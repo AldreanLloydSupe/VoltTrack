@@ -1,3 +1,4 @@
+{{-- Renders the Updateelectricity view for VoltTrack. --}}
 <x-layout title="Update Electricity Bill | VoltTrack">
     <div class="max-w-5xl mx-auto p-8 bg-slate-50 min-h-screen">
         <div class="mb-8 flex items-start justify-between gap-4">
@@ -12,9 +13,11 @@
             </div>
         </div>
 
+        {{-- Conditional message/block --}}
         @if($errors->any())
             <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 text-sm">
                 <ul class="list-disc pl-5 space-y-1">
+                    {{-- List rendering --}}
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -23,6 +26,7 @@
         @endif
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {{-- Form --}}
             <form
                 method="POST"
                 action="{{ route('admin.bills.update', $bill->id) }}"
@@ -80,6 +84,7 @@
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-2">Status</label>
                         <select name="status" class="w-full rounded-lg border border-slate-300 px-3 py-2" required>
+                            {{-- List rendering --}}
                             @foreach(['Pending', 'Overdue', 'Paid'] as $status)
                                 <option value="{{ $status }}" @selected(old('status', $bill->status) === $status)>{{ $status }}</option>
                             @endforeach

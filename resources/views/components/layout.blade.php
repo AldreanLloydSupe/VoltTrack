@@ -1,3 +1,4 @@
+{{-- Renders the Layout view for VoltTrack. --}}
 @props([
     'title' => 'Pastilan nalimtan ang title',
     'showAdminNav' => true,
@@ -16,19 +17,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+    {{-- Conditional message/block --}}
     @if (file_exists(public_path('hot')) || file_exists(public_path('build/manifest.json')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
 </head>
 <body class="font-sans antialiased text-slate-900">
+    {{-- Conditional message/block --}}
     @if ($showAdminNav)
         @php($user = auth()->user())
         @php($unreadResidentMessages = 0)
         @php($latestAdminNotifications = collect())
+        {{-- Conditional message/block --}}
         @if ($user && $user->isAdmin() && \Illuminate\Support\Facades\Schema::hasTable('admin_notifications'))
             @php($unreadResidentMessages = $user->adminNotifications()->whereNull('read_at')->count())
             @php($latestAdminNotifications = $user->adminNotifications()->with('resident')->latest()->limit(6)->get())
         @endif
+        {{-- Page header --}}
         <header id="admin-top-nav" class="sticky top-0 z-50 flex flex-wrap items-center gap-4 bg-[#1E3A8A] px-4 py-4 text-white sm:px-6 lg:flex-nowrap lg:px-10">
             <h1 class="shrink-0 text-2xl font-bold sm:text-3xl lg:mr-16 xl:mr-32">
                 VoltTrack
@@ -98,6 +103,7 @@
             </nav>
 
             <div class="ml-auto flex min-w-0 items-center gap-3 sm:gap-4">
+                {{-- Conditional message/block --}}
                 @if($user && $user->isAdmin())
                     <details class="admin-notification-details relative">
                         <summary class="list-none cursor-pointer">
@@ -105,6 +111,7 @@
                                 <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 11-6 0m6 0H9"></path>
                                 </svg>
+                                {{-- Conditional message/block --}}
                                 @if($unreadResidentMessages > 0)
                                     <span data-admin-unread-count class="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-400 px-1.5 py-0.5 text-[10px] font-black text-[#0f172a]">
                                         {{ $unreadResidentMessages }}
@@ -120,6 +127,7 @@
                             </div>
 
                             <div class="admin-notification-list max-h-96 overflow-y-auto">
+                                {{-- List rendering --}}
                                 @forelse($latestAdminNotifications as $notice)
                                     <button
                                         type="button"
@@ -137,6 +145,7 @@
                                     >
                                         <span class="block text-sm font-semibold text-slate-900">
                                             {{ $notice->subject }}
+                                            {{-- Conditional message/block --}}
                                             @if(is_null($notice->read_at))
                                                 <span data-notification-new class="ml-2 inline-flex rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-700">New</span>
                                             @endif
@@ -165,6 +174,7 @@
                     <img src="{{ asset('image/profile.png') }}" alt="Profile logo" class="h-full w-full object-cover">
                 </div>
 
+                {{-- Form --}}
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
                     <button type="submit" class="rounded-full border border-white/20 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-white transition-all hover:bg-white/10 sm:px-4 sm:text-xs sm:tracking-[0.2em]">
@@ -174,6 +184,7 @@
             </div>
         </header>
 
+        {{-- Conditional message/block --}}
         @if($user && $user->isAdmin())
             <div id="admin-notification-modal" class="fixed inset-0 z-[80] hidden bg-slate-950/60 px-4 py-10">
                 <div class="absolute inset-0" data-admin-notification-close></div>
@@ -198,6 +209,7 @@
                             <p id="admin-notification-replied-at" class="mt-3 text-xs font-semibold text-slate-400"></p>
                         </div>
 
+                        {{-- Form --}}
                         <form id="admin-notification-reply-form" method="POST" class="mt-5">
                             @csrf
                             <label for="admin-notification-reply-input" class="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-400">Reply to Resident</label>
@@ -209,6 +221,7 @@
                             </div>
                         </form>
 
+                        {{-- Form --}}
                         <form
                             id="admin-notification-delete-form"
                             method="POST"
@@ -231,6 +244,7 @@
         @endif
     @endif
 
+    {{-- Conditional message/block --}}
     @if ($showAdminNav)
         <div id="admin-page-content" class="admin-glass-page">
             {{ $slot }}
@@ -405,6 +419,7 @@
         })();
     </script>
 
+    {{-- Conditional message/block --}}
     @if ($showAdminNav && isset($user) && $user && $user->isAdmin())
         <script>
             const initAdminDropdownMenus = () => {

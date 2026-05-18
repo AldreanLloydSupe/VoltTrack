@@ -1,3 +1,4 @@
+{{-- Renders the Receipt view for VoltTrack. --}}
 <x-layout title="Receipt | VoltTrack" :show-admin-nav="false">
     @php
         $baseBill = (float) $bill->consumption * (float) $bill->price_per_unit;
@@ -72,6 +73,7 @@
                             <span class="font-bold text-slate-400 uppercase tracking-widest text-[9px]">Subtotal</span>
                             <span class="font-bold text-slate-600">PHP {{ number_format($subtotal, 2) }}</span>
                         </div>
+                        {{-- Conditional message/block --}}
                         @if($penalty > 0)
                             <div class="flex justify-between items-center text-xs">
                                 <span class="font-bold text-slate-400 uppercase tracking-widest text-[9px]">

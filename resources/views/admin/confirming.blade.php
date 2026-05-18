@@ -1,4 +1,6 @@
+{{-- Renders the Confirming view for VoltTrack. --}}
 <x-layout title="Confirming Utility Assignment | VoltTrack">
+    {{-- Main page content --}}
     <main class="w-full min-h-screen bg-slate-50 p-8 flex flex-col">
         
         {{-- Breadcrumbs & Date Row --}}
@@ -26,10 +28,12 @@
             <div class="bg-white border border-slate-100 rounded-xl px-6 py-4 shadow-sm min-w-[250px]">
                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Account Status</p>
                 <p class="text-lg font-bold
+                    {{-- Conditional message/block --}}
                     @if($assignment->status === 'Pending') text-amber-500
                     @elseif($assignment->status === 'Confirmed') text-green-500
                     @else text-red-500
                     @endif">
+                    {{-- Conditional message/block --}}
                     @if($assignment->status === 'Pending') Awaiting Technical Validation
                     @elseif($assignment->status === 'Confirmed') Confirmed
                     @else Rejected
@@ -40,7 +44,7 @@
 
         <div class="grid grid-cols-12 gap-10 w-full flex-grow">
             
-            {{-- Left Column: Form Sections --}}
+            {{-- Form Sections --}}
             <div class="col-span-8 space-y-8">
                 
                 {{-- Property Registry Card --}}
@@ -109,6 +113,7 @@
                     </div>
                     @endif
 
+                    {{-- Conditional message/block --}}
                     @if(!$electricMeter && !$waterMeter)
                     <div class="col-span-2 bg-slate-50 p-8 rounded-[24px] text-center text-slate-500">
                         No meters assigned to this property
@@ -117,7 +122,7 @@
                 </div>
             </div>
 
-            {{-- Right Column: Actions --}}
+            {{-- Actions --}}
             <div class="col-span-4 flex flex-col">
                 {{-- BIG Initial Deposit Panel --}}
                 <div class="bg-gradient-to-b from-slate-200/60 to-slate-300/40 p-10 rounded-[32px] shadow-inner border border-white/50 backdrop-blur-sm mb-8">

@@ -8,12 +8,18 @@ use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Handles PruneDeletedRecords responsibilities.
+ */
 class PruneDeletedRecords extends Command
 {
     protected $signature = 'deleted-records:prune {--days=30 : Number of days to keep deleted records}';
 
     protected $description = 'Permanently delete resident and property records after the deleted-record retention period.';
 
+    /**
+     * Handle.
+     */
     public function handle(): int
     {
         $days = max(1, (int) $this->option('days'));

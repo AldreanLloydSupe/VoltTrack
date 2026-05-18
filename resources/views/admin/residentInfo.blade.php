@@ -1,5 +1,7 @@
+{{-- Renders the Resident Info view for VoltTrack. --}}
 <x-layout title="{{ $resident->first_name }} {{ $resident->last_name }} | VoltTrack">
 <div class="max-w-7xl mx-auto p-8 bg-slate-50 min-h-screen">
+    {{-- Conditional message/block --}}
     @if (session('success'))
         <div class="mb-4 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
             {{ session('success') }}
@@ -23,6 +25,7 @@
             <a href="{{ route('admin.resident.edit', $resident->id) }}" data-instant-nav class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
                 UPDATE ACCOUNT
             </a>
+            {{-- Form --}}
             <form
                 action="{{ route('admin.resident.destroy', $resident->id) }}"
                 method="POST"
@@ -134,6 +137,7 @@
             <h3 class="text-xl font-bold text-[#1e3a8a]">
                 Recent Transactions
             </h3>
+            {{-- Form --}}
             <form method="GET" action="{{ route('admin.residentInfo', $resident->id) }}" data-instant-form class="flex space-x-3">
                 <div class="relative">
                     <i class="fas fa-filter pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-500"></i>
@@ -167,7 +171,9 @@
         </div>
 
         <div class="overflow-x-auto">
+        {{-- Data table --}}
         <table class="w-full min-w-[980px] text-left">
+            {{-- Table columns --}}
             <thead class="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                 <tr>
                     <th class="px-8 py-5">Due Date</th>
@@ -180,7 +186,9 @@
                     <th class="px-8 py-5 text-center">Action</th>
                 </tr>
             </thead>
+            {{-- Table rows --}}
             <tbody class="divide-y divide-slate-100">
+                {{-- List rendering --}}
                 @forelse($residentBills as $bill)
                 @php
                     $isHighlightedBill = (string) request('highlight_bill') === (string) $bill->id;
@@ -206,6 +214,7 @@
                     <td class="px-8 py-6 text-sm font-bold text-[#1e3a8a]">₱{{ number_format($bill->amount_payable, 2) }}</td>
                     <td class="px-8 py-6 text-center">
                         <span class="
+                            {{-- Conditional message/block --}}
                             @if($bill->status === 'Pending') bg-amber-400 text-white
                             @elseif($bill->status === 'Paid') bg-blue-100 text-blue-600
                             @elseif($bill->status === 'Overdue') bg-red-100 text-red-600
@@ -213,6 +222,7 @@
                             text-[10px] font-black px-3 py-1 rounded-full uppercase">{{ $bill->status }}</span>
                     </td>
                     <td class="px-8 py-6 text-center">
+                        {{-- Conditional message/block --}}
                         @if($bill->is_done)
                             <i class="fas fa-check text-emerald-400"></i>
                         @else
@@ -244,11 +254,13 @@
                         </button>
                     </td>
                     <td class="px-8 py-6 text-center">
+                        {{-- Conditional message/block --}}
                         @if($bill->status !== 'Paid')
                             <div class="flex items-center justify-center gap-3">
                                 <a href="{{ route('admin.bills.edit', $bill->id) }}" data-instant-nav class="text-[11px] font-black text-blue-600 uppercase hover:underline">
                                     Update
                                 </a>
+                                {{-- Form --}}
                                 <form
                                     action="{{ route('admin.bills.updateStatus', $bill->id) }}"
                                     method="POST"
@@ -285,6 +297,7 @@
         </table>
         </div>
 
+        {{-- Conditional message/block --}}
         @if($residentBills->hasPages())
             <div class="flex flex-col gap-3 border-t border-slate-100 bg-slate-50/50 px-8 py-5 sm:flex-row sm:items-center sm:justify-between">
                 <p class="text-xs font-bold text-slate-400">

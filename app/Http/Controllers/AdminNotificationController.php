@@ -6,6 +6,9 @@ use App\Models\AdminNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Handles AdminNotificationController responsibilities.
+ */
 class AdminNotificationController extends Controller
 {
     public function read(Request $request, AdminNotification $notification)
@@ -26,6 +29,9 @@ class AdminNotificationController extends Controller
         return back()->with('success', 'Notification marked as read.');
     }
 
+    /**
+     * Reply.
+     */
     public function reply(Request $request, AdminNotification $notification)
     {
         $user = $request->user();
@@ -59,6 +65,9 @@ class AdminNotificationController extends Controller
         return back()->with('success', 'Reply sent to resident dashboard.');
     }
 
+    /**
+     * Destroy.
+     */
     public function destroy(Request $request, AdminNotification $notification)
     {
         $user = $request->user();

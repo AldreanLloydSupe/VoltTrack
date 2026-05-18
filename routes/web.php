@@ -1,19 +1,19 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ResidentController;
-use App\Http\Controllers\AdminResidentController;
-use App\Http\Controllers\AdminPropertyController;
-use App\Http\Controllers\AdminBillingController;
-use App\Http\Controllers\AdminFinancialController;
-use App\Http\Controllers\AdminUtilityController;
-use App\Http\Controllers\AdminNotificationController;
 use App\Http\Controllers\AdminAuditLogController;
+use App\Http\Controllers\AdminBillingController;
 use App\Http\Controllers\AdminDeletedRecordController;
+use App\Http\Controllers\AdminFinancialController;
+use App\Http\Controllers\AdminNotificationController;
+use App\Http\Controllers\AdminPropertyController;
+use App\Http\Controllers\AdminResidentController;
+use App\Http\Controllers\AdminUtilityController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ResidentController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     if (auth()->check()) {

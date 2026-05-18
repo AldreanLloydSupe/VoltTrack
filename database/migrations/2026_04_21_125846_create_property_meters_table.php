@@ -15,15 +15,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('property_id')->constrained()->onDelete('cascade');
             $table->foreignId('meter_id')->constrained()->onDelete('cascade');
-            
+
             // Initial Reading from "Meter Initialization" section
             $table->decimal('initial_reading', 10, 2)->default(0);
             $table->string('unit')->nullable(); // e.g., 'kWh', 'm³'
-            
+
             // Assignment Status
             $table->enum('status', ['Assigned', 'Unassigned', 'Replaced'])->default('Assigned');
             $table->date('assignment_date')->nullable();
-            
+
             $table->timestamps();
             $table->unique(['property_id', 'meter_id']);
 

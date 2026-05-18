@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
+/**
+ * Handles RegisterController responsibilities.
+ */
 class RegisterController extends Controller
 {
     public function store(Request $request)
@@ -21,7 +23,7 @@ class RegisterController extends Controller
                 'required',
                 'digits:10',
                 function (string $attribute, mixed $value, \Closure $fail) {
-                    if (User::where('phone_number', '+63' . $value)->exists()) {
+                    if (User::where('phone_number', '+63'.$value)->exists()) {
                         $fail('The phone number has already been taken.');
                     }
                 },
@@ -35,7 +37,7 @@ class RegisterController extends Controller
         $userData = [
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
-            'phone_number' => '+63' . $validated['phone'],
+            'phone_number' => '+63'.$validated['phone'],
             'email' => $validated['email'],
             'gender' => $validated['gender'] === 'male' ? 'Male' : 'Female',
             'password' => Hash::make($validated['password']),
