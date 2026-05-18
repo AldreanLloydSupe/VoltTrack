@@ -278,7 +278,6 @@
                                                 data-reference="{{ $bill->payment_reference ?: 'No reference yet' }}"
                                                 data-resident="{{ $user->first_name }} {{ $user->last_name }}"
                                                 data-utility="{{ $bill->utility_type }}"
-                                                data-status="{{ $bill->status }}"
                                                 data-billing-start="{{ $bill->billing_period_start?->format('M d, Y') ?? 'N/A' }}"
                                                 data-billing-end="{{ $bill->billing_period_end?->format('M d, Y') ?? 'N/A' }}"
                                                 data-previous-reading="{{ number_format((float) $bill->previous_reading, 2) }} {{ $receiptUnitLabel }}"
@@ -370,8 +369,8 @@
         <div id="receipt-modal" class="fixed inset-0 z-50 hidden items-center justify-center overflow-hidden bg-slate-950/70 p-2">
             <div class="absolute inset-0" data-receipt-close></div>
 
-            <div class="relative h-[calc(100vh-1.5rem)] w-full max-w-sm overflow-hidden rounded-xl bg-white shadow-2xl">
-                <div class="flex h-full flex-col bg-[#F8FAFC] px-4 pb-3 pt-3">
+            <div class="relative max-h-[calc(100vh-1.5rem)] w-full max-w-sm overflow-y-auto rounded-xl bg-white shadow-2xl">
+                <div class="bg-[#F8FAFC] px-4 pb-3 pt-3">
                     <div class="mb-2 relative flex items-start justify-center">
                         <button type="button" data-receipt-save-image class="absolute left-0 top-0 flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition-all hover:border-[#1846c0] hover:bg-[#e7ecff] hover:text-[#1846c0]" aria-label="Save receipt as image" title="Save as image">
                             <i class="fas fa-download text-[11px]"></i>
@@ -394,7 +393,7 @@
                         <h3 id="receipt-total-display" class="text-3xl font-black tracking-tighter text-[#001D4E]">PHP 0.00</h3>
                     </div>
 
-                    <div class="mb-2 min-h-0 flex-1 w-full rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
+                    <div class="mb-2 w-full rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
                         <div class="space-y-1.5">
                             <div class="flex items-start justify-between gap-3 border-b border-slate-900/10 pb-1.5 text-[11px]">
                                 <span class="text-[8px] font-black uppercase tracking-widest text-slate-400">Reference ID</span>
@@ -447,10 +446,6 @@
                             <div class="flex items-center justify-between text-[11px]">
                                 <span class="text-[8px] font-bold uppercase tracking-widest text-slate-400">VAT (12%)</span>
                                 <span id="receipt-vat" class="font-bold text-slate-600">PHP 0.00</span>
-                            </div>
-                            <div class="flex items-center justify-between border-t border-slate-900/10 pt-1.5 text-[11px]">
-                                <span class="text-[8px] font-black uppercase tracking-widest text-slate-500">Status</span>
-                                <span id="receipt-status" class="font-black uppercase tracking-widest text-[#001D4E]">N/A</span>
                             </div>
                         </div>
                     </div>
@@ -536,7 +531,6 @@
                 penaltyLabel: document.getElementById('receipt-penalty-label'),
                 penaltyRow: document.getElementById('receipt-penalty-row'),
                 vat: document.getElementById('receipt-vat'),
-                status: document.getElementById('receipt-status'),
             };
 
             if (!modal) {
@@ -621,11 +615,10 @@
                 }
 
                 rows.push(['VAT (12%)', fields.vat?.textContent]);
-                rows.push(['Status', fields.status?.textContent]);
 
                 let y = 185;
                 rows.forEach(([label, value], index) => {
-                    if (index === 8 || label === 'Status') {
+                    if (index === 8) {
                         context.strokeStyle = '#e2e8f0';
                         context.beginPath();
                         context.moveTo(42, y - 18);
@@ -638,7 +631,7 @@
                     context.font = '800 10px Inter, Arial, sans-serif';
                     context.fillText(String(label).toUpperCase(), 42, y);
                     context.textAlign = 'right';
-                    context.fillStyle = label === 'Status' ? '#001D4E' : '#334155';
+                    context.fillStyle = '#334155';
                     context.font = '800 12px Inter, Arial, sans-serif';
                     context.fillText(value || 'N/A', width - 42, y);
                     y += 31;
@@ -671,7 +664,6 @@
                 setText(fields.subtotal, button.dataset.subtotal);
                 setText(fields.penalty, button.dataset.penalty);
                 setText(fields.vat, button.dataset.vat);
-                setText(fields.status, button.dataset.status);
 
                 if (fields.penaltyLabel) {
                     const days = parseInt(button.dataset.penaltyDays || '0', 10);

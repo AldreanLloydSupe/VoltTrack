@@ -3,17 +3,11 @@
         $baseBill = (float) $bill->consumption * (float) $bill->price_per_unit;
         $serviceFee = (float) $bill->service_fee;
         $subtotal = (float) $bill->base_amount;
-        $status = strtolower($bill->status);
         $penalty = (float) $bill->penalty_amount;
         $penaltyDays = (int) ($bill->penalty_days_applied ?? 0);
         $vat = (float) $bill->vat_amount;
         $totalBill = (float) $bill->amount_payable;
         $unitLabel = $bill->utility_type === 'Electricity' ? 'kWh' : 'm3';
-        $statusClasses = match ($status) {
-            'paid' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
-            'overdue' => 'bg-red-50 text-red-700 border-red-100',
-            default => 'bg-amber-50 text-amber-700 border-amber-100',
-        };
     @endphp
 
     <div class="receipt-page w-full min-h-screen bg-[#334155] flex items-center justify-center font-sans p-6">
@@ -25,9 +19,6 @@
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tagum City</p>
                     </div>
 
-                    <span class="absolute right-0 top-0 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] {{ $statusClasses }}">
-                        {{ $bill->status }}
-                    </span>
                 </div>
 
                 <div class="text-center mb-10">
